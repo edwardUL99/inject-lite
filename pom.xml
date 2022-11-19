@@ -10,6 +10,7 @@
     <version>1.0.0</version>
     <name>Inject Lite Parent</name>
     <description>A lightweight dependency injection library with support for containerised injection</description>
+    <url>https://github.com/edwardUL99/inject-lite</url>
 
     <scm>
         <connection>https://github.com/edwardUL99/inject-lite.git</connection>
