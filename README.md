@@ -1,6 +1,6 @@
-InjectLite
+inject-lite
 ==
-The InjectLite library provides a lightweight easy-to-use dependency injection framework. It allows
+The inject-lite library provides a lightweight easy-to-use dependency injection library driven by annotations. It allows
 for the definition of dependencies and the later injection of those dependencies into clients depending on
 them.
 
@@ -14,10 +14,7 @@ dependencies.
 - The minimum Java version supported is Java 8.
 
 ## Get the library
-The library is not on Maven central yet (wip), so to get the library, do the following:
-- Clone this repository to your computer
-- Run `mvn clean install -DskipTests` to install it to your local repository
-- Add the following dependency to your project:
+Add the following dependency to your project:
 ```xml
 <dependency>
   <groupId>io.github.edwardUL99</groupId>
@@ -164,7 +161,7 @@ to the global instance.
 
 Both methods scan for classes annotated with `@Injectable` on the classpath, registers the dependencies to it and returns
 the injector. The global injector only does this on the first call. To reset the global injector, call
-`Injection.destroyGlobalInjector()` which removes the global injector for the current thread (injectors
+`Injection.resetGlobalInjector()` which removes the global injector for the current thread (injectors
 are on a per-thread context). A subsequent call to `Injector.get()` on the same thread will recreate the injector.
 
 The following code shows how you can use the injector to get an instance of the above ServiceImpl.
@@ -288,6 +285,8 @@ containers with a specified ID. Different means to register different dependenci
 can also be used to register dependencies on a container level configuration. These 2 means can be varied in
 each container. Dependencies registered by this means in one container is not seen in any other container.
 
+**Note:** Containers must be executed within a ContainerContext
+
 The `Containers` class has the following methods:
 - executeContainer: Using the provided `ContainerBuilder` as a template, it creates and starts a container,
 setting up any annotation scanners passed into the builder (if manual scan is set on the builder, annotation scanning will
@@ -301,39 +300,43 @@ using containers when you only need one, it allows for features such as:
 thread from where the method was called, null is returned
 - containerSafeExecutor: Returns an executor for executing asynchronous code that shares the same injectors as the
 container provided to the function
+- context: Returns a context to execute containers inside. Used inside a try with resources, it awaits all containers once the try block
+finishes executing
 
 ```java
 import io.github.edwardUL99.inject.lite.container.Container;
 import io.github.edwardUL99.inject.lite.container.Containers;
+import io.github.edwardUL99.inject.lite.container.ContainerContext;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 
 public class Main {
   public static void main(String[] args) {
-    Containers.executeContainer(Container.builder()
-        .withId(1)
-        .withExecutionUnit(container -> {
-          Injector injector = Injector.get();
-          System.out.println(injector);
-        }));
+    try (ContainerContext ignored = Containers.context()) {
+      Containers.executeContainer(Container.builder()
+          .withId("1")
+          .withExecutionUnit(container -> {
+            Injector injector = container.getInjector(); // Injector.get() returns the same injector in this container's context
+            System.out.println(injector);
+         }));
 
-    // injectors will be different in each containers
+        // injectors will be different in each containers
     
-    Containers.executeContainer(Container.builder()
-        .withId(2)
-        .withExecutionUnit(container -> {
-          Injector injector = Injector.get();
-          System.out.println(injector);
-        }));
+        Containers.executeContainer(Container.builder()
+          .withId("2")
+          .withExecutionUnit(container -> {
+            Injector injector = container.getInjector();
+            System.out.println(injector);
+         }));
 
-    // this container has no ID so will only get ContainerInject dependencies if no IDs are specified in the annotation
-    Containers.executeContainer(Container.builder()
-        .withExecutionUnit(container -> {
-          Injector injector = Injector.get();
-          System.out.println(injector);
+        // this container has no ID so will only get ContainerInject dependencies if no IDs are specified in the annotation
+        Containers.executeContainer(Container.builder()
+          .withExecutionUnit(container -> {
+            Injector injector = container.getInjector();
+            System.out.println(injector);
         }));
     
-    // wait for all containers to finish
-    Containers.awaitContainerFinish();
+        // When we reach here, the context waits for all containers to finish
+     }
   }
 }
 ```
@@ -363,26 +366,29 @@ which returns an executor that runs async code using same global injector as the
 ```java
 import io.github.edwardUL99.inject.lite.container.Container;
 import io.github.edwardUL99.inject.lite.container.Containers;
+import io.github.edwardUL99.inject.lite.container.ContainerContext;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.threads.AsynchronousExecutor;
 import io.github.edwardUL99.inject.lite.threads.Execution;
 
 public class Main {
   public static void main(String[] args) {
-    Containers.executeSingleContainer(Container.builder()
-        .withId(1)
-        .withExecutionUnit(container -> {
-          Injector injector = Injector.get();
-          AsynchronousExecutor executor = container.asyncExecutor();
+    try (ContainerContext ignored = Containers.context()) {
+      Containers.executeSingleContainer(Container.builder()
+          .withId("1")
+          .withExecutionUnit(container -> {
+            Injector injector = Injector.get();
+            AsynchronousExecutor executor = container.asyncExecutor();
           
-          Execution execution = executor.schedule(() -> {
-              // this will be the same injector as above injector
-             Injector injector1 = Injector.get();
-          });
+            Execution execution = executor.schedule(() -> {
+                // this will be the same injector as above injector
+               Injector injector1 = Injector.get();
+            });
           
-          execution.awaitFinish();
-          executor.shutdown();
-        }));
+            execution.awaitFinish();
+            executor.shutdown();
+          }));
+    }
     
     // non-container injector
     Injector injector = Injector.get();
