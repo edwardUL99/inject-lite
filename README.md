@@ -498,3 +498,15 @@ public class ServiceTest {
 ## Sample Project
 To see a sample project using the library, see the [sample-project](sample-project) directory which has sample services
 and "controller" as well as sample tests
+
+## Building the library
+To build the library, you can clone the repository and build it with Maven. The requirements for the build are as follows:
+- JDK 8 installation (JAVA_HOME should be pointing to this and mvn should use this version)
+- JDK 11 installation for JavaDoc.
+
+1. Set the JAVA_HOME path to the home of JDK 8 installation
+2. Run `export PATH="$JAVA_HOME/bin:$PATH`
+3. Run `export JAVA_DOC_EXEC="$JDK_11_HOME/bin/javadoc` where JDK_11_HOME is the path to the home of your JDK 11 installation.
+We use JavaDoc features not available in JDK 8, hence this requirement
+4. From the root of the project, run `mvn clean install`
+   5. If the build fails due to missing parent POM dependency, in [pom.xml](pom.xml), run `mvn -N clean install` followed by a normal install
