@@ -21,6 +21,18 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <profiles>
+        <profile>
+            <id>github-deployment</id>
+            <distributionManagement>
+                <repository>
+                    <id>github</id>
+                    <url>https://maven.pkg.github.com/edwardUL99/inject-lite</url>
+                </repository>
+            </distributionManagement>
+        </profile>
+    </profiles>
+
     <dependencies>
         <dependency>
             <groupId>org.reflections</groupId>

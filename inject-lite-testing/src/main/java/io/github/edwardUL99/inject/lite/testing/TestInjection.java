@@ -130,7 +130,7 @@ public final class TestInjection {
     public static void start(Object testClass) {
         InjectorFactory factory = new TestInjectorFactory();
         InjectionContext.setInjectorFactory(factory);
-        // TODO test this logic
+
         ContainersInternal.setContainerInjectEnabled(false);
         TestInjector injector = (TestInjector) Injector.get();
 

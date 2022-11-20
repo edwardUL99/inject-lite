@@ -8,8 +8,6 @@ import io.github.edwardUL99.inject.lite.internal.container.RunnableContainerBuil
 import io.github.edwardUL99.inject.lite.internal.threads.ExecutorServiceExecutor;
 import io.github.edwardUL99.inject.lite.threads.AsynchronousExecutor;
 
-// TODO see if you can write tests for containers and other multithreaded functionality
-
 /**
  * A class for running injection containers where each container is a single unit of execution with its own global injectors and
  * annotation scanners. Note that if you wish to use asynchronous code inside containers,

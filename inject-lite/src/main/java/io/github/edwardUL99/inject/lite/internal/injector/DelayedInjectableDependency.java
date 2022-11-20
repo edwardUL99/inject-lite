@@ -77,7 +77,6 @@ public class DelayedInjectableDependency implements InjectableDependency {
 
    @Override
     public synchronized Object get() {
-        // TODO test this singleton code and check other TODOs too
         Dependency dependency = new Dependency(name, type);
         Object instance;
         Map<Dependency, Object> instances = null;
