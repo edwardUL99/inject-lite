@@ -27,6 +27,8 @@ jobs:
         java-version: '8'
         distribution: 'temurin'
         cache: maven
+    - name: Install Parent Pom
+      run: mvn -N install --file pom.xml -Dmaven.javadoc.skip
     - name: Build with Maven
       run: mvn -B package --file pom.xml -Dmaven.javadoc.skip
 
