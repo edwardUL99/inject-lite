@@ -202,9 +202,11 @@ public class Example {
         
         service.service();
         service1.service();
+        service2.service();
     }
 }
 ```
+The Service interface and ServiceImpl class here is defined further up in the README
 
 ### Restricting injection scope
 By default, every class on the classpath of the project will be searched for dependencies. You can restrict the scope of
