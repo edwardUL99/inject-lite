@@ -200,9 +200,17 @@ public class DefaultInjectorTest {
         }
     }
 
+    @Test
+    public void testInvalidInjectable() {
+        assertThrows(InvalidInjectableException.class, () ->
+                injector.registerDependency("cannotInject", CannotInject.class, true));
+    }
+
     public static class TestDependency {}
 
     public static class TestSubclass extends TestDependency {}
 
     public static class TestDependency1 {}
+
+    static class CannotInject {}
 }

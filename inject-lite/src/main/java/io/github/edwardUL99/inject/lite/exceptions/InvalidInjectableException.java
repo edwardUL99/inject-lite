@@ -9,6 +9,10 @@ public class InvalidInjectableException extends InjectionException {
      * @param cls the annotated class
      */
     public InvalidInjectableException(Class<?> cls) {
-        super(String.format("%s cannot be registered as an injectable since it cannot be instantiated", cls));
+        super(String.format("%s cannot be registered as an injectable. The class must be:\n" +
+                "\t a) public,\n" +
+                "\t b) not abstract,\n" +
+                "\t c) not an interface and,\n" +
+                "\t d) not an annotation", cls));
     }
 }

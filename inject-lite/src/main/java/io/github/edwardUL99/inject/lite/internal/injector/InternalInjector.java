@@ -66,7 +66,7 @@ public interface InternalInjector<D extends InjectableDependency> extends Inject
      * @return true if it can be injected, false if not
      */
     default boolean canInject(Class<?> cls) {
-        return !Modifier.isAbstract(cls.getModifiers()) && !cls.isEnum() && !cls.isAnnotation()
-                && !cls.isInterface();
+        return !Modifier.isAbstract(cls.getModifiers()) && Modifier.isPublic(cls.getModifiers()) && !cls.isEnum() &&
+                !cls.isAnnotation() && !cls.isInterface();
     }
 }
