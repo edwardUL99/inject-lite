@@ -14,7 +14,9 @@ import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjector;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjectorFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -110,23 +112,49 @@ class TestInjector implements InternalInjector<DelayedInjectableDependency> {
 
     @Override
     public <T> T inject(Class<T> type) throws DependencyNotFoundException {
-        return injectWithGraph(type, null);
+        return injectAll(type).get(0);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <T> T injectWithGraph(String name, Class<T> expected) throws DependencyNotFoundException, DependencyMismatchException {
-        DelayedInjectableDependency proxy = testInjectables.get(name);
+    public <T> List<T> injectAll(Class<T> type) throws DependencyNotFoundException {
+        List<T> found = new ArrayList<>();
 
-        if (proxy != null) {
-            Class<?> type = proxy.getType();
+        for (Map.Entry<String, TestDelayedInjectableDependency> e : testInjectables.entrySet()) {
+            try {
+                T dependency = injectWithGraph(e.getKey(), type, false);
+                if (dependency != null) found.add(dependency);
+            } catch (DependencyMismatchException ignored) {}
+        }
+
+        try {
+            found.addAll(wrappedInjector.injectAll(type));
+        } catch (DependencyNotFoundException exception) {
+            if (found.size() == 0) throw new DependencyNotFoundException(type);
+        }
+
+        return found;
+    }
+
+    @Override
+    public <T> T injectWithGraph(String name, Class<T> expected) throws DependencyNotFoundException, DependencyMismatchException {
+        return injectWithGraph(name, expected, true);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T injectWithGraph(String name, Class<T> expected, boolean useWrapped) throws DependencyNotFoundException, DependencyMismatchException {
+        DelayedInjectableDependency dependency = testInjectables.get(name);
+
+        if (dependency != null) {
+            Class<?> type = dependency.getType();
             if (!expected.isAssignableFrom(type))
                 throw new DependencyMismatchException(name, expected, type);
 
-            return (T) proxy.get();
-        } else {
+            return (T) dependency.get();
+        } else if (useWrapped) {
             return wrappedInjector.inject(name, expected);
         }
+
+        return null;
     }
 
     @Override

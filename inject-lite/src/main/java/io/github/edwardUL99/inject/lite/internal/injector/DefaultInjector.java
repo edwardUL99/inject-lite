@@ -11,6 +11,8 @@ import io.github.edwardUL99.inject.lite.internal.dependency.GraphInjection;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjector;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjectorFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.function.Consumer;
@@ -74,7 +76,22 @@ public class DefaultInjector<D extends InjectableDependency> implements Internal
 
     @Override
     public <T> T inject(Class<T> type) throws DependencyNotFoundException {
-        return GraphInjection.executeInGraphContext(this, type.getSimpleName(), type, () -> injectWithGraph(type, null));
+        return injectAll(type).get(0);
+    }
+
+    @Override
+    public <T> List<T> injectAll(Class<T> type) throws DependencyNotFoundException {
+        List<T> found = new ArrayList<>();
+
+        for (Map.Entry<String, D> e : injectables.entrySet()) {
+            try {
+                found.add(inject(e.getKey(), type));
+            } catch (DependencyNotFoundException | DependencyMismatchException ignored) {}
+        }
+
+        if (found.size() == 0) throw new DependencyNotFoundException(type);
+
+        return found;
     }
 
     @Override

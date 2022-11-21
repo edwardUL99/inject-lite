@@ -21,7 +21,7 @@ public final class GraphInjection {
      * @return the injected value
      * @param <T> the type of the dependency
      */
-    public static <T> T executeInGraphContext(InternalInjector injector, String name, Class<T> cls, Supplier<T> supplier) {
+    public static <T> T executeInGraphContext(InternalInjector<?> injector, String name, Class<T> cls, Supplier<T> supplier) {
         ConstructorInjector constructorInjector = injector.getConstructorInjector();
         constructorInjector.setDependencyGraph(new DependencyGraph(new Dependency(name, cls)));
         T instance = supplier.get();

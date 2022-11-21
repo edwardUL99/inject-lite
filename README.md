@@ -184,8 +184,16 @@ public class Example {
         // This service will be the same instance as above since 1 dependency ServiceImpl can be assigned to Service
         Service service1 = injector.inject(Service.class);
         
+        // Inject ALL dependencies that are either instances of Service or sub-types. inject(Service.class) returns the first matching dependency
+        // this returns all matching ones
+        List<Service> services = injector.injectAll(Service.class);
+        
         service.service();
         service1.service();
+        
+        for (Service service2 : services) {
+            service2.service();
+        }
     }
 }
 ```

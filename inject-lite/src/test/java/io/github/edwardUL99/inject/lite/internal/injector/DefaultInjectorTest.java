@@ -120,7 +120,7 @@ public class DefaultInjectorTest {
     }
 
     private void setUpMockInjectables() {
-        Map<String, DelayedInjectableDependency> injectables = new HashMap<>();
+        injectables = new HashMap<>();
         injectables.put("test", new DelayedInjectableDependency("test", TestDependency.class, injector));
         injectables.put("test1", new DelayedInjectableDependency("test1", TestSubclass.class, injector));
         injectables.put("test2", new DelayedInjectableDependency("test2", TestDependency1.class, injector));
@@ -204,6 +204,19 @@ public class DefaultInjectorTest {
     public void testInvalidInjectable() {
         assertThrows(InvalidInjectableException.class, () ->
                 injector.registerDependency("cannotInject", CannotInject.class, true));
+    }
+
+    @Test
+    public void testInjectAll() {
+        setUpMockInjectables();
+
+        List<TestDependency> dependencies = injector.injectAll(TestDependency.class);
+
+        assertEquals(2, dependencies.size());
+        verify(mockConstructorInjector).injectConstructor("test", TestDependency.class);
+        verify(mockConstructorInjector).injectConstructor("test1", TestSubclass.class);
+        verify(mockFieldInjector).injectFields(injectables.get("test").get());
+        verify(mockFieldInjector).injectFields(injectables.get("test1").get());
     }
 
     public static class TestDependency {}

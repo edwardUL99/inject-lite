@@ -7,6 +7,8 @@ import io.github.edwardUL99.inject.lite.internal.fields.FieldInjector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -99,13 +101,15 @@ public class TestInjectorTest {
 
         assertEquals(returned, instance);
 
-        when(mockInjector.inject(Integer.class))
-                .thenReturn(1);
+        List<Integer> wrappedReturned = new ArrayList<>();
+        wrappedReturned.add(1);
+        when(mockInjector.injectAll(Integer.class))
+                .thenReturn(wrappedReturned);
 
         Integer returned1 = injector.inject(Integer.class);
 
         assertEquals(1, returned1);
-        verify(mockInjector).inject(Integer.class);
+        verify(mockInjector).injectAll(Integer.class);
     }
 
     @Test
@@ -156,7 +160,29 @@ public class TestInjectorTest {
         verify(mockInjector).getInjectableDependency(Interface.class);
     }
 
+    @Test
+    public void testInjectAll() {
+        TestClass testClass = new TestClass();
+        TestClass1 testClass1 = new TestClass1();
+        List<Interface> returnedList = new ArrayList<>();
+        returnedList.add(testClass1);
+
+        when(mockInjector.injectAll(Interface.class))
+                .thenReturn(returnedList);
+
+        injector.registerTestDependency("name", testClass);
+        injector.registerDependency("name1", TestClass1.class, true);
+
+        List<Interface> all = injector.injectAll(Interface.class);
+
+        assertEquals(2, all.size());
+        assertEquals(all.get(0), testClass);
+        assertEquals(all.get(1), testClass1);
+    }
+
     private interface Interface {}
 
     private static class TestClass implements Interface {}
+
+    private static class TestClass1 extends TestClass {}
 }
