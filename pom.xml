@@ -7,7 +7,7 @@
 
     <groupId>io.github.edwardUL99</groupId>
     <artifactId>inject-lite-parent</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.1</version>
     <name>Inject Lite Parent</name>
     <description>A lightweight dependency injection library with support for containerised injection</description>
     <url>https://github.com/edwardUL99/inject-lite</url>
