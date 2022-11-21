@@ -54,6 +54,13 @@ In the above example, the service is specified with the interface `ExampleServic
 the class `ExampleServiceImpl`. You annotate the implementation with `@Injectable("exampleServiceImpl")` which registers
 a singleton of the class as a dependency with name `exampleServiceImpl`
 
+The following requirements are imposed on an injectable class:
+1. The class must be a public class
+2. It must be a concrete type
+3. The class must not be abstract or an interface
+4. If the class does not have a no-arg constructor, all the arguments in the constructor must have dependencies
+registered for them and the constructor must be annotated with the `@Inject` annotation.
+
 ### @Inject
 This annotation specifies a field that should have its value injected with a dependencies or a constructor that should have
 its parameters injected with dependencies. With fields, you can specify the name of the dependency to find a dependency with
