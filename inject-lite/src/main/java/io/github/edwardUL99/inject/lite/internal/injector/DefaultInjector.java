@@ -12,10 +12,13 @@ import io.github.edwardUL99.inject.lite.internal.fields.FieldInjector;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjectorFactory;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Default injector implementation
@@ -76,16 +79,17 @@ public class DefaultInjector<D extends InjectableDependency> implements Internal
 
     @Override
     public <T> T inject(Class<T> type) throws DependencyNotFoundException {
-        return injectAll(type).get(0);
+        return new ArrayList<>(injectAll(type).values()).get(0);
     }
 
     @Override
-    public <T> List<T> injectAll(Class<T> type) throws DependencyNotFoundException {
-        List<T> found = new ArrayList<>();
+    public <T> Map<String, T> injectAll(Class<T> type) throws DependencyNotFoundException {
+        Map<String, T> found = new LinkedHashMap<>();
 
         for (Map.Entry<String, D> e : injectables.entrySet()) {
             try {
-                found.add(inject(e.getKey(), type));
+                String name = e.getKey();
+                found.put(name, inject(name, type));
             } catch (DependencyNotFoundException | DependencyMismatchException ignored) {}
         }
 
@@ -112,21 +116,19 @@ public class DefaultInjector<D extends InjectableDependency> implements Internal
     }
 
     @Override
-    public D getInjectableDependency(Class<?> type) {
-        for (D d : injectables.values()) {
-            if (type.isAssignableFrom(d.getType())) {
-                return d;
-            }
-        }
-
-        return null;
+    public List<D> getInjectableDependencies(Class<?> type) {
+        return injectables.values()
+                .stream()
+                .filter(d -> type.isAssignableFrom(d.getType()))
+                .collect(Collectors.toList());
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T injectWithGraph(Class<T> type, D dependency) throws DependencyNotFoundException {
+    public <T> T injectWithGraph(Class<T> type, D dependency, Function<List<D>, D> dependencySelector) throws DependencyNotFoundException {
         if (dependency == null || !type.isAssignableFrom(dependency.getType())) {
-            dependency = getInjectableDependency(type);
+            List<D> dependencies = getInjectableDependencies(type);
+            dependency = dependencySelector.apply(dependencies);
 
             if (dependency != null)
                 return (T) dependency.get();

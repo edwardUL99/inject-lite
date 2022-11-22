@@ -210,13 +210,24 @@ public class DefaultInjectorTest {
     public void testInjectAll() {
         setUpMockInjectables();
 
-        List<TestDependency> dependencies = injector.injectAll(TestDependency.class);
+        Map<String, TestDependency> dependencies = injector.injectAll(TestDependency.class);
 
         assertEquals(2, dependencies.size());
         verify(mockConstructorInjector).injectConstructor("test", TestDependency.class);
         verify(mockConstructorInjector).injectConstructor("test1", TestSubclass.class);
         verify(mockFieldInjector).injectFields(injectables.get("test").get());
         verify(mockFieldInjector).injectFields(injectables.get("test1").get());
+    }
+
+    @Test
+    public void testGetInjectableDependencies() {
+        setUpMockInjectables();
+
+        List<DelayedInjectableDependency> dependencies = injector.getInjectableDependencies(TestDependency.class);
+
+        assertEquals(2, dependencies.size());
+        assertEquals(TestDependency.class, dependencies.get(0).getType());
+        assertEquals(TestSubclass.class, dependencies.get(1).getType());
     }
 
     public static class TestDependency {}

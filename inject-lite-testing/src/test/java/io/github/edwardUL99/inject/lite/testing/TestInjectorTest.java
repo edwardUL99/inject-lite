@@ -8,6 +8,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -101,8 +103,8 @@ public class TestInjectorTest {
 
         assertEquals(returned, instance);
 
-        List<Integer> wrappedReturned = new ArrayList<>();
-        wrappedReturned.add(1);
+        Map<String, Integer> wrappedReturned = new LinkedHashMap<>();
+        wrappedReturned.put("integer", 1);
         when(mockInjector.injectAll(Integer.class))
                 .thenReturn(wrappedReturned);
 
@@ -137,47 +139,54 @@ public class TestInjectorTest {
     }
 
     @Test
-    public void testGetInjectionProxy() {
+    public void testGetInjectableDependencies() {
         injector.registerTestDependency("name", new TestClass());
 
-        DelayedInjectableDependency proxy = injector.getInjectableDependency(Interface.class);
+        List<DelayedInjectableDependency> dependencies = injector.getInjectableDependencies(Interface.class);
 
-        assertNotNull(proxy);
-        assertEquals(TestClass.class, proxy.getType());
-        verifyNoInteractions(mockInjector);
+        assertNotNull(dependencies);
+        assertEquals(1, dependencies.size());
+
+        DelayedInjectableDependency dependency = dependencies.get(0);
+        assertEquals(TestClass.class, dependency.getType());
 
         injector.testInjectables.clear();
 
-        DelayedInjectableDependency mockProxy = mock(DelayedInjectableDependency.class);
+        DelayedInjectableDependency mockDependency = mock(DelayedInjectableDependency.class);
+        dependencies = new ArrayList<>();
+        dependencies.add(mockDependency);
 
-        when(mockInjector.getInjectableDependency(Interface.class))
-                .thenReturn(mockProxy);
+        when(mockInjector.getInjectableDependencies(Interface.class))
+                .thenReturn(dependencies);
 
-        proxy = injector.getInjectableDependency(Interface.class);
+        dependencies = injector.getInjectableDependencies(Interface.class);
 
-        assertNotNull(proxy);
-        assertEquals(proxy, mockProxy);
-        verify(mockInjector).getInjectableDependency(Interface.class);
+        assertNotNull(dependencies);
+        assertEquals(1, dependencies.size());
+
+        dependency = dependencies.get(0);
+        assertEquals(dependency, mockDependency);
+        verify(mockInjector, times(2)).getInjectableDependencies(Interface.class);
     }
 
     @Test
     public void testInjectAll() {
         TestClass testClass = new TestClass();
         TestClass1 testClass1 = new TestClass1();
-        List<Interface> returnedList = new ArrayList<>();
-        returnedList.add(testClass1);
+        HashMap<String, Interface> returnedMap = new LinkedHashMap<>();
+        returnedMap.put("name1", testClass1);
 
         when(mockInjector.injectAll(Interface.class))
-                .thenReturn(returnedList);
+                .thenReturn(returnedMap);
 
         injector.registerTestDependency("name", testClass);
         injector.registerDependency("name1", TestClass1.class, true);
 
-        List<Interface> all = injector.injectAll(Interface.class);
+        Map<String, Interface> all = injector.injectAll(Interface.class);
 
         assertEquals(2, all.size());
-        assertEquals(all.get(0), testClass);
-        assertEquals(all.get(1), testClass1);
+        assertEquals(all.get("name"), testClass);
+        assertEquals(all.get("name1"), testClass1);
     }
 
     private interface Interface {}

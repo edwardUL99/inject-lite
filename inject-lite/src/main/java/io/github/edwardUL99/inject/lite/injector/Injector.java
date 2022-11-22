@@ -8,7 +8,7 @@ import io.github.edwardUL99.inject.lite.exceptions.InjectionException;
 import io.github.edwardUL99.inject.lite.exceptions.InvalidInjectableException;
 import io.github.edwardUL99.inject.lite.threads.AsynchronousExecutor;
 
-import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -58,11 +58,11 @@ public interface Injector {
     /**
      * Retrieve a list of all dependencies that are either the same type or a subtype of the provided type
      * @param type the type of the dependency to find
-     * @return the list of matching dependencies
+     * @return the map of matching dependencies, mapped with dependency name to dependency
      * @param <T> the type of the dependencies
      * @throws DependencyNotFoundException if 0 dependencies match the type
      */
-    <T> List<T> injectAll(Class<T> type) throws DependencyNotFoundException;
+    <T> Map<String, T> injectAll(Class<T> type) throws DependencyNotFoundException;
 
         /**
          * Act on dependencies that are either type of subtypes of type with the provided consumer

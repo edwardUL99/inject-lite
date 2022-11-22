@@ -16,9 +16,12 @@ import io.github.edwardUL99.inject.lite.internal.fields.FieldInjectorFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * This injector provides injection in a test context
@@ -112,22 +115,23 @@ class TestInjector implements InternalInjector<DelayedInjectableDependency> {
 
     @Override
     public <T> T inject(Class<T> type) throws DependencyNotFoundException {
-        return injectAll(type).get(0);
+        return new ArrayList<>(injectAll(type).values()).get(0);
     }
 
     @Override
-    public <T> List<T> injectAll(Class<T> type) throws DependencyNotFoundException {
-        List<T> found = new ArrayList<>();
+    public <T> Map<String, T> injectAll(Class<T> type) throws DependencyNotFoundException {
+        Map<String, T> found = new LinkedHashMap<>();
 
         for (Map.Entry<String, TestDelayedInjectableDependency> e : testInjectables.entrySet()) {
             try {
-                T dependency = injectWithGraph(e.getKey(), type, false);
-                if (dependency != null) found.add(dependency);
+                String name = e.getKey();
+                T dependency = injectWithGraph(name, type, false);
+                if (dependency != null) found.put(name, dependency);
             } catch (DependencyMismatchException ignored) {}
         }
 
         try {
-            found.addAll(wrappedInjector.injectAll(type));
+            found.putAll(wrappedInjector.injectAll(type));
         } catch (DependencyNotFoundException exception) {
             if (found.size() == 0) throw new DependencyNotFoundException(type);
         }
@@ -158,22 +162,24 @@ class TestInjector implements InternalInjector<DelayedInjectableDependency> {
     }
 
     @Override
-    public DelayedInjectableDependency getInjectableDependency(Class<?> type) {
-        for (DelayedInjectableDependency d : testInjectables.values()) {
-            if (type.isAssignableFrom(d.getType()))
-                return d;
-        }
+    public List<DelayedInjectableDependency> getInjectableDependencies(Class<?> type) {
+        List<DelayedInjectableDependency> dependencies = testInjectables.values()
+                .stream()
+                .filter(d -> type.isAssignableFrom(d.getType())).collect(Collectors.toCollection(ArrayList::new));
 
-        return wrappedInjector.getInjectableDependency(type);
+        dependencies.addAll(wrappedInjector.getInjectableDependencies(type));
+
+        return dependencies;
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T injectWithGraph(Class<T> type, DelayedInjectableDependency proxy) throws DependencyNotFoundException {
+    public <T> T injectWithGraph(Class<T> type, DelayedInjectableDependency proxy,
+                                 Function<List<DelayedInjectableDependency>, DelayedInjectableDependency> selector) throws DependencyNotFoundException {
         if (proxy instanceof TestDelayedInjectableDependency) {
             return (T) proxy.get();
         } else {
-            DelayedInjectableDependency p = getInjectableDependency(type);
+            DelayedInjectableDependency p = selector.apply(getInjectableDependencies(type));
 
             return (p != null) ? (T) p.get():wrappedInjector.inject(type);
         }
