@@ -73,12 +73,12 @@ public class DefaultConstructorInjector implements ConstructorInjector {
     }
 
     private Object injectUnknown(String className, Class<?> cls, Class<?> type) {
-        DelayedInjectableDependency proxy = injector.getInjectableDependency(type);
-        String name = (proxy != null) ? proxy.getName() : "";
+        DelayedInjectableDependency dependency = injector.getInjectableDependency(type);
+        String name = (dependency != null) ? dependency.getName() : "";
         if (graph != null) graph.addDependency(new Dependency(className, cls),
                 new Dependency(name, type));
 
-        return injector.injectWithGraph(type, proxy);
+        return injector.injectWithGraph(type, dependency);
     }
 
     private Object inject(String name, Class<?> cls, Constructor<?> constructor) throws ReflectiveOperationException {

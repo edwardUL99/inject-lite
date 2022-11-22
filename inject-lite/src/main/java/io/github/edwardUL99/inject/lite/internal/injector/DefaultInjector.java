@@ -24,6 +24,10 @@ public class DefaultInjector<D extends InjectableDependency> implements Internal
      */
     protected final Map<String, D> injectables = new ConcurrentSkipListMap<>();
     /**
+     * The field injector instance
+     */
+    protected final FieldInjector fieldInjector = FieldInjectorFactory.getFieldInjector(this);
+    /**
      * The constructor injector instance
      */
     protected final ConstructorInjector constructorInjector = ConstructorInjectorFactory.getConstructorInjector(this);
@@ -42,7 +46,7 @@ public class DefaultInjector<D extends InjectableDependency> implements Internal
 
     @Override
     public FieldInjector getFieldInjector() {
-        return FieldInjectorFactory.getFieldInjector(this);
+        return fieldInjector;
     }
 
     @Override

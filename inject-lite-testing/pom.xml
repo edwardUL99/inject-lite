@@ -7,7 +7,7 @@
     <parent>
         <artifactId>inject-lite-parent</artifactId>
         <groupId>io.github.edwardUL99</groupId>
-        <version>1.0.2-SNAPSHOT</version>
+        <version>1.0.2</version>
         <relativePath/>
     </parent>
 

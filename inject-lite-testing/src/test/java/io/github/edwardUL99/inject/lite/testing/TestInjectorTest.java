@@ -129,7 +129,7 @@ public class TestInjectorTest {
         verify(mockConstructor).injectConstructor("String", String.class);
         verify(mockResource).injectFields(obj);
         verify(spied, times(2)).getConstructorInjector();
-        verify(spied).getFieldInjector();
+        verify(spied, times(2)).getFieldInjector();
     }
 
     @Test

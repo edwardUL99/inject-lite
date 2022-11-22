@@ -47,7 +47,7 @@ public class DependencyGraph {
         List<Dependency> dependencies = this.dependencies.getOrDefault(current, new ArrayList<>());
 
         for (Dependency d : dependencies) {
-            if (d.equals(dependency)) {
+            if (d.isSameDependency(dependency)) {
                 builder.append(current.getName()).append("->").append(dependency.getName());
                 throwCircular(builder.toString());
             } else {
@@ -63,18 +63,9 @@ public class DependencyGraph {
      * @param dependency the dependency
      */
     public void addDependency(Dependency parent, Dependency dependency) {
-        List<Dependency> list;
+        dependencies.computeIfAbsent(parent, k -> new ArrayList<>()).add(dependency);
 
-        if (!dependencies.containsKey(parent)) {
-            list = new ArrayList<>();
-            dependencies.put(parent, list);
-        } else {
-            list = dependencies.get(parent);
-        }
-
-        list.add(dependency);
-
-        checkCircular(dependency, dependency, new StringBuilder().append("Dependency: ").append(parent.getName())
+        checkCircular(parent, dependency, new StringBuilder().append("Dependency: ").append(parent.getName())
                 .append(" has a circular dependency: "));
     }
 }
