@@ -53,4 +53,13 @@ public class Dependency {
     public int hashCode() {
         return Objects.hash(name, type);
     }
+
+    /**
+     * Determines if the provided dependency is considered the same
+     * @param other the other dependency
+     * @return true if considered the same, false if not
+     */
+    public boolean isSameDependency(Dependency other) {
+        return Objects.equals(name, other.name) && type.isAssignableFrom(other.type);
+    }
 }

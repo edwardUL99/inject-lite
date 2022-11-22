@@ -36,6 +36,10 @@ class TestInjector implements InternalInjector<DelayedInjectableDependency> {
      */
     protected final InternalInjector<DelayedInjectableDependency> wrappedInjector;
     /**
+     * Field injector instance
+     */
+    protected final FieldInjector fieldInjector = FieldInjectorFactory.getFieldInjector(this);
+    /**
      * Constructor injector instance
      */
     protected final ConstructorInjector constructorInjector = ConstructorInjectorFactory.getConstructorInjector(this);
@@ -74,7 +78,7 @@ class TestInjector implements InternalInjector<DelayedInjectableDependency> {
 
     @Override
     public FieldInjector getFieldInjector() {
-        return FieldInjectorFactory.getFieldInjector(this);
+        return fieldInjector;
     }
 
     @Override

@@ -3,6 +3,7 @@ package io.github.edwardUL99.inject.lite.internal.fields;
 import io.github.edwardUL99.inject.lite.annotations.Inject;
 import io.github.edwardUL99.inject.lite.exceptions.InjectionException;
 import io.github.edwardUL99.inject.lite.injector.Injector;
+import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,11 +19,11 @@ import static org.mockito.Mockito.when;
 
 public class BaseFieldInjectorTest {
     private BaseFieldInjector baseInjector;
-    private Injector mockInjector;
+    private InternalInjector<?> mockInjector;
 
     @BeforeEach
     public void init() {
-        mockInjector = mock(Injector.class);
+        mockInjector = mock(InternalInjector.class);
         // we use single level here for sake of instantiation. We only want to test features of base field injector
         // so the concrete implementation doesn't matter as long as we test field functionality
         baseInjector = new SingleLevelFieldInjector(mockInjector);
@@ -30,7 +31,7 @@ public class BaseFieldInjectorTest {
 
     @Test
     public void testInjectFields() {
-        when(mockInjector.inject("value", String.class))
+        when(mockInjector.injectWithGraph("value", String.class))
                 .thenReturn("Hello World");
         Injectable injectable = new Injectable();
 
@@ -39,7 +40,7 @@ public class BaseFieldInjectorTest {
         baseInjector.injectFields(injectable);
 
         assertEquals("Hello World", injectable.value);
-        verify(mockInjector).inject("value", String.class);
+        verify(mockInjector).injectWithGraph("value", String.class);
     }
 
     @Test
@@ -53,13 +54,13 @@ public class BaseFieldInjectorTest {
 
     @Test
     public void testInvalidTypeField() {
-        when(mockInjector.inject(eq("value"), any()))
+        when(mockInjector.injectWithGraph(eq("value"), any()))
                 .thenReturn(42);
         Injectable injectable = new Injectable();
 
         assertThrows(InjectionException.class, () ->
                 baseInjector.injectFields(injectable));
-        verify(mockInjector).inject(eq("value"), any());
+        verify(mockInjector).injectWithGraph(eq("value"), any());
     }
 
     // a class with a valid resource annotation

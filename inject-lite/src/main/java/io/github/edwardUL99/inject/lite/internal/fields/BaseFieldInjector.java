@@ -3,38 +3,53 @@ package io.github.edwardUL99.inject.lite.internal.fields;
 import io.github.edwardUL99.inject.lite.annotations.Inject;
 import io.github.edwardUL99.inject.lite.exceptions.InjectionException;
 import io.github.edwardUL99.inject.lite.injector.Injector;
+import io.github.edwardUL99.inject.lite.internal.dependency.Dependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.DependencyGraph;
+import io.github.edwardUL99.inject.lite.internal.injector.DelayedInjectableDependency;
+import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A base implementation of the field injector. Provides common injection functionality, with the differing
  * functionality being how the fields are looked up
  */
 public abstract class BaseFieldInjector implements FieldInjector {
-    private final Injector injector;
+    private final InternalInjector<DelayedInjectableDependency> injector;
+    private DependencyGraph graph;
 
     /**
      * The injector to get dependencies with
      * @param injector dependency injection
      */
+    @SuppressWarnings("unchecked")
     public BaseFieldInjector(Injector injector) {
-        this.injector = injector;
+        this.injector = (InternalInjector<DelayedInjectableDependency>) injector;
     }
 
-    private void inject(Inject inject, Field field, Object obj) {
-        Object resourceInstance;
-        String value = inject.value();
+    private String getName(Class<?> cls, Field field) {
+        List<DelayedInjectableDependency> dependencies = injector.getInjectableDependencies(cls);
 
-        if (value.equals("")) {
-            resourceInstance = injector.inject(field.getType());
+        String name;
+        int size = dependencies.size();
+
+        if (size == 0) {
+            name = (field != null) ? field.getName() : cls.getSimpleName();
+        } else if (size == 1) {
+            name = dependencies.get(0).getName();
         } else {
-            resourceInstance = injector.inject(inject.value(), field.getType());
+            name = dependencies.stream().map(DelayedInjectableDependency::getName).collect(Collectors.joining(" | "));
         }
 
-        Class<?> resourceCls = resourceInstance.getClass();
+        return name;
+    }
+
+    private void setField(Field field, Object resourceInstance, Object obj) {
         Class<?> fieldType = field.getType();
+        Class<?> resourceCls = resourceInstance.getClass();
 
         if (fieldType.isAssignableFrom(resourceCls)) {
             try {
@@ -49,6 +64,25 @@ public abstract class BaseFieldInjector implements FieldInjector {
             throw new InjectionException(String.format("@Inject field of type %s not assignable to %s", resourceCls,
                     fieldType));
         }
+    }
+
+    private void inject(Inject inject, Field field, Object obj) {
+        Object resourceInstance;
+        String value = inject.value();
+        Class<?> objClass = obj.getClass();
+        Class<?> fieldType = field.getType();
+        String name = getName(objClass, null);
+
+        if (graph != null) graph.addDependency(new Dependency(name, objClass),
+                new Dependency((value.isEmpty()) ? getName(fieldType, field) : value, fieldType));
+
+        if (value.equals("")) {
+            resourceInstance = injector.injectWithGraph(fieldType, null, injector.firstMatchSelector());
+        } else {
+            resourceInstance = injector.injectWithGraph(value, fieldType);
+        }
+
+        setField(field, resourceInstance, obj);
     }
 
     private void doInjection(List<Field> fields, Object obj) {
@@ -78,4 +112,9 @@ public abstract class BaseFieldInjector implements FieldInjector {
      * @return the list of possible fields
      */
     protected abstract List<Field> getFields(Class<?> cls);
+
+    @Override
+    public void setDependencyGraph(DependencyGraph graph) {
+        this.graph = graph;
+    }
 }
