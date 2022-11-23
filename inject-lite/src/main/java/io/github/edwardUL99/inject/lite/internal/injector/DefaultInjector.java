@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -129,10 +128,9 @@ public class DefaultInjector<D extends InjectableDependency> implements Internal
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T injectWithGraph(Class<T> type, D dependency, Function<List<D>, D> dependencySelector) throws DependencyNotFoundException {
+    public <T> T injectWithGraph(Class<T> type, D dependency) throws DependencyNotFoundException {
         if (dependency == null || !type.isAssignableFrom(dependency.getType())) {
-            List<D> dependencies = getInjectableDependencies(type);
-            dependency = dependencySelector.apply(dependencies);
+            dependency = getInjectableDependency(type);
 
             if (dependency != null)
                 return (T) dependency.get();

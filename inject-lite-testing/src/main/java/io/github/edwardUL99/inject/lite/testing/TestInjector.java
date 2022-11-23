@@ -20,7 +20,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -178,12 +177,11 @@ class TestInjector implements InternalInjector<DelayedInjectableDependency> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T injectWithGraph(Class<T> type, DelayedInjectableDependency proxy,
-                                 Function<List<DelayedInjectableDependency>, DelayedInjectableDependency> selector) throws DependencyNotFoundException {
-        if (proxy instanceof TestDelayedInjectableDependency) {
-            return (T) proxy.get();
+    public <T> T injectWithGraph(Class<T> type, DelayedInjectableDependency dependency) throws DependencyNotFoundException {
+        if (dependency instanceof TestDelayedInjectableDependency) {
+            return (T) dependency.get();
         } else {
-            DelayedInjectableDependency p = selector.apply(getInjectableDependencies(type));
+            DelayedInjectableDependency p = getInjectableDependency(type);
 
             return (p != null) ? (T) p.get():wrappedInjector.inject(type);
         }

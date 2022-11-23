@@ -1,6 +1,5 @@
 package io.github.edwardUL99.inject.lite.internal.fields;
 
-import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

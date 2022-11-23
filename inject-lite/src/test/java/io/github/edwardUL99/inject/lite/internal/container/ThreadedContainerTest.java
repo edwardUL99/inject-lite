@@ -1,6 +1,5 @@
 package io.github.edwardUL99.inject.lite.internal.container;
 
-import io.github.edwardUL99.inject.lite.container.Containers;
 import io.github.edwardUL99.inject.lite.exceptions.AsyncException;
 import io.github.edwardUL99.inject.lite.internal.threads.ExecutorServiceExecutor;
 import io.github.edwardUL99.inject.lite.threads.AsynchronousExecutor;

@@ -11,7 +11,6 @@ import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * A base implementation of the field injector. Provides common injection functionality, with the differing
@@ -31,20 +30,9 @@ public abstract class BaseFieldInjector implements FieldInjector {
     }
 
     private String getName(Class<?> cls, Field field) {
-        List<DelayedInjectableDependency> dependencies = injector.getInjectableDependencies(cls);
+        DelayedInjectableDependency dependency = injector.getInjectableDependency(cls);
 
-        String name;
-        int size = dependencies.size();
-
-        if (size == 0) {
-            name = (field != null) ? field.getName() : cls.getSimpleName();
-        } else if (size == 1) {
-            name = dependencies.get(0).getName();
-        } else {
-            name = dependencies.stream().map(DelayedInjectableDependency::getName).collect(Collectors.joining(" | "));
-        }
-
-        return name;
+        return (dependency != null) ? dependency.getName() : ((field != null) ? field.getName() : cls.getSimpleName());
     }
 
     private void setField(Field field, Object resourceInstance, Object obj) {
@@ -77,7 +65,7 @@ public abstract class BaseFieldInjector implements FieldInjector {
                 new Dependency((value.isEmpty()) ? getName(fieldType, field) : value, fieldType));
 
         if (value.equals("")) {
-            resourceInstance = injector.injectWithGraph(fieldType, null, injector.firstMatchSelector());
+            resourceInstance = injector.injectWithGraph(fieldType, null);
         } else {
             resourceInstance = injector.injectWithGraph(value, fieldType);
         }

@@ -11,9 +11,6 @@ import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Default implementation of the constructor injector interface
@@ -75,29 +72,13 @@ public class DefaultConstructorInjector implements ConstructorInjector {
         return injector.injectWithGraph(name, type);
     }
 
-    private String getDependencyName(List<DelayedInjectableDependency> dependencies) {
-        int size = dependencies.size();
-
-        if (size == 0) {
-            return "";
-        } else if (size == 1) {
-            return dependencies.get(0).getName();
-        } else {
-            return dependencies.stream().map(DelayedInjectableDependency::getName)
-                    .collect(Collectors.joining(" | "));
-        }
-    }
-
     private Object injectUnknown(String className, Class<?> cls, Class<?> type) {
-        List<DelayedInjectableDependency> dependencies = injector.getInjectableDependencies(type);
-        String name = getDependencyName(dependencies);
+        DelayedInjectableDependency dependency = injector.getInjectableDependency(type);
+        String name = (dependency != null) ? dependency.getName() : "";
         if (graph != null) graph.addDependency(new Dependency(className, cls),
                 new Dependency(name, type));
 
-        Function<List<DelayedInjectableDependency>, DelayedInjectableDependency> selector =
-                injector.firstMatchSelector();
-
-        return injector.injectWithGraph(type, selector.apply(dependencies), selector);
+        return injector.injectWithGraph(type, dependency);
     }
 
     private Object inject(String name, Class<?> cls, Constructor<?> constructor) throws ReflectiveOperationException {

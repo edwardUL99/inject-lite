@@ -5,11 +5,12 @@ import io.github.edwardUL99.inject.lite.exceptions.DependencyNotFoundException;
 import io.github.edwardUL99.inject.lite.internal.constructors.ConstructorInjector;
 import io.github.edwardUL99.inject.lite.internal.dependency.DependencyGraph;
 import io.github.edwardUL99.inject.lite.injector.Injector;
+import io.github.edwardUL99.inject.lite.internal.dependency.DependencySelection;
+import io.github.edwardUL99.inject.lite.internal.dependency.DependencySelectionStrategy;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjector;
 
 import java.lang.reflect.Modifier;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * This provides an internal API for the library. Not to be used by clients as it can change
@@ -33,21 +34,30 @@ public interface InternalInjector<D extends InjectableDependency> extends Inject
     <T> T injectWithGraph(String name, Class<T> expected) throws DependencyNotFoundException, DependencyMismatchException;
 
     /**
-     * Get a proxy assignable to the provided type
-     * @param type the type of the proxy
-     * @return the proxy if found, otherwise null
+     * Get a list of dependencies assignable to the provided type
+     * @param type the type of the dependency
+     * @return the dependencies if found, otherwise empty list
      */
     List<D> getInjectableDependencies(Class<?> type);
+
+    /**
+     * Get a dependency assignable to the provided type using the selector returned by {@link #dependencySelectionStrategy()}
+     * @param type the type of the dependency
+     * @return the dependency if found, otherwise null
+     */
+    default D getInjectableDependency(Class<?> type) {
+        return dependencySelectionStrategy()
+                .selectDependency(getInjectableDependencies(type));
+    }
 
     /**
      * Injects with an already set graph through {@link io.github.edwardUL99.inject.lite.internal.constructors.ConstructorInjector#setDependencyGraph(DependencyGraph)}
      * @param type the type of the dependency to inject
      * @param dependency the dependency if already found. Should be retrieved using getInjectableDependency
-     * @param dependencySelector selects from the list of dependencies the dependency to return
      * @return the injected dependency
      * @param <T> the type of the dependency
      */
-    <T> T injectWithGraph(Class<T> type, D dependency, Function<List<D>, D> dependencySelector) throws DependencyNotFoundException;
+    <T> T injectWithGraph(Class<T> type, D dependency) throws DependencyNotFoundException;
 
     /**
      * Get the injector used to inject constructors with
@@ -72,10 +82,10 @@ public interface InternalInjector<D extends InjectableDependency> extends Inject
     }
 
     /**
-     * Returns a selector for selecting the first match from the list
-     * @return the dependency selector
+     * Get the strategy used for selecting a dependency from a list
+     * @return the strategy
      */
-    default Function<List<D>, D> firstMatchSelector() {
-        return list -> (list.size() > 0) ? list.get(0) : null;
+    default DependencySelectionStrategy<D> dependencySelectionStrategy() {
+        return DependencySelection.firstMatchSelector();
     }
 }
