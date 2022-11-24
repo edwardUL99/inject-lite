@@ -93,7 +93,8 @@ public class DefaultInjector<D extends InjectableDependency> implements Internal
             try {
                 String name = e.getKey();
                 found.put(name, inject(name, type));
-            } catch (DependencyNotFoundException | DependencyMismatchException ignored) {}
+            } catch (DependencyMismatchException ignored) {
+            }
         }
 
         if (found.size() == 0) throw new DependencyNotFoundException(type);

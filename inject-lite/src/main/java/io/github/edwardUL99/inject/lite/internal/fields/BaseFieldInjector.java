@@ -7,6 +7,7 @@ import io.github.edwardUL99.inject.lite.internal.dependency.Dependency;
 import io.github.edwardUL99.inject.lite.internal.dependency.DependencyGraph;
 import io.github.edwardUL99.inject.lite.internal.injector.DelayedInjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
+import io.github.edwardUL99.inject.lite.internal.utils.DependencyUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -30,7 +31,7 @@ public abstract class BaseFieldInjector implements FieldInjector {
     }
 
     private String getName(Class<?> cls, Field field) {
-        DelayedInjectableDependency dependency = injector.getInjectableDependency(cls);
+        DelayedInjectableDependency dependency = DependencyUtils.getUnnamedDependency(cls, injector);
 
         return (dependency != null) ? dependency.getName() : ((field != null) ? field.getName() : cls.getSimpleName());
     }

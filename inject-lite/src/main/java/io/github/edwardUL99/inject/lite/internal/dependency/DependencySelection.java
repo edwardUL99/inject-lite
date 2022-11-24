@@ -14,4 +14,13 @@ public final class DependencySelection {
     public static <D extends InjectableDependency> DependencySelectionStrategy<D> firstMatchSelector() {
         return list -> (list.size() == 0) ? null : list.get(0);
     }
+
+    /**
+     * Get a selector that returns a dependency based on a priority
+     * @return the selected dependency
+     * @param <D> the type of dependency
+     */
+    public static <D extends InjectableDependency> DependencySelectionStrategy<D> prioritySelector() {
+        return new PrioritySelectionStrategy<>();
+    }
 }

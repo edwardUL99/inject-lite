@@ -223,6 +223,30 @@ public class Example {
 ```
 The Service interface and ServiceImpl class here is defined further up in the README
 
+### Injection with multiple dependencies
+When using `Injector#inject(Class)` the injector looks for a dependency where the type of the dependency is either the same
+as the provided class or a subclass. The behaviour when trying to inject a dependency of this type and where multiple dependencies
+match the type is dependent on configuration. The configuration method of interest are:
+- `Configuration.setSelectFirstDependency(boolean)` if true, the first dependency in the list of matching dependencies is returned.
+If false, dependencies are selected using priority. Priority can be assigned to a dependency using the `@Priority` annotation.
+This annotation takes an integer, where the lower the integer gives the dependency the highest priority. The default is the maximum
+integer value. The default is false, meaning priority will be used.
+
+To get all the matching dependencies, use `Injector#injectAll(Class)` which returns a map of the dependencies matching,
+keyed by the name of the dependency, with the value being the dependency instance.
+
+#### Unnamed dependencies
+In this context, an unnamed dependency is when you annotate either:
+- a field with @Inject and without a name, or
+- a constructor parameter without @Name annotation
+
+When this happens, the injector is searched for a matching dependency. Where multiple dependencies match based on the type
+of the field/parameter, the behaviour again is dependent on configuration.
+- If `Configuration.setRequireNamedMultipleMatch(boolean)` is called with true, this means that when injecting an
+unnamed dependency and multiple matches are found, an `AmbiguousDependencyException` will be thrown. The default is false.
+When false, when multiple dependencies are found, the strategy of injecting based on priority/first in the list will be 
+used, again based on `Configuration.setSelectFirstDependency(boolean)`
+
 ### Restricting injection scope
 By default, every class on the classpath of the project will be searched for dependencies. You can restrict the scope of
 where dependencies are searched to a list of base packages where all classes and packages underneath those base packages
@@ -230,10 +254,10 @@ will be scanned, rather than the whole project. For example your project package
 and packages containing dependencies. The project depends on 10 other dependencies. Rather than scanning the project and all
 its dependencies, the following call restricts scanning to the project:
 ```
-// Injection.setInjectionPackages(String...packages);
+// Configuration.setInjectionPackagePrefixes(String...packages);
 
 // all classes and subpackages underneath com.foo.bar will be scanned for dependencies
-Injection.setInjectionPackages("com.foo.bar");
+Configuration.setInjectionPackagePrefixes("com.foo.bar");
 ```
 Make this call before you begin using any injectors or annotation scanners, as any calls after will have no effect
 

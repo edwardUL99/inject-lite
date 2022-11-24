@@ -1,8 +1,8 @@
 package io.github.edwardUL99.inject.lite;
 
+import io.github.edwardUL99.inject.lite.config.Configuration;
 import io.github.edwardUL99.inject.lite.internal.threads.ExecutorServiceExecutor;
 import io.github.edwardUL99.inject.lite.internal.threads.Threads;
-import io.github.edwardUL99.inject.lite.internal.utils.ReflectionUtils;
 import io.github.edwardUL99.inject.lite.threads.AsynchronousExecutor;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.internal.injector.InjectionContext;
@@ -16,9 +16,12 @@ public final class Injection {
     /**
      * Set the base packages to search for injectables on the classpath
      * @param injectionPackages the base packages prefix
+     * @deprecated Use {@link Configuration#setInjectionPackagePrefixes(String...)}. This method simply just calls that
+     * method and may be removed in a future release
      */
+    @Deprecated
     public static void setInjectionPackages(String...injectionPackages) {
-        ReflectionUtils.setReflectionsPrefixes(injectionPackages);
+        Configuration.setInjectionPackagePrefixes(injectionPackages);
     }
 
     /**
