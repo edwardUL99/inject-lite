@@ -2,7 +2,6 @@ package io.github.edwardUL99.inject.lite.internal.injector;
 
 import io.github.edwardUL99.inject.lite.Injection;
 import io.github.edwardUL99.inject.lite.annotations.Priority;
-import io.github.edwardUL99.inject.lite.config.Configuration;
 import io.github.edwardUL99.inject.lite.internal.constructors.ConstructorInjector;
 import io.github.edwardUL99.inject.lite.exceptions.DependencyExistsException;
 import io.github.edwardUL99.inject.lite.exceptions.DependencyMismatchException;
@@ -236,11 +235,11 @@ public class DefaultInjectorTest {
     public void testGetInjectableDependency() {
         setUpMockInjectables();
 
-        Configuration.setSelectFirstDependency(true);
+        Injection.configuration.setSelectFirstDependency(true);
         DelayedInjectableDependency dependency = injector.getInjectableDependency(TestDependency.class);
         assertEquals(TestDependency.class, dependency.getType());
 
-        Configuration.setSelectFirstDependency(false);
+        Injection.configuration.setSelectFirstDependency(false);
         dependency = injector.getInjectableDependency(TestDependency.class);
         assertEquals(TestSubclass.class, dependency.getType());
     }

@@ -1,6 +1,6 @@
 package io.github.edwardUL99.inject.lite.utils;
 
-import io.github.edwardUL99.inject.lite.config.Configuration;
+import io.github.edwardUL99.inject.lite.Injection;
 import io.github.edwardUL99.inject.lite.exceptions.AmbiguousDependencyException;
 import io.github.edwardUL99.inject.lite.internal.injector.DelayedInjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
@@ -30,7 +30,7 @@ public class DependencyUtilsTest {
 
     @AfterEach
     public void teardown() {
-        Configuration.setRequireNamedMultipleMatch(false);
+        Injection.configuration.setRequireNamedMultipleMatch(false);
     }
 
     @Test
@@ -41,7 +41,7 @@ public class DependencyUtilsTest {
 
     @Test
     public void testNoAmbiguityAllowedWithOneDependency() {
-        Configuration.setRequireNamedMultipleMatch(true);
+        Injection.configuration.setRequireNamedMultipleMatch(true);
         List<DelayedInjectableDependency> dependencies = new ArrayList<>();
         DelayedInjectableDependency mockDependency = mock(DelayedInjectableDependency.class);
         dependencies.add(mockDependency);
@@ -57,7 +57,7 @@ public class DependencyUtilsTest {
 
     @Test
     public void testNoAmbiguityAllowedWithOneDependencies() {
-        Configuration.setRequireNamedMultipleMatch(true);
+        Injection.configuration.setRequireNamedMultipleMatch(true);
 
         when(mockInjector.getInjectableDependencies(String.class))
                 .thenReturn(null);
@@ -70,7 +70,7 @@ public class DependencyUtilsTest {
 
     @Test
     public void testNoAmbiguityAllowedWithMultipleDependency() {
-        Configuration.setRequireNamedMultipleMatch(true);
+        Injection.configuration.setRequireNamedMultipleMatch(true);
         List<DelayedInjectableDependency> dependencies = new ArrayList<>();
         dependencies.add(mock(DelayedInjectableDependency.class));
         dependencies.add(mock(DelayedInjectableDependency.class));

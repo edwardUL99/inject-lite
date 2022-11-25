@@ -1,6 +1,6 @@
 package io.github.edwardUL99.inject.lite.internal.fields;
 
-import io.github.edwardUL99.inject.lite.config.Configuration;
+import io.github.edwardUL99.inject.lite.Injection;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,15 +30,15 @@ public class FieldInjectorFactoryTest {
 
     @Test
     public void testGetFieldInjector() {
-        Configuration.setSingleLevelInjection(false);
+        Injection.configuration.setSingleLevelInjection(false);
         FieldInjector fieldInjector = FieldInjectorFactory.getFieldInjector(injector);
         assertInstanceOf(MultiLevelFieldInjector.class, fieldInjector);
 
-        Configuration.setSingleLevelInjection(true);
+        Injection.configuration.setSingleLevelInjection(true);
         fieldInjector = FieldInjectorFactory.singleLevelInjector(injector);
         assertInstanceOf(SingleLevelFieldInjector.class, fieldInjector);
 
-        Configuration.setSingleLevelInjection(false);
+        Injection.configuration.setSingleLevelInjection(false);
     }
     @Test
     public void testGetFieldInjectorSingleLevelSpecified() {

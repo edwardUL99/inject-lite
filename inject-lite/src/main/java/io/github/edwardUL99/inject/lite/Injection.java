@@ -11,17 +11,22 @@ import io.github.edwardUL99.inject.lite.internal.injector.InjectionContext;
  * A factory class for getting injectors
  */
 public final class Injection {
+    /**
+     * The Injection configuration object
+     */
+    public static final Configuration configuration = new Configuration();
+
     private Injection() {}
 
     /**
      * Set the base packages to search for injectables on the classpath
      * @param injectionPackages the base packages prefix
-     * @deprecated Use {@link Configuration#setInjectionPackagePrefixes(String...)}. This method simply just calls that
+     * @deprecated Use Injection.configuration.setInjectionPackagePrefixes(String...). This method simply just calls that
      * method and may be removed in a future release
      */
     @Deprecated
     public static void setInjectionPackages(String...injectionPackages) {
-        Configuration.setInjectionPackagePrefixes(injectionPackages);
+        configuration.setInjectionPackagePrefixes(injectionPackages);
     }
 
     /**

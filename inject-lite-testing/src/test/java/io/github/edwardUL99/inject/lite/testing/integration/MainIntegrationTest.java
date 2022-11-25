@@ -1,7 +1,6 @@
 package io.github.edwardUL99.inject.lite.testing.integration;
 
 import io.github.edwardUL99.inject.lite.Injection;
-import io.github.edwardUL99.inject.lite.config.Configuration;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.testing.integration.dependencies.Client;
 import io.github.edwardUL99.inject.lite.testing.integration.dependencies.GoodbyeWorldGetter;
@@ -30,7 +29,7 @@ public class MainIntegrationTest {
 
     @BeforeAll
     public static void staticInit() {
-        Configuration.setInjectionPackagePrefixes("io.github.edwardUL99.inject.lite.testing.integration.dependencies");
+        Injection.configuration.setInjectionPackagePrefixes("io.github.edwardUL99.inject.lite.testing.integration.dependencies");
     }
 
     @BeforeEach

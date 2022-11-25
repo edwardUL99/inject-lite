@@ -9,27 +9,27 @@ public final class Configuration {
     /**
      * Array of injection package prefixes to restrict injection scoping
      */
-    private static String[] injectionPackagePrefixes;
+    private String[] injectionPackagePrefixes;
     /**
      * Determines if field injection should only happen on immediate class or parent classes also if in an inheritance
      * hierarchy where parents contain fields to inject
      */
-    private static boolean singleLevelInjection;
+    private boolean singleLevelInjection;
     /**
      * In the case of multiple matching dependencies, if true, this selects the first dependency matching
      */
-    private static boolean selectFirstDependency;
+    private boolean selectFirstDependency;
     /**
      * In the case of multiple matching dependencies and no name is provided, rather than using a strategy to select
      * the dependency, an exception should be thrown
      */
-    private static boolean requireNamedMultipleMatch;
+    private boolean requireNamedMultipleMatch;
 
     /**
      * Get the array of injection package prefixes that restrict injection scoping.
      * @return the array of injection package prefixes
      */
-    public static String[] getInjectionPackagePrefixes() {
+    public String[] getInjectionPackagePrefixes() {
         return injectionPackagePrefixes;
     }
 
@@ -38,8 +38,8 @@ public final class Configuration {
      * Can only be set once as after that call, any changes are not reflected
      * @param injectionPackagePrefixes the array of package prefixes
      */
-    public static void setInjectionPackagePrefixes(String...injectionPackagePrefixes) {
-        Configuration.injectionPackagePrefixes = injectionPackagePrefixes;
+    public void setInjectionPackagePrefixes(String...injectionPackagePrefixes) {
+        this.injectionPackagePrefixes = injectionPackagePrefixes;
     }
 
     /**
@@ -48,7 +48,7 @@ public final class Configuration {
      * are injected
      * @return true if enabled, false if not
      */
-    public static boolean isSingleLevelInjection() {
+    public boolean isSingleLevelInjection() {
         return singleLevelInjection;
     }
 
@@ -56,15 +56,15 @@ public final class Configuration {
      * Set the value of single level injection, enabling/disabling it
      * @param singleLevelInjection true if enabled, false if not
      */
-    public static void setSingleLevelInjection(boolean singleLevelInjection) {
-        Configuration.singleLevelInjection = singleLevelInjection;
+    public void setSingleLevelInjection(boolean singleLevelInjection) {
+        this.singleLevelInjection = singleLevelInjection;
     }
 
     /**
      * Determines if the first dependency in the list of multiple matching dependencies should be returned
      * @return true if first matching dependency should be returned
      */
-    public static boolean isSelectFirstDependency() {
+    public boolean isSelectFirstDependency() {
         return selectFirstDependency;
     }
 
@@ -73,8 +73,8 @@ public final class Configuration {
      * the first matching dependency will be selected.
      * @param selectFirstDependency true to select first, otherwise use a priority based selection
      */
-    public static void setSelectFirstDependency(boolean selectFirstDependency) {
-        Configuration.selectFirstDependency = selectFirstDependency;
+    public void setSelectFirstDependency(boolean selectFirstDependency) {
+        this.selectFirstDependency = selectFirstDependency;
     }
 
     /**
@@ -83,7 +83,7 @@ public final class Configuration {
      * a strategy will be used to select the dependency
      * @return true if an ambiguous dependency exception should be thrown
      */
-    public static boolean isRequireNamedMultipleMatch() {
+    public boolean isRequireNamedMultipleMatch() {
         return requireNamedMultipleMatch;
     }
 
@@ -91,7 +91,7 @@ public final class Configuration {
      * Set the value for requiring named dependencies if there are multiple matches. See the getter for the description
      * @param requireNamedMultipleMatch true if required, false if not
      */
-    public static void setRequireNamedMultipleMatch(boolean requireNamedMultipleMatch) {
-        Configuration.requireNamedMultipleMatch = requireNamedMultipleMatch;
+    public void setRequireNamedMultipleMatch(boolean requireNamedMultipleMatch) {
+        this.requireNamedMultipleMatch = requireNamedMultipleMatch;
     }
 }

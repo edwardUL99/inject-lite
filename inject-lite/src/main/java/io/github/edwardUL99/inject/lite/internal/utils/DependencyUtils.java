@@ -1,6 +1,6 @@
 package io.github.edwardUL99.inject.lite.internal.utils;
 
-import io.github.edwardUL99.inject.lite.config.Configuration;
+import io.github.edwardUL99.inject.lite.Injection;
 import io.github.edwardUL99.inject.lite.exceptions.AmbiguousDependencyException;
 import io.github.edwardUL99.inject.lite.internal.injector.InjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
@@ -18,7 +18,7 @@ public class DependencyUtils {
      * @return the matching dependency
      */
     public static <D extends InjectableDependency> D getUnnamedDependency(Class<?> cls, InternalInjector<D> injector) {
-        if (Configuration.isRequireNamedMultipleMatch()) {
+        if (Injection.configuration.isRequireNamedMultipleMatch()) {
             List<D> dependencies = injector.getInjectableDependencies(cls);
 
             if (dependencies == null) {
