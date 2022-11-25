@@ -1,4 +1,4 @@
-package io.github.edwardUL99.inject.lite.config;
+package io.github.edwardUL99.inject.lite.internal.config;
 
 import io.github.edwardUL99.inject.lite.injector.Injector;
 
@@ -24,6 +24,10 @@ public final class Configuration {
      * the dependency, an exception should be thrown
      */
     private boolean requireNamedMultipleMatch;
+    /**
+     * The global configuration object
+     */
+    public static Configuration global = new Configuration();
 
     /**
      * Get the array of injection package prefixes that restrict injection scoping.

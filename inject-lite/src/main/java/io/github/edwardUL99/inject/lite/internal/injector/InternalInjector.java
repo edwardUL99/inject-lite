@@ -1,8 +1,8 @@
 package io.github.edwardUL99.inject.lite.internal.injector;
 
-import io.github.edwardUL99.inject.lite.Injection;
 import io.github.edwardUL99.inject.lite.exceptions.DependencyMismatchException;
 import io.github.edwardUL99.inject.lite.exceptions.DependencyNotFoundException;
+import io.github.edwardUL99.inject.lite.internal.config.Configuration;
 import io.github.edwardUL99.inject.lite.internal.constructors.ConstructorInjector;
 import io.github.edwardUL99.inject.lite.internal.dependency.DependencyGraph;
 import io.github.edwardUL99.inject.lite.injector.Injector;
@@ -89,7 +89,7 @@ public interface InternalInjector<D extends InjectableDependency> extends Inject
      * @return the strategy
      */
     default DependencySelectionStrategy<D> dependencySelectionStrategy() {
-        return Injection.configuration.isSelectFirstDependency() ?
+        return Configuration.global.isSelectFirstDependency() ?
                 DependencySelection.firstMatchSelector() : DependencySelection.prioritySelector();
     }
 }

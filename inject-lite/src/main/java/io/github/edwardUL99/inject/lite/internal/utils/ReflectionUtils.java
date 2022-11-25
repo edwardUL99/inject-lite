@@ -1,6 +1,6 @@
 package io.github.edwardUL99.inject.lite.internal.utils;
 
-import io.github.edwardUL99.inject.lite.Injection;
+import io.github.edwardUL99.inject.lite.internal.config.Configuration;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
@@ -21,7 +21,7 @@ public final class ReflectionUtils {
      * @return the shared reflections instance
      */
     public static Reflections getReflections() {
-        String[] prefixes = Injection.configuration.getInjectionPackagePrefixes();
+        String[] prefixes = Configuration.global.getInjectionPackagePrefixes();
 
         if (reflections == null) {
             if (prefixes != null) {

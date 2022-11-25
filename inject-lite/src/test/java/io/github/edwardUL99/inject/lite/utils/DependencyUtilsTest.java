@@ -1,7 +1,7 @@
 package io.github.edwardUL99.inject.lite.utils;
 
-import io.github.edwardUL99.inject.lite.Injection;
 import io.github.edwardUL99.inject.lite.exceptions.AmbiguousDependencyException;
+import io.github.edwardUL99.inject.lite.internal.config.Configuration;
 import io.github.edwardUL99.inject.lite.internal.injector.DelayedInjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import io.github.edwardUL99.inject.lite.internal.utils.DependencyUtils;
@@ -30,7 +30,7 @@ public class DependencyUtilsTest {
 
     @AfterEach
     public void teardown() {
-        Injection.configuration.setRequireNamedMultipleMatch(false);
+        Configuration.global.setRequireNamedMultipleMatch(false);
     }
 
     @Test
@@ -41,7 +41,7 @@ public class DependencyUtilsTest {
 
     @Test
     public void testNoAmbiguityAllowedWithOneDependency() {
-        Injection.configuration.setRequireNamedMultipleMatch(true);
+        Configuration.global.setRequireNamedMultipleMatch(true);
         List<DelayedInjectableDependency> dependencies = new ArrayList<>();
         DelayedInjectableDependency mockDependency = mock(DelayedInjectableDependency.class);
         dependencies.add(mockDependency);
@@ -57,7 +57,7 @@ public class DependencyUtilsTest {
 
     @Test
     public void testNoAmbiguityAllowedWithOneDependencies() {
-        Injection.configuration.setRequireNamedMultipleMatch(true);
+        Configuration.global.setRequireNamedMultipleMatch(true);
 
         when(mockInjector.getInjectableDependencies(String.class))
                 .thenReturn(null);
@@ -70,7 +70,7 @@ public class DependencyUtilsTest {
 
     @Test
     public void testNoAmbiguityAllowedWithMultipleDependency() {
-        Injection.configuration.setRequireNamedMultipleMatch(true);
+        Configuration.global.setRequireNamedMultipleMatch(true);
         List<DelayedInjectableDependency> dependencies = new ArrayList<>();
         dependencies.add(mock(DelayedInjectableDependency.class));
         dependencies.add(mock(DelayedInjectableDependency.class));

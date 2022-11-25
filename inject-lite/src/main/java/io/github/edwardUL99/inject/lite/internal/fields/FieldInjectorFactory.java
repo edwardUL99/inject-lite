@@ -1,7 +1,7 @@
 package io.github.edwardUL99.inject.lite.internal.fields;
 
-import io.github.edwardUL99.inject.lite.Injection;
 import io.github.edwardUL99.inject.lite.injector.Injector;
+import io.github.edwardUL99.inject.lite.internal.config.Configuration;
 
 /**
  * A factory for producing field injectors
@@ -33,7 +33,7 @@ public final class FieldInjectorFactory {
      * @return the field injector to use
      */
     public static FieldInjector getFieldInjector(Injector injector) {
-        return getFieldInjector(injector, Injection.configuration.isSingleLevelInjection());
+        return getFieldInjector(injector, Configuration.global.isSingleLevelInjection());
     }
 
     /**
