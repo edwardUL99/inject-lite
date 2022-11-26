@@ -1,7 +1,6 @@
-package io.github.edwardUL99.inject.lite.internal.utils;
+package io.github.edwardUL99.inject.lite.internal.dependency;
 
 import io.github.edwardUL99.inject.lite.exceptions.AmbiguousDependencyException;
-import io.github.edwardUL99.inject.lite.internal.config.Configuration;
 import io.github.edwardUL99.inject.lite.internal.injector.InjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 
@@ -10,7 +9,7 @@ import java.util.List;
 /**
  * Provides dependency related utilities
  */
-public class DependencyUtils {
+public class CommonDependencyFunctions {
     /**
      * Get a dependency matching the provided class as an unnamed dependency checking for ambiguity
      * @param cls the type of the dependency
@@ -18,19 +17,15 @@ public class DependencyUtils {
      * @return the matching dependency
      */
     public static <D extends InjectableDependency> D getUnnamedDependency(Class<?> cls, InternalInjector<D> injector) {
-        if (Configuration.global.isRequireNamedMultipleMatch()) {
-            List<D> dependencies = injector.getInjectableDependencies(cls);
+        List<D> dependencies = injector.getInjectableDependencies(cls);
+        int size;
 
-            if (dependencies == null) {
-                return null;
-            } else if (dependencies.size() > 1) {
-                throw new AmbiguousDependencyException(cls);
-            } else {
-                return dependencies.get(0);
-            }
+        if (dependencies == null) {
+            return null;
+        } else if ((size = dependencies.size()) > 1) {
+            throw new AmbiguousDependencyException(cls);
         } else {
-            // rely on selection strategy since ambiguity is allowed
-            return injector.getInjectableDependency(cls);
+            return (size == 1) ? dependencies.get(0):null;
         }
     }
 }

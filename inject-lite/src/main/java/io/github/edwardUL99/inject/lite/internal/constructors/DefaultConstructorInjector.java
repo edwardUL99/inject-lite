@@ -8,7 +8,6 @@ import io.github.edwardUL99.inject.lite.internal.dependency.Dependency;
 import io.github.edwardUL99.inject.lite.internal.dependency.DependencyGraph;
 import io.github.edwardUL99.inject.lite.internal.injector.DelayedInjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
-import io.github.edwardUL99.inject.lite.internal.utils.DependencyUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
@@ -74,7 +73,7 @@ public class DefaultConstructorInjector implements ConstructorInjector {
     }
 
     private Object injectUnnamed(String className, Class<?> cls, Class<?> type) {
-        DelayedInjectableDependency dependency = DependencyUtils.getUnnamedDependency(type, injector);
+        DelayedInjectableDependency dependency = injector.getInjectableDependency(type);
         String name = (dependency != null) ? dependency.getName() : "";
         if (graph != null) graph.addDependency(new Dependency(className, cls),
                 new Dependency(name, type));

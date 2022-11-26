@@ -9,6 +9,6 @@ public class AmbiguousDependencyException extends InjectionException {
      * @param cls the class that is ambiguous
      */
     public AmbiguousDependencyException(Class<?> cls) {
-        super("Multiple dependencies match " + cls + " and require named dependencies if multiple match is enabled");
+        super("requireNamedMultipleMatch = true: Multiple dependencies match " + cls);
     }
 }

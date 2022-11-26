@@ -8,6 +8,7 @@ import io.github.edwardUL99.inject.lite.exceptions.DependencyExistsException;
 import io.github.edwardUL99.inject.lite.exceptions.DependencyMismatchException;
 import io.github.edwardUL99.inject.lite.exceptions.DependencyNotFoundException;
 import io.github.edwardUL99.inject.lite.exceptions.InvalidInjectableException;
+import io.github.edwardUL99.inject.lite.internal.dependency.CommonDependencyFunctions;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjector;
 import io.github.edwardUL99.inject.lite.threads.AsynchronousExecutor;
 import org.junit.jupiter.api.BeforeEach;
@@ -243,6 +244,27 @@ public class DefaultInjectorTest {
         Configuration.global.setSelectFirstDependency(false);
         dependency = injector.getInjectableDependency(TestDependency.class);
         assertEquals(TestSubclass.class, dependency.getType());
+    }
+
+    @Test
+    public void testGetInjectableDependencyWithAmbiguousCheck() {
+        try (MockedStatic<CommonDependencyFunctions> dependencyFunctions = mockStatic(CommonDependencyFunctions.class)) {
+            Configuration.global.setRequireNamedMultipleMatch(true);
+
+            DelayedInjectableDependency mockDependency = mock(DelayedInjectableDependency.class);
+
+            dependencyFunctions.when(() -> CommonDependencyFunctions.getUnnamedDependency(TestDependency.class,
+                    injector))
+                    .thenReturn(mockDependency);
+
+            DelayedInjectableDependency dependency = injector.getInjectableDependency(TestDependency.class);
+            assertEquals(dependency, mockDependency);
+
+            dependencyFunctions.verify(() -> CommonDependencyFunctions.getUnnamedDependency(TestDependency.class,
+                    injector));
+
+            Configuration.global.setRequireNamedMultipleMatch(false);
+        }
     }
 
     @Priority(2)

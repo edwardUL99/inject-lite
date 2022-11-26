@@ -4,6 +4,7 @@ import io.github.edwardUL99.inject.lite.exceptions.DependencyMismatchException;
 import io.github.edwardUL99.inject.lite.exceptions.DependencyNotFoundException;
 import io.github.edwardUL99.inject.lite.internal.config.Configuration;
 import io.github.edwardUL99.inject.lite.internal.constructors.ConstructorInjector;
+import io.github.edwardUL99.inject.lite.internal.dependency.CommonDependencyFunctions;
 import io.github.edwardUL99.inject.lite.internal.dependency.DependencyGraph;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.internal.dependency.DependencySelection;
@@ -47,8 +48,22 @@ public interface InternalInjector<D extends InjectableDependency> extends Inject
      * @return the dependency if found, otherwise null
      */
     default D getInjectableDependency(Class<?> type) {
-        return dependencySelectionStrategy()
-                .selectDependency(getInjectableDependencies(type));
+        return getInjectableDependency(type, Configuration.global.isRequireNamedMultipleMatch());
+    }
+
+    /**
+     * Get an injectable dependency, checking for ambiguity based on configuration
+     * @param type the type of the dependency
+     * @param checkAmbiguity true to check for ambiguity, false not to
+     * @return the dependency if found, otherwise null
+     */
+    default D getInjectableDependency(Class<?> type, boolean checkAmbiguity) {
+        if (checkAmbiguity) {
+            return CommonDependencyFunctions.getUnnamedDependency(type, this);
+        } else {
+            return dependencySelectionStrategy()
+                    .selectDependency(getInjectableDependencies(type));
+        }
     }
 
     /**
@@ -81,8 +96,6 @@ public interface InternalInjector<D extends InjectableDependency> extends Inject
         return !Modifier.isAbstract(cls.getModifiers()) && Modifier.isPublic(cls.getModifiers()) && !cls.isEnum() &&
                 !cls.isAnnotation() && !cls.isInterface();
     }
-
-    // TODO make sure this all works
 
     /**
      * Get the strategy used for selecting a dependency from a list
