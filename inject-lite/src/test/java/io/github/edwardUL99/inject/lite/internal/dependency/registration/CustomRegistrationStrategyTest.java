@@ -5,7 +5,7 @@ import io.github.edwardUL99.inject.lite.annotations.processing.AnnotatedClass;
 import io.github.edwardUL99.inject.lite.exceptions.InvalidInjectableException;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.internal.annotations.processing.InternalAnnotatedClass;
-import io.github.edwardUL99.inject.lite.internal.injector.DelayedInjectableDependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.DelayedInjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import org.junit.jupiter.api.Test;
 
@@ -18,9 +18,8 @@ import static org.mockito.Mockito.when;
 
 public class CustomRegistrationStrategyTest {
     @Test
-    @SuppressWarnings("unchecked")
     public void testStrategy() {
-        InternalInjector<DelayedInjectableDependency> mockInjector = mock(InternalInjector.class);
+        InternalInjector mockInjector = mock(InternalInjector.class);
         Injectable injectable = TestClass.class.getAnnotation(Injectable.class);
 
         when(mockInjector.canInject(TestClass.class))
@@ -37,9 +36,8 @@ public class CustomRegistrationStrategyTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void testStrategyCannotInject() {
-        InternalInjector<DelayedInjectableDependency> mockInjector = mock(InternalInjector.class);
+        InternalInjector mockInjector = mock(InternalInjector.class);
         Injectable injectable = TestClass.class.getAnnotation(Injectable.class);
 
         when(mockInjector.canInject(TestClass.class))

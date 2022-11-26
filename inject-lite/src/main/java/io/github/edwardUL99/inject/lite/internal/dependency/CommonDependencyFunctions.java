@@ -1,7 +1,6 @@
 package io.github.edwardUL99.inject.lite.internal.dependency;
 
 import io.github.edwardUL99.inject.lite.exceptions.AmbiguousDependencyException;
-import io.github.edwardUL99.inject.lite.internal.injector.InjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 
 import java.util.List;
@@ -16,8 +15,8 @@ public class CommonDependencyFunctions {
      * @param injector the injector being used
      * @return the matching dependency
      */
-    public static <D extends InjectableDependency> D getUnnamedDependency(Class<?> cls, InternalInjector<D> injector) {
-        List<D> dependencies = injector.getInjectableDependencies(cls);
+    public static InjectableDependency getUnnamedDependency(Class<?> cls, InternalInjector injector) {
+        List<InjectableDependency> dependencies = injector.getInjectableDependencies(cls);
         int size;
 
         if (dependencies == null) {

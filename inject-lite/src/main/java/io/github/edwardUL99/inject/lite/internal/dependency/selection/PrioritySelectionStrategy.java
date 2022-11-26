@@ -1,7 +1,7 @@
-package io.github.edwardUL99.inject.lite.internal.dependency;
+package io.github.edwardUL99.inject.lite.internal.dependency.selection;
 
 import io.github.edwardUL99.inject.lite.annotations.Priority;
-import io.github.edwardUL99.inject.lite.internal.injector.InjectableDependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.InjectableDependency;
 
 import java.util.List;
 import java.util.PriorityQueue;
@@ -10,9 +10,9 @@ import java.util.stream.Collectors;
 /**
  * A selection strategy based on dependency priority
  */
-public class PrioritySelectionStrategy<D extends InjectableDependency> implements DependencySelectionStrategy<D> {
+public class PrioritySelectionStrategy implements DependencySelectionStrategy {
     @Override
-    public D selectDependency(List<D> dependencies) {
+    public InjectableDependency selectDependency(List<InjectableDependency> dependencies) {
         int size = dependencies.size();
 
         if (size == 0) {
@@ -36,7 +36,7 @@ public class PrioritySelectionStrategy<D extends InjectableDependency> implement
         /**
          * The dependency being prioritised
          */
-        private final D dependency;
+        private final InjectableDependency dependency;
         /**
          * The priority assigned to the dependency
          */
@@ -46,7 +46,7 @@ public class PrioritySelectionStrategy<D extends InjectableDependency> implement
          * Create the dependency
          * @param dependency dependency being prioritised
          */
-        public PrioritisedDependency(D dependency) {
+        public PrioritisedDependency(InjectableDependency dependency) {
             this.dependency = dependency;
             int priority = Integer.MAX_VALUE;
             Priority annotation = dependency.getType().getAnnotation(Priority.class);

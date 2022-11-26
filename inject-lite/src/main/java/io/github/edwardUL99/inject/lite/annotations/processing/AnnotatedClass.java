@@ -1,6 +1,6 @@
 package io.github.edwardUL99.inject.lite.annotations.processing;
 
-import io.github.edwardUL99.inject.lite.internal.injector.InjectableDependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.InjectableDependency;
 
 /**
  * Represents a class annotated with the specific annotation

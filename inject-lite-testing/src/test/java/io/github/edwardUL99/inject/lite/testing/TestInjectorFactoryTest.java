@@ -1,7 +1,6 @@
 package io.github.edwardUL99.inject.lite.testing;
 
 import io.github.edwardUL99.inject.lite.injector.Injector;
-import io.github.edwardUL99.inject.lite.internal.injector.DelayedInjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InjectorFactory;
 import io.github.edwardUL99.inject.lite.internal.injector.InjectionContext;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
@@ -22,13 +21,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class TestInjectorFactoryTest {
-    private InternalInjector<DelayedInjectableDependency> mockInjector;
+    private InternalInjector mockInjector;
     private InjectorFactory mockFactory;
     private MockedStatic<InjectionContext> mockedInjectionContext;
     private TestInjectorFactory factory;
 
     @BeforeEach
-    @SuppressWarnings("unchecked")
     public void init() {
         mockInjector = mock(InternalInjector.class);
         mockFactory = mock(InjectorFactory.class);

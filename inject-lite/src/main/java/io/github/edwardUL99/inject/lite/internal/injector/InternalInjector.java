@@ -5,10 +5,11 @@ import io.github.edwardUL99.inject.lite.exceptions.DependencyNotFoundException;
 import io.github.edwardUL99.inject.lite.internal.config.Configuration;
 import io.github.edwardUL99.inject.lite.internal.constructors.ConstructorInjector;
 import io.github.edwardUL99.inject.lite.internal.dependency.CommonDependencyFunctions;
-import io.github.edwardUL99.inject.lite.internal.dependency.DependencyGraph;
+import io.github.edwardUL99.inject.lite.internal.dependency.InjectableDependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.graph.DependencyGraph;
 import io.github.edwardUL99.inject.lite.injector.Injector;
-import io.github.edwardUL99.inject.lite.internal.dependency.DependencySelection;
-import io.github.edwardUL99.inject.lite.internal.dependency.DependencySelectionStrategy;
+import io.github.edwardUL99.inject.lite.internal.dependency.selection.DependencySelection;
+import io.github.edwardUL99.inject.lite.internal.dependency.selection.DependencySelectionStrategy;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjector;
 
 import java.lang.reflect.Modifier;
@@ -17,14 +18,13 @@ import java.util.List;
 /**
  * This provides an internal API for the library. Not to be used by clients as it can change
  * any time (methods removed/added without warning)
- * @param <D> the type of injectable dependencies the injector supports
  */
-public interface InternalInjector<D extends InjectableDependency> extends Injector {
+public interface InternalInjector extends Injector {
     /**
      * Register a dependency that's already created
      * @param dependency the dependency to register
      */
-    void registerInjectableDependency(D dependency);
+    void registerInjectableDependency(InjectableDependency dependency);
 
     /**
      * Injects with an already set graph through {@link io.github.edwardUL99.inject.lite.internal.constructors.ConstructorInjector#setDependencyGraph(DependencyGraph)}
@@ -40,14 +40,14 @@ public interface InternalInjector<D extends InjectableDependency> extends Inject
      * @param type the type of the dependency
      * @return the dependencies if found, otherwise empty list
      */
-    List<D> getInjectableDependencies(Class<?> type);
+    List<InjectableDependency> getInjectableDependencies(Class<?> type);
 
     /**
      * Get a dependency assignable to the provided type using the selector returned by {@link #dependencySelectionStrategy()}
      * @param type the type of the dependency
      * @return the dependency if found, otherwise null
      */
-    default D getInjectableDependency(Class<?> type) {
+    default InjectableDependency getInjectableDependency(Class<?> type) {
         return getInjectableDependency(type, Configuration.global.isRequireNamedMultipleMatch());
     }
 
@@ -57,7 +57,7 @@ public interface InternalInjector<D extends InjectableDependency> extends Inject
      * @param checkAmbiguity true to check for ambiguity, false not to
      * @return the dependency if found, otherwise null
      */
-    default D getInjectableDependency(Class<?> type, boolean checkAmbiguity) {
+    default InjectableDependency getInjectableDependency(Class<?> type, boolean checkAmbiguity) {
         if (checkAmbiguity) {
             return CommonDependencyFunctions.getUnnamedDependency(type, this);
         } else {
@@ -73,7 +73,7 @@ public interface InternalInjector<D extends InjectableDependency> extends Inject
      * @return the injected dependency
      * @param <T> the type of the dependency
      */
-    <T> T injectWithGraph(Class<T> type, D dependency) throws DependencyNotFoundException;
+    <T> T injectWithGraph(Class<T> type, InjectableDependency dependency) throws DependencyNotFoundException;
 
     /**
      * Get the injector used to inject constructors with
@@ -101,7 +101,7 @@ public interface InternalInjector<D extends InjectableDependency> extends Inject
      * Get the strategy used for selecting a dependency from a list
      * @return the strategy
      */
-    default DependencySelectionStrategy<D> dependencySelectionStrategy() {
+    default DependencySelectionStrategy dependencySelectionStrategy() {
         return Configuration.global.isSelectFirstDependency() ?
                 DependencySelection.firstMatchSelector() : DependencySelection.prioritySelector();
     }

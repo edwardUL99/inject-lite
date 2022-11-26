@@ -7,7 +7,10 @@ import io.github.edwardUL99.inject.lite.exceptions.DependencyMismatchException;
 import io.github.edwardUL99.inject.lite.exceptions.DependencyNotFoundException;
 import io.github.edwardUL99.inject.lite.exceptions.InjectionException;
 import io.github.edwardUL99.inject.lite.exceptions.InvalidInjectableException;
-import io.github.edwardUL99.inject.lite.internal.dependency.GraphInjection;
+import io.github.edwardUL99.inject.lite.internal.dependency.ConstantInjectableDependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.InjectableDependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.InjectableDependencyFactory;
+import io.github.edwardUL99.inject.lite.internal.dependency.graph.GraphInjection;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjector;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjectorFactory;
 
@@ -22,11 +25,11 @@ import java.util.stream.Collectors;
 /**
  * Default injector implementation
  */
-public class DefaultInjector<D extends InjectableDependency> implements InternalInjector<D> {
+public class DefaultInjector implements InternalInjector {
     /**
      * Map of injectables in the injection
      */
-    protected final Map<String, D> injectables = new ConcurrentSkipListMap<>();
+    protected final Map<String, InjectableDependency> injectables = new ConcurrentSkipListMap<>();
     /**
      * The field injector instance
      */
@@ -38,13 +41,13 @@ public class DefaultInjector<D extends InjectableDependency> implements Internal
     /**
      * The factory for creating dependencies
      */
-    protected final InjectableDependencyFactory<D> factory;
+    protected final InjectableDependencyFactory factory;
 
     /**
      * Create the dependency with the injectable dependency factory
      * @param factory the factory
      */
-    public DefaultInjector(InjectableDependencyFactory<D> factory) {
+    public DefaultInjector(InjectableDependencyFactory factory) {
         this.factory = factory;
     }
 
@@ -65,13 +68,22 @@ public class DefaultInjector<D extends InjectableDependency> implements Internal
         } else if (!canInject(cls)) {
             throw new InvalidInjectableException(cls);
         } else {
-            D dependency = this.factory.instantiate(name, cls, this, singleton);
+            InjectableDependency dependency = this.factory.instantiate(name, cls, this, singleton);
             registerInjectableDependency(dependency);
         }
     }
 
     @Override
-    public void registerInjectableDependency(D dependency) {
+    public void registerConstantDependency(String name, Class<?> type, Object value) throws DependencyExistsException {
+        if (injectables.containsKey(name)) {
+            throw new DependencyExistsException(name);
+        } else {
+            registerInjectableDependency(new ConstantInjectableDependency(name, type, this, value));
+        }
+    }
+
+    @Override
+    public void registerInjectableDependency(InjectableDependency dependency) {
         injectables.put(dependency.getName(), dependency);
     }
 
@@ -89,7 +101,7 @@ public class DefaultInjector<D extends InjectableDependency> implements Internal
     public <T> Map<String, T> injectAll(Class<T> type) throws DependencyNotFoundException {
         Map<String, T> found = new LinkedHashMap<>();
 
-        for (Map.Entry<String, D> e : injectables.entrySet()) {
+        for (Map.Entry<String, InjectableDependency> e : injectables.entrySet()) {
             try {
                 String name = e.getKey();
                 found.put(name, inject(name, type));
@@ -108,7 +120,7 @@ public class DefaultInjector<D extends InjectableDependency> implements Internal
         if (!injectables.containsKey(name)) {
             throw new DependencyNotFoundException(name);
         } else {
-            D dependency = injectables.get(name);
+            InjectableDependency dependency = injectables.get(name);
             Class<?> cls = dependency.getType();
 
             if (!expected.isAssignableFrom(cls)) {
@@ -120,7 +132,7 @@ public class DefaultInjector<D extends InjectableDependency> implements Internal
     }
 
     @Override
-    public List<D> getInjectableDependencies(Class<?> type) {
+    public List<InjectableDependency> getInjectableDependencies(Class<?> type) {
         return injectables.values()
                 .stream()
                 .filter(d -> type.isAssignableFrom(d.getType()))
@@ -129,7 +141,7 @@ public class DefaultInjector<D extends InjectableDependency> implements Internal
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T injectWithGraph(Class<T> type, D dependency) throws DependencyNotFoundException {
+    public <T> T injectWithGraph(Class<T> type, InjectableDependency dependency) throws DependencyNotFoundException {
         if (dependency == null || !type.isAssignableFrom(dependency.getType())) {
             dependency = getInjectableDependency(type);
 
@@ -143,14 +155,14 @@ public class DefaultInjector<D extends InjectableDependency> implements Internal
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T getInGraphContext(D dependency, Class<T> cls) {
+    private <T> T getInGraphContext(InjectableDependency dependency, Class<T> cls) {
         return GraphInjection.executeInGraphContext(this, dependency.getName(), cls, () -> (T) dependency.get());
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> void actOnDependencies(Consumer<T> consumer, Class<T> type) {
-        for (D dependency : injectables.values()) {
+        for (InjectableDependency dependency : injectables.values()) {
             Class<?> t = dependency.getType();
             if (type.isAssignableFrom(t)) {
                 consumer.accept(getInGraphContext(dependency, (Class<T>) t));
@@ -167,7 +179,7 @@ public class DefaultInjector<D extends InjectableDependency> implements Internal
     public <T> T instantiate(Class<T> type) throws InjectionException {
         try {
             InjectionContext.setSingletonBehaviour(false);
-            D dependency = factory.instantiate(type.getSimpleName(), type, this, false);
+            InjectableDependency dependency = factory.instantiate(type.getSimpleName(), type, this, false);
 
             return getInGraphContext(dependency, type);
         } finally {

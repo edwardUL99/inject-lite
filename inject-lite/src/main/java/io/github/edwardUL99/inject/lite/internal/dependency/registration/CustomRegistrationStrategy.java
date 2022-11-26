@@ -4,7 +4,6 @@ import io.github.edwardUL99.inject.lite.annotations.processing.AnnotatedClass;
 import io.github.edwardUL99.inject.lite.exceptions.InvalidInjectableException;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.internal.annotations.processing.InternalAnnotatedClass;
-import io.github.edwardUL99.inject.lite.internal.injector.DelayedInjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 
 /**
@@ -29,17 +28,16 @@ public class CustomRegistrationStrategy<T> implements RegistrationStrategy {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public void register(Injector injector) {
         if (!(injector instanceof InternalInjector))
             throw new IllegalStateException("Only internally implemented injectors are supported");
 
-        InternalInjector<DelayedInjectableDependency> internalInjector = (InternalInjector<DelayedInjectableDependency>) injector;
+        InternalInjector internalInjector = (InternalInjector) injector;
         Class<?> type = annotatedClass.getAnnotatedClass();
 
         if (!internalInjector.canInject(type))
             throw new InvalidInjectableException(type);
 
-        internalInjector.registerInjectableDependency((DelayedInjectableDependency) annotatedClass.getInjectableDependency());
+        internalInjector.registerInjectableDependency(annotatedClass.getInjectableDependency());
     }
 }

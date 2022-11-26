@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.Mockito.mock;
 
 public class FieldInjectorFactoryTest {
-    private InternalInjector<?> injector;
+    private InternalInjector injector;
 
     @BeforeEach
     public void init() {

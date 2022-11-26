@@ -1,4 +1,4 @@
-package io.github.edwardUL99.inject.lite.internal.dependency;
+package io.github.edwardUL99.inject.lite.internal.dependency.scanner;
 
 import io.github.edwardUL99.inject.lite.injector.Injector;
 

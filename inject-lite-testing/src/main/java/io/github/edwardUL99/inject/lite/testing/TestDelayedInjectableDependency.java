@@ -1,6 +1,6 @@
 package io.github.edwardUL99.inject.lite.testing;
 
-import io.github.edwardUL99.inject.lite.internal.injector.DelayedInjectableDependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.DelayedInjectableDependency;
 
 /**
  * An injection proxy for use in a test context

@@ -1,6 +1,6 @@
 package io.github.edwardUL99.inject.lite.internal.constructors;
 
-import io.github.edwardUL99.inject.lite.internal.dependency.DependencyGraphAware;
+import io.github.edwardUL99.inject.lite.internal.dependency.graph.DependencyGraphAware;
 
 /**
  * Defines an object that can inject constructors annotated with @Inject.

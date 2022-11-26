@@ -32,6 +32,14 @@ public interface Injector {
     <T> void registerDependency(String name, Class<T> cls, boolean singleton) throws DependencyExistsException, InvalidInjectableException;
 
     /**
+     * Register a dependency that is a constant value
+     * @param name the name of the dependency
+     * @param type the type of the constant
+     * @param value the constant value
+     */
+    void registerConstantDependency(String name, Class<?> type, Object value) throws DependencyExistsException;
+
+    /**
      * Inject an object of the given name. Checks that the registered class is the same class as expected or a subclass
      * of it
      * @param name the name of the dependency

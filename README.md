@@ -155,6 +155,44 @@ public class Dependency {}
 public class Dependency {}
 ```
 
+### @Priority
+Used to annotate a dependency in conjunction with @Injectable. The value is an integer value which the lower value giving
+the dependency a higher priority over other dependencies of the same type
+
+### @ConstantDependencies and @Constant
+ConstantDependencies marks a class as defining **public static final** fields that can be injected. These are constants
+and never change. A single class can be defined to define a list of constants that should be injected elsewhere.
+```java
+import io.github.edwardUL99.inject.lite.annotations.Constant;
+import io.github.edwardUL99.inject.lite.annotations.Injectable;
+import io.github.edwardUL99.inject.lite.annotations.Inject;
+import io.github.edwardUL99.inject.lite.annotations.Name;
+import io.github.edwardUL99.inject.lite.annotations.ConstantDependencies;
+
+@ConstantDependencies
+public class Constants {
+    @Constant("number")
+    public static final long TEST_VAL = 45L;
+    @Constant // when no string value provided, the name of the field is used as dependency name
+    public static final String stringVal = "Hello World";
+}
+
+// constants can be injected into clients
+@Injectable("client")
+public class Client {
+    private final long number;
+    private final String message;
+    
+    @Inject
+    public Client(long number, @Name("stringVal") String message) {
+        this.number = number;
+        this.message = message;
+    }
+}
+```
+
+This mechanism allows constants and primitives to be injected into fields/constructors as illustrated in the above example
+
 ## Injection
 To manually inject dependencies, you can use either `T Injector#inject(String name, Class<T> expected)` or `T Injector#inject(Class<T> type)`.
 - The first function injects the dependency by finding a dependency with the given name. It then matches the type of the

@@ -5,7 +5,7 @@ import io.github.edwardUL99.inject.lite.internal.annotations.processing.Internal
 import io.github.edwardUL99.inject.lite.internal.container.ContainersInternal;
 import io.github.edwardUL99.inject.lite.internal.dependency.registration.RegistrationStrategies;
 import io.github.edwardUL99.inject.lite.internal.dependency.registration.RegistrationStrategy;
-import io.github.edwardUL99.inject.lite.internal.injector.DelayedInjectableDependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.DelayedInjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,11 +26,10 @@ import static org.mockito.Mockito.verifyNoInteractions;
 
 
 public class CustomInjectableProcessorTest {
-    private InternalInjector<DelayedInjectableDependency> mockInjector;
+    private InternalInjector mockInjector;
     private CustomInjectableProcessor<TestAnnotation> processor;
 
     @BeforeEach
-    @SuppressWarnings("unchecked")
     public void init() {
         mockInjector = mock(InternalInjector.class);
         processor = new CustomInjectableProcessor<>(mockInjector, a -> a.getAnnotation().value());

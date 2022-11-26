@@ -3,7 +3,8 @@ package io.github.edwardUL99.inject.lite.testing;
 import io.github.edwardUL99.inject.lite.internal.config.Configuration;
 import io.github.edwardUL99.inject.lite.internal.constructors.ConstructorInjector;
 import io.github.edwardUL99.inject.lite.internal.dependency.CommonDependencyFunctions;
-import io.github.edwardUL99.inject.lite.internal.injector.DelayedInjectableDependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.DelayedInjectableDependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.InjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjector;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,11 +30,10 @@ import static org.mockito.Mockito.when;
 
 public class TestInjectorTest {
     private TestInjector injector;
-    private InternalInjector<DelayedInjectableDependency> mockInjector;
+    private InternalInjector mockInjector;
     private Map<String, TestDelayedInjectableDependency> testInjectables;
 
     @BeforeEach
-    @SuppressWarnings("unchecked")
     public void init() {
         mockInjector = mock(InternalInjector.class);
         injector = new TestInjector(mockInjector);
@@ -49,6 +49,12 @@ public class TestInjectorTest {
 
         assertNotNull(proxy);
         assertEquals("", proxy.get());
+    }
+
+    @Test
+    public void testRegisterConstantDependency() {
+        injector.registerConstantDependency("name", long.class, 1L);
+        verify(mockInjector).registerConstantDependency("name", long.class, 1L);
     }
 
     @Test
@@ -145,12 +151,12 @@ public class TestInjectorTest {
     public void testGetInjectableDependencies() {
         injector.registerTestDependency("name", new TestClass());
 
-        List<DelayedInjectableDependency> dependencies = injector.getInjectableDependencies(Interface.class);
+        List<InjectableDependency> dependencies = injector.getInjectableDependencies(Interface.class);
 
         assertNotNull(dependencies);
         assertEquals(1, dependencies.size());
 
-        DelayedInjectableDependency dependency = dependencies.get(0);
+        InjectableDependency dependency = dependencies.get(0);
         assertEquals(TestClass.class, dependency.getType());
 
         injector.testInjectables.clear();
@@ -179,7 +185,7 @@ public class TestInjectorTest {
         when(mockInjector.getInjectableDependencies(TestClass.class))
                 .thenReturn(new ArrayList<>());
 
-        DelayedInjectableDependency dependency = injector.getInjectableDependency(TestClass.class);
+        InjectableDependency dependency = injector.getInjectableDependency(TestClass.class);
         assertEquals(TestClass.class, dependency.getType());
     }
 
@@ -194,7 +200,7 @@ public class TestInjectorTest {
                             injector))
                     .thenReturn(mockDependency);
 
-            DelayedInjectableDependency dependency = injector.getInjectableDependency(TestClass.class);
+            InjectableDependency dependency = injector.getInjectableDependency(TestClass.class);
             assertEquals(dependency, mockDependency);
 
             dependencyFunctions.verify(() -> CommonDependencyFunctions.getUnnamedDependency(TestClass.class,

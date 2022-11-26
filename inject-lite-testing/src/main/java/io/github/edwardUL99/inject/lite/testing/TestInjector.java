@@ -7,8 +7,8 @@ import io.github.edwardUL99.inject.lite.exceptions.DependencyMismatchException;
 import io.github.edwardUL99.inject.lite.exceptions.DependencyNotFoundException;
 import io.github.edwardUL99.inject.lite.exceptions.InjectionException;
 import io.github.edwardUL99.inject.lite.exceptions.InvalidInjectableException;
-import io.github.edwardUL99.inject.lite.internal.dependency.GraphInjection;
-import io.github.edwardUL99.inject.lite.internal.injector.DelayedInjectableDependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.graph.GraphInjection;
+import io.github.edwardUL99.inject.lite.internal.dependency.InjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InjectionContext;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjector;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 /**
  * This injector provides injection in a test context
  */
-class TestInjector implements InternalInjector<DelayedInjectableDependency> {
+class TestInjector implements InternalInjector {
     /**
      * Stores test injectables which are checked first by inject
      */
@@ -33,7 +33,7 @@ class TestInjector implements InternalInjector<DelayedInjectableDependency> {
     /**
      * Wrapped injector for normal injection
      */
-    protected final InternalInjector<DelayedInjectableDependency> wrappedInjector;
+    protected final InternalInjector wrappedInjector;
     /**
      * Field injector instance
      */
@@ -47,7 +47,7 @@ class TestInjector implements InternalInjector<DelayedInjectableDependency> {
      * Create an instance
      * @param injector the injector (only supports InternalInjectors)
      */
-    public TestInjector(InternalInjector<DelayedInjectableDependency> injector) {
+    public TestInjector(InternalInjector injector) {
         this(injector, new HashMap<>());
     }
 
@@ -56,7 +56,7 @@ class TestInjector implements InternalInjector<DelayedInjectableDependency> {
      * @param injector the injector (only supports InternalInjectors)
      * @param testInjectables existing map of test injectables
      */
-    public TestInjector(InternalInjector<DelayedInjectableDependency> injector, Map<String, TestDelayedInjectableDependency> testInjectables) {
+    public TestInjector(InternalInjector injector, Map<String, TestDelayedInjectableDependency> testInjectables) {
         this.wrappedInjector = injector;
         this.testInjectables = new HashMap<>(testInjectables);
     }
@@ -68,6 +68,11 @@ class TestInjector implements InternalInjector<DelayedInjectableDependency> {
      */
     public void registerTestDependency(String name, Object dependency) {
         registerInjectableDependency(new TestDelayedInjectableDependency(name, dependency));
+    }
+
+    @Override
+    public void registerConstantDependency(String name, Class<?> type, Object value) throws DependencyExistsException {
+        wrappedInjector.registerConstantDependency(name, type, value);
     }
 
     @Override
@@ -103,7 +108,7 @@ class TestInjector implements InternalInjector<DelayedInjectableDependency> {
     }
 
     @Override
-    public void registerInjectableDependency(DelayedInjectableDependency proxy) {
+    public void registerInjectableDependency(InjectableDependency proxy) {
         if (proxy instanceof TestDelayedInjectableDependency) {
             testInjectables.put(proxy.getName(), (TestDelayedInjectableDependency) proxy);
         } else {
@@ -149,7 +154,7 @@ class TestInjector implements InternalInjector<DelayedInjectableDependency> {
 
     @SuppressWarnings("unchecked")
     private <T> T injectWithGraph(String name, Class<T> expected, boolean useWrapped) throws DependencyNotFoundException, DependencyMismatchException {
-        DelayedInjectableDependency dependency = testInjectables.get(name);
+        InjectableDependency dependency = testInjectables.get(name);
 
         if (dependency != null) {
             Class<?> type = dependency.getType();
@@ -165,8 +170,8 @@ class TestInjector implements InternalInjector<DelayedInjectableDependency> {
     }
 
     @Override
-    public List<DelayedInjectableDependency> getInjectableDependencies(Class<?> type) {
-        List<DelayedInjectableDependency> dependencies = testInjectables.values()
+    public List<InjectableDependency> getInjectableDependencies(Class<?> type) {
+        List<InjectableDependency> dependencies = testInjectables.values()
                 .stream()
                 .filter(d -> type.isAssignableFrom(d.getType())).collect(Collectors.toCollection(ArrayList::new));
 
@@ -177,11 +182,11 @@ class TestInjector implements InternalInjector<DelayedInjectableDependency> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T injectWithGraph(Class<T> type, DelayedInjectableDependency dependency) throws DependencyNotFoundException {
+    public <T> T injectWithGraph(Class<T> type, InjectableDependency dependency) throws DependencyNotFoundException {
         if (dependency instanceof TestDelayedInjectableDependency) {
             return (T) dependency.get();
         } else {
-            DelayedInjectableDependency p = getInjectableDependency(type);
+            InjectableDependency p = getInjectableDependency(type);
 
             return (p != null) ? (T) p.get():wrappedInjector.inject(type);
         }

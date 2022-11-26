@@ -1,7 +1,8 @@
 package io.github.edwardUL99.inject.lite.utils;
 
 import io.github.edwardUL99.inject.lite.exceptions.AmbiguousDependencyException;
-import io.github.edwardUL99.inject.lite.internal.injector.DelayedInjectableDependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.DelayedInjectableDependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.InjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import io.github.edwardUL99.inject.lite.internal.dependency.CommonDependencyFunctions;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,24 +18,23 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class CommonDependencyFunctionsTest {
-    private InternalInjector<DelayedInjectableDependency> mockInjector;
+    private InternalInjector mockInjector;
 
     @BeforeEach
-    @SuppressWarnings("unchecked")
     public void init() {
         mockInjector = mock(InternalInjector.class);
     }
 
     @Test
     public void testWithOneDependency() {
-        List<DelayedInjectableDependency> dependencies = new ArrayList<>();
+        List<InjectableDependency> dependencies = new ArrayList<>();
         DelayedInjectableDependency mockDependency = mock(DelayedInjectableDependency.class);
         dependencies.add(mockDependency);
 
         when(mockInjector.getInjectableDependencies(String.class))
                 .thenReturn(dependencies);
 
-        DelayedInjectableDependency dependency = CommonDependencyFunctions.getUnnamedDependency(String.class, mockInjector);
+        InjectableDependency dependency = CommonDependencyFunctions.getUnnamedDependency(String.class, mockInjector);
 
         assertEquals(dependency, mockDependency);
         verify(mockInjector).getInjectableDependencies(String.class);
@@ -42,7 +42,7 @@ public class CommonDependencyFunctionsTest {
 
     @Test
     public void testWithMultipleDependency() {
-        List<DelayedInjectableDependency> dependencies = new ArrayList<>();
+        List<InjectableDependency> dependencies = new ArrayList<>();
         dependencies.add(mock(DelayedInjectableDependency.class));
         dependencies.add(mock(DelayedInjectableDependency.class));
 

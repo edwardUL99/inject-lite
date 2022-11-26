@@ -12,7 +12,7 @@ import static org.mockito.Mockito.when;
 
 public class MultiLevelFieldInjectorTest {
     private MultiLevelFieldInjector fieldInjector;
-    private InternalInjector<?> mockInjector;
+    private InternalInjector mockInjector;
 
     @BeforeEach
     public void init() {

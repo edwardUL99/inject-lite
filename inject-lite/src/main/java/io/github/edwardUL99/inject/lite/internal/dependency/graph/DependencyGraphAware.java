@@ -1,4 +1,4 @@
-package io.github.edwardUL99.inject.lite.internal.dependency;
+package io.github.edwardUL99.inject.lite.internal.dependency.graph;
 
 /**
  * Marks a class as being aware of a dependency graph

@@ -3,7 +3,7 @@ package io.github.edwardUL99.inject.lite.internal.annotations.processing;
 import io.github.edwardUL99.inject.lite.annotations.processing.AnnotatedClass;
 import io.github.edwardUL99.inject.lite.annotations.processing.AnnotationProcessor;
 import io.github.edwardUL99.inject.lite.annotations.processing.AnnotationScanner;
-import io.github.edwardUL99.inject.lite.internal.injector.DelayedInjectableDependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.DelayedInjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import io.github.edwardUL99.inject.lite.internal.utils.ReflectionUtils;
 import org.reflections.Reflections;

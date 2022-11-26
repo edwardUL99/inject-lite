@@ -2,7 +2,6 @@ package io.github.edwardUL99.inject.lite.testing;
 
 import io.github.edwardUL99.inject.lite.internal.injector.DefaultInjectorFactory;
 import io.github.edwardUL99.inject.lite.injector.Injector;
-import io.github.edwardUL99.inject.lite.internal.injector.DelayedInjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InjectorFactory;
 import io.github.edwardUL99.inject.lite.internal.injector.InjectionContext;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
@@ -45,13 +44,12 @@ public class TestInjectorFactory implements InjectorFactory {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public Injector create() {
         TestInjector existing = getExisting();
         if (existing != null) {
-            return new TestInjector((InternalInjector<DelayedInjectableDependency>) injectorFactory.create(), existing.testInjectables);
+            return new TestInjector((InternalInjector) injectorFactory.create(), existing.testInjectables);
         } else {
-            return new TestInjector((InternalInjector<DelayedInjectableDependency>) injectorFactory.create());
+            return new TestInjector((InternalInjector) injectorFactory.create());
         }
     }
 }

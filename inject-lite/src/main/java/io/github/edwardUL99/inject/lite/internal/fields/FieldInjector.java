@@ -1,6 +1,6 @@
 package io.github.edwardUL99.inject.lite.internal.fields;
 
-import io.github.edwardUL99.inject.lite.internal.dependency.DependencyGraphAware;
+import io.github.edwardUL99.inject.lite.internal.dependency.graph.DependencyGraphAware;
 
 /**
  * This interface defines an object that can inject objects into fields annotated with @Inject

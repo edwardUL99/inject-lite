@@ -4,8 +4,8 @@ import io.github.edwardUL99.inject.lite.annotations.Inject;
 import io.github.edwardUL99.inject.lite.annotations.Name;
 import io.github.edwardUL99.inject.lite.exceptions.InjectionException;
 import io.github.edwardUL99.inject.lite.internal.dependency.Dependency;
-import io.github.edwardUL99.inject.lite.internal.dependency.DependencyGraph;
-import io.github.edwardUL99.inject.lite.internal.injector.DelayedInjectableDependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.graph.DependencyGraph;
+import io.github.edwardUL99.inject.lite.internal.dependency.DelayedInjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,11 +20,10 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class DefaultConstructorInjectorTest {
-    private InternalInjector<DelayedInjectableDependency> mockInjector;
+    private InternalInjector mockInjector;
     private DefaultConstructorInjector constructorInjector;
 
     @BeforeEach
-    @SuppressWarnings("unchecked")
     public void init() {
         mockInjector = mock(InternalInjector.class);
         constructorInjector = new DefaultConstructorInjector(mockInjector);

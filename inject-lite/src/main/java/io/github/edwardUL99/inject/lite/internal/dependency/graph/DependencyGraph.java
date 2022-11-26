@@ -1,6 +1,7 @@
-package io.github.edwardUL99.inject.lite.internal.dependency;
+package io.github.edwardUL99.inject.lite.internal.dependency.graph;
 
 import io.github.edwardUL99.inject.lite.exceptions.CircularDependencyException;
+import io.github.edwardUL99.inject.lite.internal.dependency.Dependency;
 
 import java.util.ArrayList;
 import java.util.HashMap;

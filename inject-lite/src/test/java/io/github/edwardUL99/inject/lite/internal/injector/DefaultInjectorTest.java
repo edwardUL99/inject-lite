@@ -9,6 +9,8 @@ import io.github.edwardUL99.inject.lite.exceptions.DependencyMismatchException;
 import io.github.edwardUL99.inject.lite.exceptions.DependencyNotFoundException;
 import io.github.edwardUL99.inject.lite.exceptions.InvalidInjectableException;
 import io.github.edwardUL99.inject.lite.internal.dependency.CommonDependencyFunctions;
+import io.github.edwardUL99.inject.lite.internal.dependency.DelayedInjectableDependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.InjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjector;
 import io.github.edwardUL99.inject.lite.threads.AsynchronousExecutor;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,15 +40,15 @@ import static org.mockito.Mockito.when;
 import static org.powermock.reflect.Whitebox.setInternalState;
 
 public class DefaultInjectorTest {
-    private Map<String, DelayedInjectableDependency> injectables;
-    private DefaultInjector<DelayedInjectableDependency> injector;
+    private Map<String, InjectableDependency> injectables;
+    private DefaultInjector injector;
     private FieldInjector mockFieldInjector;
     private ConstructorInjector mockConstructorInjector;
 
     @BeforeEach
     public void init() {
         setInternalStaticField(DelayedInjectableDependency.class, "instances", new HashMap<Class<?>, Object>());
-        injector = Mockito.spy(new DefaultInjector<>(new DelayedInjectableDependency.Factory()));
+        injector = Mockito.spy(new DefaultInjector(new DelayedInjectableDependency.Factory()));
         injectables = injector.injectables;
 
         mockFieldInjector = mock(FieldInjector.class);
@@ -63,12 +65,25 @@ public class DefaultInjectorTest {
         injector.registerDependency("dependency", TestDependency.class, true);
 
         assertEquals(injectables.size(), 1);
-        DelayedInjectableDependency proxy = injectables.get("dependency");
+        InjectableDependency proxy = injectables.get("dependency");
         assertEquals(proxy.getType(), TestDependency.class);
 
         // should throw an exception
         assertThrows(DependencyExistsException.class, () ->
                 injector.registerDependency("dependency", TestDependency.class, true));
+    }
+
+    @Test
+    public void testRegisterConstantDependency() {
+        injector.registerConstantDependency("name", long.class, 1L);
+
+        assertEquals(injectables.size(), 1);
+        InjectableDependency dependency = injectables.get("name");
+        assertEquals(1L, dependency.get());
+
+        // should throw an exception
+        assertThrows(DependencyExistsException.class, () ->
+                injector.registerConstantDependency("name", long.class, 1L));
     }
 
     @Test
@@ -226,7 +241,7 @@ public class DefaultInjectorTest {
     public void testGetInjectableDependencies() {
         setUpMockInjectables();
 
-        List<DelayedInjectableDependency> dependencies = injector.getInjectableDependencies(TestDependency.class);
+        List<InjectableDependency> dependencies = injector.getInjectableDependencies(TestDependency.class);
 
         assertEquals(2, dependencies.size());
         assertEquals(TestDependency.class, dependencies.get(0).getType());
@@ -238,7 +253,7 @@ public class DefaultInjectorTest {
         setUpMockInjectables();
 
         Configuration.global.setSelectFirstDependency(true);
-        DelayedInjectableDependency dependency = injector.getInjectableDependency(TestDependency.class);
+        InjectableDependency dependency = injector.getInjectableDependency(TestDependency.class);
         assertEquals(TestDependency.class, dependency.getType());
 
         Configuration.global.setSelectFirstDependency(false);
@@ -257,7 +272,7 @@ public class DefaultInjectorTest {
                     injector))
                     .thenReturn(mockDependency);
 
-            DelayedInjectableDependency dependency = injector.getInjectableDependency(TestDependency.class);
+            InjectableDependency dependency = injector.getInjectableDependency(TestDependency.class);
             assertEquals(dependency, mockDependency);
 
             dependencyFunctions.verify(() -> CommonDependencyFunctions.getUnnamedDependency(TestDependency.class,

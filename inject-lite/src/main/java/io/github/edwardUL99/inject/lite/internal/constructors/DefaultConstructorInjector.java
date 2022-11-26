@@ -5,8 +5,8 @@ import io.github.edwardUL99.inject.lite.annotations.Name;
 import io.github.edwardUL99.inject.lite.exceptions.InjectionException;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.internal.dependency.Dependency;
-import io.github.edwardUL99.inject.lite.internal.dependency.DependencyGraph;
-import io.github.edwardUL99.inject.lite.internal.injector.DelayedInjectableDependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.graph.DependencyGraph;
+import io.github.edwardUL99.inject.lite.internal.dependency.InjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 
 import java.lang.reflect.Constructor;
@@ -19,7 +19,7 @@ public class DefaultConstructorInjector implements ConstructorInjector {
     /**
      * Injector used to get dependencies
      */
-    private final InternalInjector<DelayedInjectableDependency> injector;
+    private final InternalInjector injector;
     /**
      * The dependency graph in use
      */
@@ -29,9 +29,8 @@ public class DefaultConstructorInjector implements ConstructorInjector {
      * The injector to get dependencies with
      * @param injector dependency injection
      */
-    @SuppressWarnings("unchecked")
     public DefaultConstructorInjector(Injector injector) {
-        this.injector = (InternalInjector<DelayedInjectableDependency>) injector;
+        this.injector = (InternalInjector) injector;
     }
 
     // gets the constructor annotated with Inject
@@ -73,7 +72,7 @@ public class DefaultConstructorInjector implements ConstructorInjector {
     }
 
     private Object injectUnnamed(String className, Class<?> cls, Class<?> type) {
-        DelayedInjectableDependency dependency = injector.getInjectableDependency(type);
+        InjectableDependency dependency = injector.getInjectableDependency(type);
         String name = (dependency != null) ? dependency.getName() : "";
         if (graph != null) graph.addDependency(new Dependency(className, cls),
                 new Dependency(name, type));
