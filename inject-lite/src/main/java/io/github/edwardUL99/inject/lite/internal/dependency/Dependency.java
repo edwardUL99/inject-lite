@@ -1,5 +1,7 @@
 package io.github.edwardUL99.inject.lite.internal.dependency;
 
+import io.github.edwardUL99.inject.lite.internal.utils.ReflectionUtils;
+
 import java.util.Objects;
 
 /**
@@ -60,6 +62,6 @@ public class Dependency {
      * @return true if considered the same, false if not
      */
     public boolean isSameDependency(Dependency other) {
-        return Objects.equals(name, other.name) && type.isAssignableFrom(other.type);
+        return Objects.equals(name, other.name) && ReflectionUtils.isAssignable(type, other.type);
     }
 }

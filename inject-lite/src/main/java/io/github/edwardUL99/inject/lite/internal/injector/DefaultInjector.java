@@ -13,6 +13,7 @@ import io.github.edwardUL99.inject.lite.internal.dependency.InjectableDependency
 import io.github.edwardUL99.inject.lite.internal.dependency.graph.GraphInjection;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjector;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjectorFactory;
+import io.github.edwardUL99.inject.lite.internal.utils.ReflectionUtils;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -123,7 +124,7 @@ public class DefaultInjector implements InternalInjector {
             InjectableDependency dependency = injectables.get(name);
             Class<?> cls = dependency.getType();
 
-            if (!expected.isAssignableFrom(cls)) {
+            if (!ReflectionUtils.isAssignable(expected, cls)) {
                 throw new DependencyMismatchException(name, expected, cls);
             } else {
                 return (T) dependency.get();
@@ -135,14 +136,14 @@ public class DefaultInjector implements InternalInjector {
     public List<InjectableDependency> getInjectableDependencies(Class<?> type) {
         return injectables.values()
                 .stream()
-                .filter(d -> type.isAssignableFrom(d.getType()))
+                .filter(d -> ReflectionUtils.isAssignable(type, d.getType()))
                 .collect(Collectors.toList());
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> T injectWithGraph(Class<T> type, InjectableDependency dependency) throws DependencyNotFoundException {
-        if (dependency == null || !type.isAssignableFrom(dependency.getType())) {
+        if (dependency == null || !ReflectionUtils.isAssignable(type, dependency.getType())) {
             dependency = getInjectableDependency(type);
 
             if (dependency != null)
@@ -164,7 +165,7 @@ public class DefaultInjector implements InternalInjector {
     public <T> void actOnDependencies(Consumer<T> consumer, Class<T> type) {
         for (InjectableDependency dependency : injectables.values()) {
             Class<?> t = dependency.getType();
-            if (type.isAssignableFrom(t)) {
+            if (ReflectionUtils.isAssignable(type, t)) {
                 consumer.accept(getInGraphContext(dependency, (Class<T>) t));
             }
         }

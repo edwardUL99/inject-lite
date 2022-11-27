@@ -13,6 +13,7 @@ import io.github.edwardUL99.inject.lite.internal.injector.InjectionContext;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjector;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjectorFactory;
+import io.github.edwardUL99.inject.lite.internal.utils.ReflectionUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -89,7 +90,7 @@ class TestInjector implements InternalInjector {
     @SuppressWarnings("unchecked")
     public <T> void actOnDependencies(Consumer<T> consumer, Class<T> type) {
         for (TestDelayedInjectableDependency proxy : testInjectables.values()) {
-            if (type.isAssignableFrom(proxy.getType()))
+            if (ReflectionUtils.isAssignable(type, proxy.getType()))
                 consumer.accept((T)proxy.get());
         }
 
@@ -158,7 +159,7 @@ class TestInjector implements InternalInjector {
 
         if (dependency != null) {
             Class<?> type = dependency.getType();
-            if (!expected.isAssignableFrom(type))
+            if (!ReflectionUtils.isAssignable(expected, type))
                 throw new DependencyMismatchException(name, expected, type);
 
             return (T) dependency.get();
@@ -173,7 +174,7 @@ class TestInjector implements InternalInjector {
     public List<InjectableDependency> getInjectableDependencies(Class<?> type) {
         List<InjectableDependency> dependencies = testInjectables.values()
                 .stream()
-                .filter(d -> type.isAssignableFrom(d.getType())).collect(Collectors.toCollection(ArrayList::new));
+                .filter(d -> ReflectionUtils.isAssignable(type, d.getType())).collect(Collectors.toCollection(ArrayList::new));
 
         dependencies.addAll(wrappedInjector.getInjectableDependencies(type));
 

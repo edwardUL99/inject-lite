@@ -78,6 +78,6 @@ public class MainIntegrationTest {
         assertTrue(gettersClasses.contains(HelloWorldGetter.class));
         assertTrue(gettersClasses.contains(GoodbyeWorldGetter.class));
 
-        long value = injector.inject("TEST_VAL", long.class);
+        long value = injector.inject("TEST_VAL", Long.class);
     }
 }

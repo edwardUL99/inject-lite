@@ -6,5 +6,5 @@ import io.github.edwardUL99.inject.lite.annotations.ConstantDependencies;
 @ConstantDependencies
 public class Constants {
     @Constant
-    public static final long TEST_VAL = 45L;
+    public static final Long TEST_VAL = 45L;
 }

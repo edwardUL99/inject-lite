@@ -7,6 +7,7 @@ import io.github.edwardUL99.inject.lite.internal.dependency.Dependency;
 import io.github.edwardUL99.inject.lite.internal.dependency.graph.DependencyGraph;
 import io.github.edwardUL99.inject.lite.internal.dependency.InjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
+import io.github.edwardUL99.inject.lite.internal.utils.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -38,7 +39,7 @@ public abstract class BaseFieldInjector implements FieldInjector {
         Class<?> fieldType = field.getType();
         Class<?> resourceCls = resourceInstance.getClass();
 
-        if (fieldType.isAssignableFrom(resourceCls)) {
+        if (ReflectionUtils.isAssignable(fieldType, resourceCls)) {
             try {
                 boolean accessible = field.isAccessible();
                 field.setAccessible(true);

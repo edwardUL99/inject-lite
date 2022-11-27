@@ -1,16 +1,11 @@
 package io.github.edwardUL99.inject.lite.internal.dependency.scanner;
 
 import io.github.edwardUL99.inject.lite.annotations.Injectable;
-import io.github.edwardUL99.inject.lite.injector.Injector;
-import io.github.edwardUL99.inject.lite.internal.container.ContainersInternal;
 import io.github.edwardUL99.inject.lite.internal.dependency.registration.RegistrationStrategies;
 import io.github.edwardUL99.inject.lite.internal.dependency.registration.RegistrationStrategy;
-import io.github.edwardUL99.inject.lite.internal.utils.ReflectionUtils;
 import org.reflections.Reflections;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Scan for @Injectable annotated classes and registers them as dependencies

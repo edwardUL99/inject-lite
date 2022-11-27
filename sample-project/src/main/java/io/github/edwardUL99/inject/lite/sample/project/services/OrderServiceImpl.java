@@ -1,9 +1,7 @@
 package io.github.edwardUL99.inject.lite.sample.project.services;
 
 import io.github.edwardUL99.inject.lite.annotations.ContainerInject;
-import io.github.edwardUL99.inject.lite.annotations.Inject;
 import io.github.edwardUL99.inject.lite.annotations.Injectable;
-import io.github.edwardUL99.inject.lite.annotations.Name;
 import io.github.edwardUL99.inject.lite.sample.project.models.Order;
 
 import java.util.Collections;
