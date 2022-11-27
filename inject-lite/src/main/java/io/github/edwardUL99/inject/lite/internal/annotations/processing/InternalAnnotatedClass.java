@@ -1,7 +1,7 @@
 package io.github.edwardUL99.inject.lite.internal.annotations.processing;
 
 import io.github.edwardUL99.inject.lite.annotations.processing.AnnotatedClass;
-import io.github.edwardUL99.inject.lite.internal.injector.InjectableDependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.InjectableDependency;
 
 /**
  * The internal API for the annotated class object

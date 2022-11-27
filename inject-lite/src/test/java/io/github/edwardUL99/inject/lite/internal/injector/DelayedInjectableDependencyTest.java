@@ -1,6 +1,7 @@
 package io.github.edwardUL99.inject.lite.internal.injector;
 
 import io.github.edwardUL99.inject.lite.internal.constructors.ConstructorInjector;
+import io.github.edwardUL99.inject.lite.internal.dependency.DelayedInjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,10 +17,9 @@ import static org.mockito.Mockito.when;
 public class DelayedInjectableDependencyTest {
     private FieldInjector fieldInjector;
     private ConstructorInjector constructorInjector;
-    private InternalInjector<DelayedInjectableDependency> injector;
+    private InternalInjector injector;
 
     @BeforeEach
-    @SuppressWarnings("unchecked")
     public void init() {
         injector = mock(InternalInjector.class);
         fieldInjector = mock(FieldInjector.class);

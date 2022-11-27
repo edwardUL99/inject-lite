@@ -1,6 +1,7 @@
 package io.github.edwardUL99.inject.lite.sample.project;
 
 import io.github.edwardUL99.inject.lite.Injection;
+import io.github.edwardUL99.inject.lite.config.ConfigurationBuilder;
 import io.github.edwardUL99.inject.lite.container.Container;
 import io.github.edwardUL99.inject.lite.container.ContainerContext;
 import io.github.edwardUL99.inject.lite.container.Containers;
@@ -41,6 +42,8 @@ public class Main {
         getOrderAndPrint(2, ordersController);
         getOrderAndPrint("order", ordersController);
         getOrderAndPrint("order1", ordersController);
+
+        System.out.println("Debug property in orders: " + injector.inject("debug", boolean.class));
 
         System.out.println();
     }
@@ -85,12 +88,17 @@ public class Main {
         authenticateAndPrint("username", "password1", accountController);
         authenticateAndPrint("username1", "password", accountController);
 
+        System.out.println("Debug property in accounts: " + injector.inject("debug", boolean.class));
+
         System.out.println();
     }
 
     public static void main(String[] args) {
         try (ContainerContext ignored = Containers.context()) {
-            Injection.setInjectionPackages("io.github.edwardUL99.inject.lite.sample.project");
+            Injection.configure(
+                    new ConfigurationBuilder()
+                            .withInjectionPackagePrefixes("io.github.edwardUL99.inject.lite.sample.project")
+            );
 
             Container container = Containers.executeContainer(
                     Container.builder()

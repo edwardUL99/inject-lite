@@ -4,9 +4,10 @@ import io.github.edwardUL99.inject.lite.annotations.Inject;
 import io.github.edwardUL99.inject.lite.exceptions.InjectionException;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.internal.dependency.Dependency;
-import io.github.edwardUL99.inject.lite.internal.dependency.DependencyGraph;
-import io.github.edwardUL99.inject.lite.internal.injector.DelayedInjectableDependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.graph.DependencyGraph;
+import io.github.edwardUL99.inject.lite.internal.dependency.InjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
+import io.github.edwardUL99.inject.lite.internal.utils.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -17,29 +18,28 @@ import java.util.List;
  * functionality being how the fields are looked up
  */
 public abstract class BaseFieldInjector implements FieldInjector {
-    private final InternalInjector<DelayedInjectableDependency> injector;
+    private final InternalInjector injector;
     private DependencyGraph graph;
 
     /**
      * The injector to get dependencies with
      * @param injector dependency injection
      */
-    @SuppressWarnings("unchecked")
     public BaseFieldInjector(Injector injector) {
-        this.injector = (InternalInjector<DelayedInjectableDependency>) injector;
+        this.injector = (InternalInjector) injector;
     }
 
     private String getName(Class<?> cls, Field field) {
-        DelayedInjectableDependency dependency = injector.getInjectableDependency(cls);
+        InjectableDependency dependency = injector.getInjectableDependency(cls);
 
-        return (dependency == null) ? ((field != null) ? field.getName() : cls.getSimpleName()) : dependency.getName();
+        return (dependency != null) ? dependency.getName() : ((field != null) ? field.getName() : cls.getSimpleName());
     }
 
     private void setField(Field field, Object resourceInstance, Object obj) {
         Class<?> fieldType = field.getType();
         Class<?> resourceCls = resourceInstance.getClass();
 
-        if (fieldType.isAssignableFrom(resourceCls)) {
+        if (ReflectionUtils.isAssignable(fieldType, resourceCls)) {
             try {
                 boolean accessible = field.isAccessible();
                 field.setAccessible(true);

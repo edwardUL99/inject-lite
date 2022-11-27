@@ -6,8 +6,7 @@ import io.github.edwardUL99.inject.lite.internal.annotations.processing.Internal
 import io.github.edwardUL99.inject.lite.internal.container.ContainersInternal;
 import io.github.edwardUL99.inject.lite.internal.dependency.registration.RegistrationStrategies;
 import io.github.edwardUL99.inject.lite.internal.dependency.registration.RegistrationStrategy;
-import io.github.edwardUL99.inject.lite.internal.injector.DelayedInjectableDependency;
-import io.github.edwardUL99.inject.lite.internal.injector.InjectableDependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.InjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 
 import java.lang.annotation.Annotation;
@@ -26,7 +25,7 @@ public class CustomInjectableProcessor<T extends Annotation> implements Annotati
     /**
      * The injector to add the dependencies to
      */
-    private InternalInjector<DelayedInjectableDependency> injector;
+    private InternalInjector injector;
     /**
      * The supplier of the name from the provided function
      */
@@ -42,9 +41,8 @@ public class CustomInjectableProcessor<T extends Annotation> implements Annotati
      * @param nameSupplier the supplier of the injectable name
      * @param instantiatedProcessor a consumer to process the instantiated object
      */
-    @SuppressWarnings("unchecked")
     public CustomInjectableProcessor(Injector injector, NameSupplier<T> nameSupplier, Consumer<Object> instantiatedProcessor) {
-        this.injector = (InternalInjector<DelayedInjectableDependency>) injector;
+        this.injector = (InternalInjector) injector;
         this.nameSupplier = nameSupplier;
         this.instantiatedProcessor = instantiatedProcessor;
     }
@@ -92,10 +90,9 @@ public class CustomInjectableProcessor<T extends Annotation> implements Annotati
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public void process(List<AnnotatedClass<T>> classes) {
-        InternalInjector<DelayedInjectableDependency> injector = (this.injector == null) ?
-                (InternalInjector<DelayedInjectableDependency>) Injector.get() : this.injector;
+        InternalInjector injector = (this.injector == null) ?
+                (InternalInjector) Injector.get() : this.injector;
 
         for (AnnotatedClass<T> annotatedClass : classes) {
             InternalAnnotatedClass<T> internal = (InternalAnnotatedClass<T>) annotatedClass;

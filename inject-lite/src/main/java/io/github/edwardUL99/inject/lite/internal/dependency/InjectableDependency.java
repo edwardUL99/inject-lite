@@ -1,4 +1,4 @@
-package io.github.edwardUL99.inject.lite.internal.injector;
+package io.github.edwardUL99.inject.lite.internal.dependency;
 
 /**
  * Represents a dependency to be injected by an injector

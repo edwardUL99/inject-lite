@@ -1,11 +1,16 @@
 package io.github.edwardUL99.inject.lite.internal.injector;
 
 import io.github.edwardUL99.inject.lite.Injection;
+import io.github.edwardUL99.inject.lite.annotations.Priority;
+import io.github.edwardUL99.inject.lite.internal.config.Configuration;
 import io.github.edwardUL99.inject.lite.internal.constructors.ConstructorInjector;
 import io.github.edwardUL99.inject.lite.exceptions.DependencyExistsException;
 import io.github.edwardUL99.inject.lite.exceptions.DependencyMismatchException;
 import io.github.edwardUL99.inject.lite.exceptions.DependencyNotFoundException;
 import io.github.edwardUL99.inject.lite.exceptions.InvalidInjectableException;
+import io.github.edwardUL99.inject.lite.internal.dependency.CommonDependencyFunctions;
+import io.github.edwardUL99.inject.lite.internal.dependency.DelayedInjectableDependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.InjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjector;
 import io.github.edwardUL99.inject.lite.threads.AsynchronousExecutor;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,15 +40,15 @@ import static org.mockito.Mockito.when;
 import static org.powermock.reflect.Whitebox.setInternalState;
 
 public class DefaultInjectorTest {
-    private Map<String, DelayedInjectableDependency> injectables;
-    private DefaultInjector<DelayedInjectableDependency> injector;
+    private Map<String, InjectableDependency> injectables;
+    private DefaultInjector injector;
     private FieldInjector mockFieldInjector;
     private ConstructorInjector mockConstructorInjector;
 
     @BeforeEach
     public void init() {
         setInternalStaticField(DelayedInjectableDependency.class, "instances", new HashMap<Class<?>, Object>());
-        injector = Mockito.spy(new DefaultInjector<>(new DelayedInjectableDependency.Factory()));
+        injector = Mockito.spy(new DefaultInjector(new DelayedInjectableDependency.Factory()));
         injectables = injector.injectables;
 
         mockFieldInjector = mock(FieldInjector.class);
@@ -60,12 +65,25 @@ public class DefaultInjectorTest {
         injector.registerDependency("dependency", TestDependency.class, true);
 
         assertEquals(injectables.size(), 1);
-        DelayedInjectableDependency proxy = injectables.get("dependency");
+        InjectableDependency proxy = injectables.get("dependency");
         assertEquals(proxy.getType(), TestDependency.class);
 
         // should throw an exception
         assertThrows(DependencyExistsException.class, () ->
                 injector.registerDependency("dependency", TestDependency.class, true));
+    }
+
+    @Test
+    public void testRegisterConstantDependency() {
+        injector.registerConstantDependency("name", long.class, 1L);
+
+        assertEquals(injectables.size(), 1);
+        InjectableDependency dependency = injectables.get("name");
+        assertEquals(1L, dependency.get());
+
+        // should throw an exception
+        assertThrows(DependencyExistsException.class, () ->
+                injector.registerConstantDependency("name", long.class, 1L));
     }
 
     @Test
@@ -120,7 +138,7 @@ public class DefaultInjectorTest {
     }
 
     private void setUpMockInjectables() {
-        Map<String, DelayedInjectableDependency> injectables = new HashMap<>();
+        injectables = new HashMap<>();
         injectables.put("test", new DelayedInjectableDependency("test", TestDependency.class, injector));
         injectables.put("test1", new DelayedInjectableDependency("test1", TestSubclass.class, injector));
         injectables.put("test2", new DelayedInjectableDependency("test2", TestDependency1.class, injector));
@@ -206,8 +224,68 @@ public class DefaultInjectorTest {
                 injector.registerDependency("cannotInject", CannotInject.class, true));
     }
 
+    @Test
+    public void testInjectAll() {
+        setUpMockInjectables();
+
+        Map<String, TestDependency> dependencies = injector.injectAll(TestDependency.class);
+
+        assertEquals(2, dependencies.size());
+        verify(mockConstructorInjector).injectConstructor("test", TestDependency.class);
+        verify(mockConstructorInjector).injectConstructor("test1", TestSubclass.class);
+        verify(mockFieldInjector).injectFields(injectables.get("test").get());
+        verify(mockFieldInjector).injectFields(injectables.get("test1").get());
+    }
+
+    @Test
+    public void testGetInjectableDependencies() {
+        setUpMockInjectables();
+
+        List<InjectableDependency> dependencies = injector.getInjectableDependencies(TestDependency.class);
+
+        assertEquals(2, dependencies.size());
+        assertEquals(TestDependency.class, dependencies.get(0).getType());
+        assertEquals(TestSubclass.class, dependencies.get(1).getType());
+    }
+
+    @Test
+    public void testGetInjectableDependency() {
+        setUpMockInjectables();
+
+        Configuration.global.setSelectFirstDependency(true);
+        InjectableDependency dependency = injector.getInjectableDependency(TestDependency.class);
+        assertEquals(TestDependency.class, dependency.getType());
+
+        Configuration.global.setSelectFirstDependency(false);
+        dependency = injector.getInjectableDependency(TestDependency.class);
+        assertEquals(TestSubclass.class, dependency.getType());
+    }
+
+    @Test
+    public void testGetInjectableDependencyWithAmbiguousCheck() {
+        try (MockedStatic<CommonDependencyFunctions> dependencyFunctions = mockStatic(CommonDependencyFunctions.class)) {
+            Configuration.global.setRequireNamedMultipleMatch(true);
+
+            DelayedInjectableDependency mockDependency = mock(DelayedInjectableDependency.class);
+
+            dependencyFunctions.when(() -> CommonDependencyFunctions.getUnnamedDependency(TestDependency.class,
+                    injector))
+                    .thenReturn(mockDependency);
+
+            InjectableDependency dependency = injector.getInjectableDependency(TestDependency.class);
+            assertEquals(dependency, mockDependency);
+
+            dependencyFunctions.verify(() -> CommonDependencyFunctions.getUnnamedDependency(TestDependency.class,
+                    injector));
+
+            Configuration.global.setRequireNamedMultipleMatch(false);
+        }
+    }
+
+    @Priority(2)
     public static class TestDependency {}
 
+    @Priority(1)
     public static class TestSubclass extends TestDependency {}
 
     public static class TestDependency1 {}

@@ -1,12 +1,20 @@
 package io.github.edwardUL99.inject.lite.testing;
 
+import io.github.edwardUL99.inject.lite.internal.config.Configuration;
 import io.github.edwardUL99.inject.lite.internal.constructors.ConstructorInjector;
-import io.github.edwardUL99.inject.lite.internal.injector.DelayedInjectableDependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.CommonDependencyFunctions;
+import io.github.edwardUL99.inject.lite.internal.dependency.DelayedInjectableDependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.InjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -14,19 +22,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class TestInjectorTest {
     private TestInjector injector;
-    private InternalInjector<DelayedInjectableDependency> mockInjector;
+    private InternalInjector mockInjector;
     private Map<String, TestDelayedInjectableDependency> testInjectables;
 
     @BeforeEach
-    @SuppressWarnings("unchecked")
     public void init() {
         mockInjector = mock(InternalInjector.class);
         injector = new TestInjector(mockInjector);
@@ -42,6 +49,12 @@ public class TestInjectorTest {
 
         assertNotNull(proxy);
         assertEquals("", proxy.get());
+    }
+
+    @Test
+    public void testRegisterConstantDependency() {
+        injector.registerConstantDependency("name", long.class, 1L);
+        verify(mockInjector).registerConstantDependency("name", long.class, 1L);
     }
 
     @Test
@@ -99,13 +112,15 @@ public class TestInjectorTest {
 
         assertEquals(returned, instance);
 
-        when(mockInjector.inject(Integer.class))
-                .thenReturn(1);
+        Map<String, Integer> wrappedReturned = new LinkedHashMap<>();
+        wrappedReturned.put("integer", 1);
+        when(mockInjector.injectAll(Integer.class))
+                .thenReturn(wrappedReturned);
 
         Integer returned1 = injector.inject(Integer.class);
 
         assertEquals(1, returned1);
-        verify(mockInjector).inject(Integer.class);
+        verify(mockInjector).injectAll(Integer.class);
     }
 
     @Test
@@ -133,30 +148,91 @@ public class TestInjectorTest {
     }
 
     @Test
-    public void testGetInjectionProxy() {
+    public void testGetInjectableDependencies() {
         injector.registerTestDependency("name", new TestClass());
 
-        DelayedInjectableDependency proxy = injector.getInjectableDependency(Interface.class);
+        List<InjectableDependency> dependencies = injector.getInjectableDependencies(Interface.class);
 
-        assertNotNull(proxy);
-        assertEquals(TestClass.class, proxy.getType());
-        verifyNoInteractions(mockInjector);
+        assertNotNull(dependencies);
+        assertEquals(1, dependencies.size());
+
+        InjectableDependency dependency = dependencies.get(0);
+        assertEquals(TestClass.class, dependency.getType());
 
         injector.testInjectables.clear();
 
-        DelayedInjectableDependency mockProxy = mock(DelayedInjectableDependency.class);
+        DelayedInjectableDependency mockDependency = mock(DelayedInjectableDependency.class);
+        dependencies = new ArrayList<>();
+        dependencies.add(mockDependency);
 
-        when(mockInjector.getInjectableDependency(Interface.class))
-                .thenReturn(mockProxy);
+        when(mockInjector.getInjectableDependencies(Interface.class))
+                .thenReturn(dependencies);
 
-        proxy = injector.getInjectableDependency(Interface.class);
+        dependencies = injector.getInjectableDependencies(Interface.class);
 
-        assertNotNull(proxy);
-        assertEquals(proxy, mockProxy);
-        verify(mockInjector).getInjectableDependency(Interface.class);
+        assertNotNull(dependencies);
+        assertEquals(1, dependencies.size());
+
+        dependency = dependencies.get(0);
+        assertEquals(dependency, mockDependency);
+        verify(mockInjector, times(2)).getInjectableDependencies(Interface.class);
+    }
+
+    @Test
+    public void testGetInjectableDependency() {
+        injector.registerTestDependency("name", new TestClass());
+
+        when(mockInjector.getInjectableDependencies(TestClass.class))
+                .thenReturn(new ArrayList<>());
+
+        InjectableDependency dependency = injector.getInjectableDependency(TestClass.class);
+        assertEquals(TestClass.class, dependency.getType());
+    }
+
+    @Test
+    public void testGetInjectableDependencyWithAmbiguousCheck() {
+        try (MockedStatic<CommonDependencyFunctions> dependencyFunctions = mockStatic(CommonDependencyFunctions.class)) {
+            Configuration.global.setRequireNamedMultipleMatch(true);
+
+            DelayedInjectableDependency mockDependency = mock(DelayedInjectableDependency.class);
+
+            dependencyFunctions.when(() -> CommonDependencyFunctions.getUnnamedDependency(TestClass.class,
+                            injector))
+                    .thenReturn(mockDependency);
+
+            InjectableDependency dependency = injector.getInjectableDependency(TestClass.class);
+            assertEquals(dependency, mockDependency);
+
+            dependencyFunctions.verify(() -> CommonDependencyFunctions.getUnnamedDependency(TestClass.class,
+                    injector));
+
+            Configuration.global.setRequireNamedMultipleMatch(false);
+        }
+    }
+
+    @Test
+    public void testInjectAll() {
+        TestClass testClass = new TestClass();
+        TestClass1 testClass1 = new TestClass1();
+        HashMap<String, Interface> returnedMap = new LinkedHashMap<>();
+        returnedMap.put("name1", testClass1);
+
+        when(mockInjector.injectAll(Interface.class))
+                .thenReturn(returnedMap);
+
+        injector.registerTestDependency("name", testClass);
+        injector.registerDependency("name1", TestClass1.class, true);
+
+        Map<String, Interface> all = injector.injectAll(Interface.class);
+
+        assertEquals(2, all.size());
+        assertEquals(all.get("name"), testClass);
+        assertEquals(all.get("name1"), testClass1);
     }
 
     private interface Interface {}
 
     private static class TestClass implements Interface {}
+
+    private static class TestClass1 extends TestClass {}
 }

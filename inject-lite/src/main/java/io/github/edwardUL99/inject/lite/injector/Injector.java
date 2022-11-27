@@ -8,6 +8,7 @@ import io.github.edwardUL99.inject.lite.exceptions.InjectionException;
 import io.github.edwardUL99.inject.lite.exceptions.InvalidInjectableException;
 import io.github.edwardUL99.inject.lite.threads.AsynchronousExecutor;
 
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -31,6 +32,14 @@ public interface Injector {
     <T> void registerDependency(String name, Class<T> cls, boolean singleton) throws DependencyExistsException, InvalidInjectableException;
 
     /**
+     * Register a dependency that is a constant value
+     * @param name the name of the dependency
+     * @param type the type of the constant
+     * @param value the constant value
+     */
+    void registerConstantDependency(String name, Class<?> type, Object value) throws DependencyExistsException;
+
+    /**
      * Inject an object of the given name. Checks that the registered class is the same class as expected or a subclass
      * of it
      * @param name the name of the dependency
@@ -44,7 +53,9 @@ public interface Injector {
     <T> T inject(String name, Class<T> expected) throws DependencyNotFoundException, DependencyMismatchException;
 
     /**
-     * Find the first matching dependency that has the same class as the provided type or is a subclass of the provided type
+     * Find the first matching dependency that has the same class as the provided type or is a subclass of the provided type.
+     * This returns the first dependency that is the same type or a subtype of the provided type. To get a list of all
+     * matching dependencies, use {@link #injectAll(Class)}
      * @param type the type of the dependency to find
      * @return the instantiated dependency
      * @param <T> the type of the dependency
@@ -53,12 +64,23 @@ public interface Injector {
     <T> T inject(Class<T> type) throws DependencyNotFoundException;
 
     /**
-     * Act on dependencies that are either type of subtypes of type with the provided consumer
-     * @param consumer the consumer to act on each dependency
-     * @param type the type of the dependencies
-     * @param <T> the typeof the dependencies to act on
+     * Retrieve a list of all dependencies that are either the same type or a subtype of the provided type
+     * @param type the type of the dependency to find
+     * @return the map of matching dependencies, mapped with dependency name to dependency
+     * @param <T> the type of the dependencies
+     * @throws DependencyNotFoundException if 0 dependencies match the type
      */
-    <T> void actOnDependencies(Consumer<T> consumer, Class<T> type);
+    <T> Map<String, T> injectAll(Class<T> type) throws DependencyNotFoundException;
+
+        /**
+         * Act on dependencies that are either type of subtypes of type with the provided consumer
+         * @param consumer the consumer to act on each dependency
+         * @param type the type of the dependencies
+         * @param <T> the typeof the dependencies to act on
+         */
+            <T>
+
+    void actOnDependencies(Consumer<T> consumer, Class<T> type);
 
     /**
      * Act on all dependencies (calls {@link #actOnDependencies(Consumer, Class)} with Object.class

@@ -1,7 +1,7 @@
 package io.github.edwardUL99.inject.lite.internal.injector;
 
 import io.github.edwardUL99.inject.lite.injector.Injector;
-import io.github.edwardUL99.inject.lite.internal.dependency.DependencyScanner;
+import io.github.edwardUL99.inject.lite.internal.dependency.scanner.DependencyScanner;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;

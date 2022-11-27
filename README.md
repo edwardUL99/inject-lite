@@ -155,6 +155,44 @@ public class Dependency {}
 public class Dependency {}
 ```
 
+### @Priority
+Used to annotate a dependency in conjunction with @Injectable. The value is an integer value which the lower value giving
+the dependency a higher priority over other dependencies of the same type
+
+### @ConstantDependencies and @Constant
+ConstantDependencies marks a class as defining **public static final** fields that can be injected. These are constants
+and never change. A single class can be defined to define a list of constants that should be injected elsewhere.
+```java
+import io.github.edwardUL99.inject.lite.annotations.Constant;
+import io.github.edwardUL99.inject.lite.annotations.Injectable;
+import io.github.edwardUL99.inject.lite.annotations.Inject;
+import io.github.edwardUL99.inject.lite.annotations.Name;
+import io.github.edwardUL99.inject.lite.annotations.ConstantDependencies;
+
+@ConstantDependencies
+public class Constants {
+    @Constant("number")
+    public static final long TEST_VAL = 45L;
+    @Constant // when no string value provided, the name of the field is used as dependency name
+    public static final String stringVal = "Hello World";
+}
+
+// constants can be injected into clients
+@Injectable("client")
+public class Client {
+    private final long number;
+    private final String message;
+    
+    @Inject
+    public Client(long number, @Name("stringVal") String message) {
+        this.number = number;
+        this.message = message;
+    }
+}
+```
+
+This mechanism allows constants and primitives to be injected into fields/constructors as illustrated in the above example
+
 ## Injection
 To manually inject dependencies, you can use either `T Injector#inject(String name, Class<T> expected)` or `T Injector#inject(Class<T> type)`.
 - The first function injects the dependency by finding a dependency with the given name. It then matches the type of the
@@ -184,8 +222,16 @@ public class Example {
         // This service will be the same instance as above since 1 dependency ServiceImpl can be assigned to Service
         Service service1 = injector.inject(Service.class);
         
+        // Inject ALL dependencies that are either instances of Service or sub-types. inject(Service.class) returns the first matching dependency
+        // this returns all matching ones
+        List<Service> services = injector.injectAll(Service.class);
+        
         service.service();
         service1.service();
+        
+        for (Service service2 : services) {
+            service2.service();
+        }
     }
 }
 ```
@@ -215,6 +261,30 @@ public class Example {
 ```
 The Service interface and ServiceImpl class here is defined further up in the README
 
+### Injection with multiple dependencies
+When using `Injector#inject(Class)` the injector looks for a dependency where the type of the dependency is either the same
+as the provided class or a subclass. The behaviour when trying to inject a dependency of this type and where multiple dependencies
+match the type is dependent on configuration. The configuration method of interest are:
+- `Injection.configure(new ConfigurationBuilder().withSelectFirstDependency(boolean))` if true, the first dependency in the list of matching dependencies is returned.
+If false, dependencies are selected using priority. Priority can be assigned to a dependency using the `@Priority` annotation.
+This annotation takes an integer, where the lower the integer gives the dependency the highest priority. The default is the maximum
+integer value. The default is false, meaning priority will be used.
+
+To get all the matching dependencies, use `Injector#injectAll(Class)` which returns a map of the dependencies matching,
+keyed by the name of the dependency, with the value being the dependency instance.
+
+#### Unnamed dependencies
+In this context, an unnamed dependency is when you annotate either:
+- a field with @Inject and without a name, or
+- a constructor parameter without @Name annotation
+
+When this happens, the injector is searched for a matching dependency. Where multiple dependencies match based on the type
+of the field/parameter, the behaviour again is dependent on configuration.
+- If `Injection.configure(new ConfigurationBuilder().withRequireNamedMultipleMatch(boolean))` is called with true, this means that when injecting an
+unnamed dependency and multiple matches are found, an `AmbiguousDependencyException` will be thrown. The default is false.
+When false, when multiple dependencies are found, the strategy of injecting based on priority/first in the list will be 
+used, again based on `Injection.configure(new ConfigurationBuilder().withSelectFirstDependency(boolean))`
+
 ### Restricting injection scope
 By default, every class on the classpath of the project will be searched for dependencies. You can restrict the scope of
 where dependencies are searched to a list of base packages where all classes and packages underneath those base packages
@@ -222,10 +292,10 @@ will be scanned, rather than the whole project. For example your project package
 and packages containing dependencies. The project depends on 10 other dependencies. Rather than scanning the project and all
 its dependencies, the following call restricts scanning to the project:
 ```
-// Injection.setInjectionPackages(String...packages);
+// Injection.configure(new ConfigurationBuilder().withInjectionPackagePrefixes(String...packages));
 
 // all classes and subpackages underneath com.foo.bar will be scanned for dependencies
-Injection.setInjectionPackages("com.foo.bar");
+Injection.configure(new ConfigurationBuilder().withInjectionPackagePrefixes("com.foo.bar"));
 ```
 Make this call before you begin using any injectors or annotation scanners, as any calls after will have no effect
 

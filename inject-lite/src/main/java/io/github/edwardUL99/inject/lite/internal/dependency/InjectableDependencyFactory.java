@@ -1,10 +1,11 @@
-package io.github.edwardUL99.inject.lite.internal.injector;
+package io.github.edwardUL99.inject.lite.internal.dependency;
+
+import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 
 /**
  * Factory for creating injectable dependency instances
- * @param <D> the type of the dependency
  */
-public interface InjectableDependencyFactory<D extends InjectableDependency> {
+public interface InjectableDependencyFactory {
     /**
      * Create the dependency
      * @param name the name of the dependency
@@ -13,5 +14,5 @@ public interface InjectableDependencyFactory<D extends InjectableDependency> {
      * @param singleton true if singleton, false if not
      * @return the instance
      */
-    D instantiate(String name, Class<?> type, InternalInjector<D> injector, boolean singleton);
+    InjectableDependency instantiate(String name, Class<?> type, InternalInjector injector, boolean singleton);
 }

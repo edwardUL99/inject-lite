@@ -1,9 +1,10 @@
-package io.github.edwardUL99.inject.lite.internal.dependency;
+package io.github.edwardUL99.inject.lite.internal.dependency.scanner;
 
 import io.github.edwardUL99.inject.lite.annotations.Injectable;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.internal.container.ContainersInternal;
 import io.github.edwardUL99.inject.lite.internal.dependency.registration.RegistrationStrategy;
+import io.github.edwardUL99.inject.lite.internal.dependency.scanner.InjectableScanner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;

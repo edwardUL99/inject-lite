@@ -4,8 +4,8 @@ import io.github.edwardUL99.inject.lite.annotations.Inject;
 import io.github.edwardUL99.inject.lite.annotations.Name;
 import io.github.edwardUL99.inject.lite.exceptions.InjectionException;
 import io.github.edwardUL99.inject.lite.internal.dependency.Dependency;
-import io.github.edwardUL99.inject.lite.internal.dependency.DependencyGraph;
-import io.github.edwardUL99.inject.lite.internal.injector.DelayedInjectableDependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.graph.DependencyGraph;
+import io.github.edwardUL99.inject.lite.internal.dependency.DelayedInjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,17 +13,17 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class DefaultConstructorInjectorTest {
-    private InternalInjector<DelayedInjectableDependency> mockInjector;
+    private InternalInjector mockInjector;
     private DefaultConstructorInjector constructorInjector;
 
     @BeforeEach
-    @SuppressWarnings("unchecked")
     public void init() {
         mockInjector = mock(InternalInjector.class);
         constructorInjector = new DefaultConstructorInjector(mockInjector);
@@ -33,10 +33,11 @@ public class DefaultConstructorInjectorTest {
     public void testInjectorInjectConstructor() {
         when(mockInjector.injectWithGraph("numberDependency", Integer.class))
                 .thenReturn(42);
-        DelayedInjectableDependency mockProxy = mock(DelayedInjectableDependency.class);
+        DelayedInjectableDependency mockDependency = mock(DelayedInjectableDependency.class);
+
         when(mockInjector.getInjectableDependency(String.class))
-                .thenReturn(mockProxy);
-        when(mockInjector.injectWithGraph(String.class, mockProxy))
+                .thenReturn(mockDependency);
+        when(mockInjector.injectWithGraph(eq(String.class), eq(mockDependency)))
                 .thenReturn("Hello World");
 
         TestInjectableClass injectableClass =
@@ -46,7 +47,7 @@ public class DefaultConstructorInjectorTest {
         assertEquals(injectableClass.number, 42);
 
         verify(mockInjector).injectWithGraph("numberDependency", Integer.class);
-        verify(mockInjector).injectWithGraph(String.class, mockProxy);
+        verify(mockInjector).injectWithGraph(eq(String.class), eq(mockDependency));
     }
 
     @Test
@@ -55,12 +56,13 @@ public class DefaultConstructorInjectorTest {
         constructorInjector.setDependencyGraph(graph);
         when(mockInjector.injectWithGraph("numberDependency", Integer.class))
                 .thenReturn(42);
-        DelayedInjectableDependency mockProxy = mock(DelayedInjectableDependency.class);
+        DelayedInjectableDependency mockDependency = mock(DelayedInjectableDependency.class);
+
         when(mockInjector.getInjectableDependency(String.class))
-                .thenReturn(mockProxy);
-        when(mockInjector.injectWithGraph(String.class, mockProxy))
+                .thenReturn(mockDependency);
+        when(mockInjector.injectWithGraph(eq(String.class), eq(mockDependency)))
                 .thenReturn("Hello World");
-        when(mockProxy.getName())
+        when(mockDependency.getName())
                 .thenReturn("stringValue");
 
         TestInjectableClass injectableClass =
@@ -72,7 +74,7 @@ public class DefaultConstructorInjectorTest {
         constructorInjector.setDependencyGraph(null);
 
         verify(mockInjector).injectWithGraph("numberDependency", Integer.class);
-        verify(mockInjector).injectWithGraph(String.class, mockProxy);
+        verify(mockInjector).injectWithGraph(eq(String.class), eq(mockDependency));
         verify(graph).addDependency(new Dependency("test", TestInjectableClass.class),
                 new Dependency("stringValue", String.class));
         verify(graph).addDependency(new Dependency("test", TestInjectableClass.class),

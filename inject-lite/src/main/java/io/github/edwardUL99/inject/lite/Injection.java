@@ -1,8 +1,9 @@
 package io.github.edwardUL99.inject.lite;
 
+import io.github.edwardUL99.inject.lite.config.ConfigurationBuilder;
+import io.github.edwardUL99.inject.lite.internal.config.Configuration;
 import io.github.edwardUL99.inject.lite.internal.threads.ExecutorServiceExecutor;
 import io.github.edwardUL99.inject.lite.internal.threads.Threads;
-import io.github.edwardUL99.inject.lite.internal.utils.ReflectionUtils;
 import io.github.edwardUL99.inject.lite.threads.AsynchronousExecutor;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.internal.injector.InjectionContext;
@@ -14,11 +15,22 @@ public final class Injection {
     private Injection() {}
 
     /**
+     * Configure the injection library using the provided builder
+     * @param configurationBuilder the builder containing configuration logic
+     */
+    public static void configure(ConfigurationBuilder configurationBuilder) {
+        Configuration.global = configurationBuilder.build();
+    }
+
+    /**
      * Set the base packages to search for injectables on the classpath
      * @param injectionPackages the base packages prefix
+     * @deprecated Use {@link #configure(ConfigurationBuilder)}. This method simply just calls that
+     * method and may be removed in a future release
      */
+    @Deprecated
     public static void setInjectionPackages(String...injectionPackages) {
-        ReflectionUtils.setReflectionsPrefixes(injectionPackages);
+        configure(new ConfigurationBuilder().withInjectionPackagePrefixes(injectionPackages));
     }
 
     /**

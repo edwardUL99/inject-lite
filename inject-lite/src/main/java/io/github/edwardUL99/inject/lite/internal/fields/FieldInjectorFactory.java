@@ -1,16 +1,12 @@
 package io.github.edwardUL99.inject.lite.internal.fields;
 
 import io.github.edwardUL99.inject.lite.injector.Injector;
+import io.github.edwardUL99.inject.lite.internal.config.Configuration;
 
 /**
  * A factory for producing field injectors
  */
 public final class FieldInjectorFactory {
-    /**
-     * Determines if single level injection is enabled
-     */
-    private static final boolean singleLevelInjection = System.getProperty("single.level.injection") != null;
-
     /**
      * Get a field injector that can inject fields on multiple levels of inheritance
      * @param injector the injector to use for dependencies
@@ -37,7 +33,7 @@ public final class FieldInjectorFactory {
      * @return the field injector to use
      */
     public static FieldInjector getFieldInjector(Injector injector) {
-        return getFieldInjector(injector, singleLevelInjection);
+        return getFieldInjector(injector, Configuration.global.isSingleLevelInjection());
     }
 
     /**

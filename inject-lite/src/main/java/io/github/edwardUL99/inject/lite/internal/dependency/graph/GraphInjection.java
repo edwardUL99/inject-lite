@@ -1,6 +1,8 @@
-package io.github.edwardUL99.inject.lite.internal.dependency;
+package io.github.edwardUL99.inject.lite.internal.dependency.graph;
 
 import io.github.edwardUL99.inject.lite.internal.constructors.ConstructorInjector;
+import io.github.edwardUL99.inject.lite.internal.dependency.Dependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.graph.DependencyGraph;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjector;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 
@@ -22,7 +24,7 @@ public final class GraphInjection {
      * @return the injected value
      * @param <T> the type of the dependency
      */
-    public static <T> T executeInGraphContext(InternalInjector<?> injector, String name, Class<T> cls, Supplier<T> supplier) {
+    public static <T> T executeInGraphContext(InternalInjector injector, String name, Class<T> cls, Supplier<T> supplier) {
         DependencyGraph graph = new DependencyGraph(new Dependency(name, cls));
         ConstructorInjector constructorInjector = injector.getConstructorInjector();
         FieldInjector fieldInjector = injector.getFieldInjector();

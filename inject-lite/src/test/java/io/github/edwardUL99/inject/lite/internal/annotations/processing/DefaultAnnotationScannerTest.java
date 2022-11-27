@@ -3,7 +3,6 @@ package io.github.edwardUL99.inject.lite.internal.annotations.processing;
 import io.github.edwardUL99.inject.lite.annotations.processing.AnnotatedClass;
 import io.github.edwardUL99.inject.lite.annotations.processing.AnnotationProcessor;
 import io.github.edwardUL99.inject.lite.internal.constructors.ConstructorInjector;
-import io.github.edwardUL99.inject.lite.internal.injector.DelayedInjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjector;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,7 +32,7 @@ import static org.powermock.reflect.Whitebox.getInternalState;
 public class DefaultAnnotationScannerTest {
     private DefaultAnnotationScanner scanner;
     private Reflections reflectionsMock;
-    private InternalInjector<DelayedInjectableDependency> mockInjector;
+    private InternalInjector mockInjector;
     private Map<Class<? extends Annotation>, List<AnnotationProcessor<? extends Annotation>>> processors;
 
     public static Set<Class<?>> mockSet() {
@@ -44,7 +43,6 @@ public class DefaultAnnotationScannerTest {
     }
 
     @BeforeEach
-    @SuppressWarnings("unchecked")
     public void init() {
         FieldInjector mockFieldInjector = mock(FieldInjector.class);
         ConstructorInjector mockConstructorInjector = mock(ConstructorInjector.class);

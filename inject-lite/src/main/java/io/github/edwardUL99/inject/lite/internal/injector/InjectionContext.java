@@ -1,10 +1,14 @@
 package io.github.edwardUL99.inject.lite.internal.injector;
 
 import io.github.edwardUL99.inject.lite.injector.Injector;
-import io.github.edwardUL99.inject.lite.internal.dependency.DependencyScanner;
-import io.github.edwardUL99.inject.lite.internal.dependency.InjectableScanner;
+import io.github.edwardUL99.inject.lite.internal.dependency.DelayedInjectableDependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.scanner.ConstantsScanner;
+import io.github.edwardUL99.inject.lite.internal.dependency.scanner.DependencyScanner;
+import io.github.edwardUL99.inject.lite.internal.dependency.scanner.InjectableScanner;
+import io.github.edwardUL99.inject.lite.internal.dependency.scanner.MultipleDependencyScanner;
 import io.github.edwardUL99.inject.lite.internal.threads.Threads;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -79,7 +83,12 @@ public final class InjectionContext {
      */
     private static DependencyScanner getScanner() {
         if (scanner == null) {
-            scanner = new InjectableScanner();
+            scanner = new MultipleDependencyScanner(
+                    Arrays.asList(
+                            new InjectableScanner(),
+                            new ConstantsScanner()
+                    )
+            );
         }
 
         return scanner;
