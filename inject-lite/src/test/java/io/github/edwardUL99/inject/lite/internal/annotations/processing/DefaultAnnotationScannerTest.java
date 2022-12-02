@@ -5,9 +5,9 @@ import io.github.edwardUL99.inject.lite.annotations.processing.AnnotationProcess
 import io.github.edwardUL99.inject.lite.internal.constructors.ConstructorInjector;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjector;
+import io.github.edwardUL99.inject.lite.internal.reflections.Reflections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.reflections.Reflections;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;

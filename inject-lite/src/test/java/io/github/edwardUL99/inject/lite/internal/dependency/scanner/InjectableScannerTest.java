@@ -4,11 +4,10 @@ import io.github.edwardUL99.inject.lite.annotations.Injectable;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.internal.container.ContainersInternal;
 import io.github.edwardUL99.inject.lite.internal.dependency.registration.RegistrationStrategy;
-import io.github.edwardUL99.inject.lite.internal.dependency.scanner.InjectableScanner;
+import io.github.edwardUL99.inject.lite.internal.reflections.Reflections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
-import org.reflections.Reflections;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
