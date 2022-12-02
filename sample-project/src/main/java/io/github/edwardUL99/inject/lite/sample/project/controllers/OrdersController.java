@@ -16,7 +16,7 @@ public class OrdersController {
     @Inject
     public OrdersController(OrderService orderService, @Name("configServiceBean") ConfigService configService) {
         this.orderService = orderService;
-        System.out.println("Injected ConfigService: " + configService + ". Debug enabled: " + configService.getConfig());
+        System.out.println("Injected ConfigService: " + configService + ". Debug enabled: " + configService.getConfig().isDebugEnabled());
     }
 
     public Order getOrder(int id) {

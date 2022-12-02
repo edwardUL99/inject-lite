@@ -1,6 +1,8 @@
 package io.github.edwardUL99.inject.lite.internal.utils;
 
+import io.github.edwardUL99.inject.lite.internal.config.Configuration;
 import io.github.edwardUL99.inject.lite.internal.reflections.Reflections;
+import io.github.edwardUL99.inject.lite.internal.reflections.ReflectionsLibraryFacade;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +49,8 @@ public final class ReflectionUtils {
      */
     public static Reflections getReflections() {
         if (reflections == null) {
-            reflections = new Reflections();
+            reflections = new Reflections(Configuration.global.getInjectionPackagePrefixes(),
+                    new ReflectionsLibraryFacade());
         }
 
         return reflections;
