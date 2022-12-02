@@ -5,8 +5,8 @@ import io.github.edwardUL99.inject.lite.annotations.processing.AnnotationProcess
 import io.github.edwardUL99.inject.lite.annotations.processing.AnnotationScanner;
 import io.github.edwardUL99.inject.lite.internal.dependency.DelayedInjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
+import io.github.edwardUL99.inject.lite.internal.reflections.Reflections;
 import io.github.edwardUL99.inject.lite.internal.utils.ReflectionUtils;
-import org.reflections.Reflections;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;

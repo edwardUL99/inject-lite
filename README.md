@@ -297,7 +297,6 @@ its dependencies, the following call restricts scanning to the project:
 // all classes and subpackages underneath com.foo.bar will be scanned for dependencies
 Injection.configure(new ConfigurationBuilder().withInjectionPackagePrefixes("com.foo.bar"));
 ```
-Make this call before you begin using any injectors or annotation scanners, as any calls after will have no effect
 
 Note that this also restricts annotation scanning using the `AnnotationScanner` API.
 

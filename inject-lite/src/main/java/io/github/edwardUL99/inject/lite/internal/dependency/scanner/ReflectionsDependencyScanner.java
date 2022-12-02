@@ -3,8 +3,8 @@ package io.github.edwardUL99.inject.lite.internal.dependency.scanner;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.internal.container.ContainersInternal;
 import io.github.edwardUL99.inject.lite.internal.dependency.registration.RegistrationStrategy;
+import io.github.edwardUL99.inject.lite.internal.reflections.Reflections;
 import io.github.edwardUL99.inject.lite.internal.utils.ReflectionUtils;
-import org.reflections.Reflections;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;

@@ -3,7 +3,7 @@ package io.github.edwardUL99.inject.lite.internal.dependency.scanner;
 import io.github.edwardUL99.inject.lite.annotations.ConstantDependencies;
 import io.github.edwardUL99.inject.lite.internal.dependency.registration.ConstantsRegistrationStrategy;
 import io.github.edwardUL99.inject.lite.internal.dependency.registration.RegistrationStrategy;
-import org.reflections.Reflections;
+import io.github.edwardUL99.inject.lite.internal.reflections.Reflections;
 
 import java.lang.annotation.Annotation;
 

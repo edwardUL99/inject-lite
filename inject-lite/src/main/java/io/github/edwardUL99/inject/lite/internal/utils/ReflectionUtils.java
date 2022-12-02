@@ -1,9 +1,6 @@
 package io.github.edwardUL99.inject.lite.internal.utils;
 
-import io.github.edwardUL99.inject.lite.internal.config.Configuration;
-import org.reflections.Reflections;
-import org.reflections.util.ClasspathHelper;
-import org.reflections.util.ConfigurationBuilder;
+import io.github.edwardUL99.inject.lite.internal.reflections.Reflections;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,15 +46,8 @@ public final class ReflectionUtils {
      * @return the shared reflections instance
      */
     public static Reflections getReflections() {
-        String[] prefixes = Configuration.global.getInjectionPackagePrefixes();
-
         if (reflections == null) {
-            if (prefixes != null) {
-                reflections = new Reflections(new ConfigurationBuilder().forPackages(prefixes));
-            } else {
-                reflections = new Reflections(new ConfigurationBuilder()
-                        .addUrls(ClasspathHelper.forJavaClassPath()));
-            }
+            reflections = new Reflections();
         }
 
         return reflections;

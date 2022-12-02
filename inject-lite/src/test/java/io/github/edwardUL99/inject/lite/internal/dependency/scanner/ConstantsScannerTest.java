@@ -4,9 +4,9 @@ import io.github.edwardUL99.inject.lite.annotations.Constant;
 import io.github.edwardUL99.inject.lite.annotations.ConstantDependencies;
 import io.github.edwardUL99.inject.lite.exceptions.InjectionException;
 import io.github.edwardUL99.inject.lite.injector.Injector;
+import io.github.edwardUL99.inject.lite.internal.reflections.Reflections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.reflections.Reflections;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
