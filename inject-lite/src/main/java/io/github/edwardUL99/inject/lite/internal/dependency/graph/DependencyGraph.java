@@ -58,12 +58,30 @@ public class DependencyGraph {
         }
     }
 
+    /*
+    Checks if the parent and dependency has the same names as this may result in a conflict
+    and circular dependency
+     */
+    private void checkConflictingDependency(Dependency parent, Dependency dependency) {
+        Class<?> parentType = parent.getType();
+        Class<?> dependencyType = dependency.getType();
+        String parentName = parent.getName();
+        String dependencyName = dependency.getName();
+
+        if (parentName.equals(dependencyName) &&
+                (parentType.isAssignableFrom(dependencyType) || dependencyType.isAssignableFrom(parentType)))
+            throw new CircularDependencyException(String.format("Dependency being injected has same name as parent:" +
+                    " Parent: %s, Dependency: %s. Try specifying a name of a dependency different to this one to" +
+                    " avoid this conflict", parentName, dependencyName));
+    }
+
     /**
      * Add the dependency to the parent class
      * @param parent the parent dependency depending on the dependency
      * @param dependency the dependency
      */
     public void addDependency(Dependency parent, Dependency dependency) {
+        checkConflictingDependency(parent, dependency);
         dependencies.computeIfAbsent(parent, k -> new ArrayList<>()).add(dependency);
 
         checkCircular(parent, dependency, new StringBuilder().append("Dependency: ").append(parent.getName())
