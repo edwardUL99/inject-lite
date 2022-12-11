@@ -2,8 +2,10 @@ package io.github.edwardUL99.inject.lite.internal.dependency.graph;
 
 import io.github.edwardUL99.inject.lite.exceptions.CircularDependencyException;
 import io.github.edwardUL99.inject.lite.internal.dependency.Dependency;
-import io.github.edwardUL99.inject.lite.internal.dependency.graph.DependencyGraph;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -42,5 +44,14 @@ public class DependencyGraphTest {
         graph.addDependency(parent, parentChild);
         graph.addDependency(parentChild, integerChild);
         graph.addDependency(integerChild, floatChild);
+    }
+
+    @Test
+    public void testConflictingDependencies() {
+        Dependency parent = new Dependency("name", List.class);
+        Dependency child = new Dependency("name", ArrayList.class);
+
+        DependencyGraph graph = new DependencyGraph(parent);
+        assertThrows(CircularDependencyException.class, () -> graph.addDependency(parent, child));
     }
 }
