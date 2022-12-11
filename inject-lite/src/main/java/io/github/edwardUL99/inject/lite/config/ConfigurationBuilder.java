@@ -10,7 +10,7 @@ public class ConfigurationBuilder {
     /**
      * The configuration object being built
      */
-    private Configuration configuration = new Configuration();
+    private final Configuration configuration = new Configuration();
 
     /**
      * Set the injection package prefixes. This must be called before the first call to {@link Injector#get()}.
@@ -52,6 +52,16 @@ public class ConfigurationBuilder {
      */
     public ConfigurationBuilder withRequireNamedMultipleMatch(boolean requireNamedMultipleMatch) {
         configuration.setRequireNamedMultipleMatch(requireNamedMultipleMatch);
+
+        return this;
+    }
+
+    /**
+     * Set the value for using parameter/property names if the dependency is unnamed.
+     * @param useParameterNameIfUnnamed true to use the parameter/property name, false to use the type
+     */
+    public ConfigurationBuilder withUseParameterNameIfUnnamed(boolean useParameterNameIfUnnamed) {
+        configuration.setUseParameterNameIfUnnamed(useParameterNameIfUnnamed);
 
         return this;
     }

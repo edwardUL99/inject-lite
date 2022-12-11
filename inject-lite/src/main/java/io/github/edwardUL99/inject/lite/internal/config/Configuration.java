@@ -25,6 +25,10 @@ public final class Configuration {
      */
     private boolean requireNamedMultipleMatch;
     /**
+     * Determines if the constructor parameter/instance property name should be used to find dependency if unnamed.
+     */
+    private boolean useParameterNameIfUnnamed;
+    /**
      * The global configuration object
      */
     public static Configuration global = new Configuration();
@@ -97,5 +101,22 @@ public final class Configuration {
      */
     public void setRequireNamedMultipleMatch(boolean requireNamedMultipleMatch) {
         this.requireNamedMultipleMatch = requireNamedMultipleMatch;
+    }
+
+    /**
+     * Set the value for whether the parameter/property name should be used if the dependency isn't used.
+     * If true, the -g and -parameters should be provided to the compilation command
+     * @param useParameterNameIfUnnamed true if to use parameter/property name if unnamed, otherwise, find by type
+     */
+    public void setUseParameterNameIfUnnamed(boolean useParameterNameIfUnnamed) {
+        this.useParameterNameIfUnnamed = useParameterNameIfUnnamed;
+    }
+
+    /**
+     * Get the value for whether the parameter/property name should be used if the dependency isn't used
+     * @return true if to use parameter/property name if unnamed, otherwise, find by type
+     */
+    public boolean isUseParameterNameIfUnnamed() {
+        return useParameterNameIfUnnamed;
     }
 }

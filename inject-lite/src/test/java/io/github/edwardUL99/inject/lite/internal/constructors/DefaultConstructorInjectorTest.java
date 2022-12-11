@@ -10,9 +10,12 @@ import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.function.Supplier;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -35,7 +38,7 @@ public class DefaultConstructorInjectorTest {
                 .thenReturn(42);
         DelayedInjectableDependency mockDependency = mock(DelayedInjectableDependency.class);
 
-        when(mockInjector.getInjectableDependency(String.class))
+        when(mockInjector.getInjectableDependency(eq(String.class), any(Supplier.class), eq(false)))
                 .thenReturn(mockDependency);
         when(mockInjector.injectWithGraph(eq(String.class), eq(mockDependency)))
                 .thenReturn("Hello World");
@@ -58,7 +61,7 @@ public class DefaultConstructorInjectorTest {
                 .thenReturn(42);
         DelayedInjectableDependency mockDependency = mock(DelayedInjectableDependency.class);
 
-        when(mockInjector.getInjectableDependency(String.class))
+        when(mockInjector.getInjectableDependency(eq(String.class), any(Supplier.class), eq(false)))
                 .thenReturn(mockDependency);
         when(mockInjector.injectWithGraph(eq(String.class), eq(mockDependency)))
                 .thenReturn("Hello World");

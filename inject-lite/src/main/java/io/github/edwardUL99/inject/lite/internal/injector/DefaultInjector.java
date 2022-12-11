@@ -13,6 +13,8 @@ import io.github.edwardUL99.inject.lite.internal.dependency.InjectableDependency
 import io.github.edwardUL99.inject.lite.internal.dependency.graph.GraphInjection;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjector;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjectorFactory;
+import io.github.edwardUL99.inject.lite.internal.methods.MethodInjector;
+import io.github.edwardUL99.inject.lite.internal.methods.MethodInjectorFactory;
 import io.github.edwardUL99.inject.lite.internal.utils.ReflectionUtils;
 
 import java.util.ArrayList;
@@ -40,6 +42,10 @@ public class DefaultInjector implements InternalInjector {
      */
     protected final ConstructorInjector constructorInjector = ConstructorInjectorFactory.getConstructorInjector(this);
     /**
+     * The method injector instance
+     */
+    protected final MethodInjector methodInjector = MethodInjectorFactory.getMethodInjector(this);
+    /**
      * The factory for creating dependencies
      */
     protected final InjectableDependencyFactory factory;
@@ -60,6 +66,11 @@ public class DefaultInjector implements InternalInjector {
     @Override
     public ConstructorInjector getConstructorInjector() {
         return constructorInjector;
+    }
+
+    @Override
+    public MethodInjector getMethodInjector() {
+        return methodInjector;
     }
 
     @Override
@@ -130,6 +141,17 @@ public class DefaultInjector implements InternalInjector {
                 return (T) dependency.get();
             }
         }
+    }
+
+    @Override
+    public InjectableDependency getInjectableDependency(String name, Class<?> expected) throws DependencyMismatchException {
+        InjectableDependency dependency = injectables.get(name);
+
+        Class<?> type;
+        if (dependency != null && !ReflectionUtils.isAssignable(expected, (type = dependency.getType())))
+            throw new DependencyMismatchException(name, expected, type);
+
+        return dependency;
     }
 
     @Override

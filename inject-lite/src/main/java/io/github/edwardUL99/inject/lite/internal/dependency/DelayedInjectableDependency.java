@@ -47,6 +47,18 @@ public class DelayedInjectableDependency extends BaseInjectableDependency {
         return InjectionContext.isSingletonBehaviourEnabled() && singleton;
     }
 
+    private Object createInstance(Map<Dependency, Object> instances, Dependency dependency) {
+        Object instance = injector.getConstructorInjector().injectConstructor(name, type);
+        injector.getFieldInjector().injectFields(instance);
+        injector.getMethodInjector().injectMethods(name, instance);
+
+        if (instances != null && !instances.containsKey(dependency)) {
+            instances.put(dependency, instance);
+        }
+
+        return instance;
+    }
+
    @Override
     public synchronized Object get() {
         Dependency dependency = new Dependency(name, type);
@@ -61,16 +73,7 @@ public class DelayedInjectableDependency extends BaseInjectableDependency {
             instance = null;
         }
 
-        if (instance == null) {
-            instance = injector.getConstructorInjector().injectConstructor(name, type);
-            injector.getFieldInjector().injectFields(instance);
-
-            if (instances != null && !instances.containsKey(dependency)) {
-                instances.put(dependency, instance);
-            }
-        }
-
-        return instance;
+        return (instance == null) ? createInstance(instances, dependency) : instance;
     }
 
     @Override
