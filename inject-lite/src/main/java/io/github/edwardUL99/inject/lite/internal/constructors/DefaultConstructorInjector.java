@@ -1,12 +1,10 @@
 package io.github.edwardUL99.inject.lite.internal.constructors;
 
 import io.github.edwardUL99.inject.lite.annotations.Inject;
-import io.github.edwardUL99.inject.lite.annotations.Name;
 import io.github.edwardUL99.inject.lite.exceptions.InjectionException;
 import io.github.edwardUL99.inject.lite.injector.Injector;
-import io.github.edwardUL99.inject.lite.internal.dependency.Dependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.CommonDependencyHandler;
 import io.github.edwardUL99.inject.lite.internal.dependency.graph.DependencyGraph;
-import io.github.edwardUL99.inject.lite.internal.dependency.InjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 
 import java.lang.reflect.Constructor;
@@ -21,6 +19,10 @@ public class DefaultConstructorInjector implements ConstructorInjector {
      */
     private final InternalInjector injector;
     /**
+     * Handler for dependency functions
+     */
+    private CommonDependencyHandler dependencyHandler;
+    /**
      * The dependency graph in use
      */
     private DependencyGraph graph;
@@ -31,6 +33,12 @@ public class DefaultConstructorInjector implements ConstructorInjector {
      */
     public DefaultConstructorInjector(Injector injector) {
         this.injector = (InternalInjector) injector;
+        this.dependencyHandler = new CommonDependencyHandler(this.injector);
+    }
+
+    // used to allow injection of mock handlers in testing
+    void setDependencyHandler(CommonDependencyHandler dependencyHandler) {
+        this.dependencyHandler = dependencyHandler;
     }
 
     // gets the constructor annotated with Inject
@@ -47,6 +55,10 @@ public class DefaultConstructorInjector implements ConstructorInjector {
 
                 if (constructor.getParameters().length == 0)
                     throw new InjectionException("Constructors annotated with Inject must have at least one parameter");
+
+                if (!inject.value().isEmpty())
+                    throw new InjectionException("@Inject annotation on constructors must not have a name provided, use" +
+                            " @Name on parameters instead");
                 else
                     injectConstructor = constructor;
             }
@@ -64,37 +76,30 @@ public class DefaultConstructorInjector implements ConstructorInjector {
         }
     }
 
-    private Object injectAnnotated(Name nameAnnotation, String className, Class<?> cls, Class<?> type) {
-        String name = nameAnnotation.value();
-        if (graph != null) graph.addDependency(new Dependency(className, cls), new Dependency(name, type));
-
-        return injector.injectWithGraph(name, type);
-    }
-
-    private Object injectUnnamed(String className, Class<?> cls, Class<?> type) {
-        InjectableDependency dependency = injector.getInjectableDependency(type);
-        String name = (dependency != null) ? dependency.getName() : "";
-        if (graph != null) graph.addDependency(new Dependency(className, cls),
-                new Dependency(name, type));
-
-        return injector.injectWithGraph(type, dependency);
-    }
+//    private Object injectAnnotated(Name nameAnnotation, String className, Class<?> cls, Class<?> type) {
+//        String name = nameAnnotation.value();
+//        if (graph != null) graph.addDependency(new Dependency(className, cls), new Dependency(name, type));
+//
+//        return injector.injectWithGraph(name, type);
+//    }
+//
+//    private Object injectUnnamed(String className, Class<?> cls, Parameter parameter) {
+//        Class<?> type = parameter.getType();
+//
+//        InjectableDependency dependency = CommonDependencyFunctions.getInjectableDependency(
+//                type, parameter::getName, injector
+//        );
+//
+//        String name = (dependency != null) ? dependency.getName() : "";
+//        if (graph != null) graph.addDependency(new Dependency(className, cls),
+//                new Dependency(name, type));
+//
+//        return injector.injectWithGraph(type, dependency);
+//    }
 
     private Object inject(String name, Class<?> cls, Constructor<?> constructor) throws ReflectiveOperationException {
         Parameter[] parameters = constructor.getParameters();
-        Object[] instances = new Object[parameters.length];
-
-        for (int i = 0; i < instances.length; i++) {
-            Parameter parameter = parameters[i];
-            Name nameAnnotation = parameter.getAnnotation(Name.class);
-            Class<?> type = parameter.getType();
-
-            if (nameAnnotation != null) {
-                instances[i] = injectAnnotated(nameAnnotation, name, cls, type);
-            } else {
-                instances[i] = injectUnnamed(name, cls, type);
-            }
-        }
+        Object[] instances = dependencyHandler.instantiateParameters(name, cls, graph, parameters);
 
         return constructor.newInstance(instances);
     }

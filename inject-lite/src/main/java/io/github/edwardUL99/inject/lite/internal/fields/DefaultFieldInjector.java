@@ -1,8 +1,12 @@
 package io.github.edwardUL99.inject.lite.internal.fields;
 
 import io.github.edwardUL99.inject.lite.annotations.Inject;
+import io.github.edwardUL99.inject.lite.annotations.Optional;
+import io.github.edwardUL99.inject.lite.exceptions.DependencyNotFoundException;
 import io.github.edwardUL99.inject.lite.exceptions.InjectionException;
 import io.github.edwardUL99.inject.lite.injector.Injector;
+import io.github.edwardUL99.inject.lite.internal.config.Configuration;
+import io.github.edwardUL99.inject.lite.internal.dependency.CommonDependencyHandler;
 import io.github.edwardUL99.inject.lite.internal.dependency.Dependency;
 import io.github.edwardUL99.inject.lite.internal.dependency.graph.DependencyGraph;
 import io.github.edwardUL99.inject.lite.internal.dependency.InjectableDependency;
@@ -11,35 +15,45 @@ import io.github.edwardUL99.inject.lite.internal.utils.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
- * A base implementation of the field injector. Provides common injection functionality, with the differing
- * functionality being how the fields are looked up
+ * A default  of the field injector
  */
-public abstract class BaseFieldInjector implements FieldInjector {
+public class DefaultFieldInjector implements FieldInjector {
     private final InternalInjector injector;
+    private CommonDependencyHandler dependencyHandler;
     private DependencyGraph graph;
 
     /**
      * The injector to get dependencies with
      * @param injector dependency injection
      */
-    public BaseFieldInjector(Injector injector) {
+    public DefaultFieldInjector(Injector injector) {
         this.injector = (InternalInjector) injector;
+        this.dependencyHandler = new CommonDependencyHandler(this.injector);
+    }
+
+    // used to allow injection of mock handlers in testing
+    void setDependencyHandler(CommonDependencyHandler dependencyHandler) {
+        this.dependencyHandler = dependencyHandler;
     }
 
     private String getName(Class<?> cls, Field field) {
-        InjectableDependency dependency = injector.getInjectableDependency(cls);
+        Class<?> type = (field == null) ? cls : field.getType();
+        InjectableDependency dependency = dependencyHandler.getInjectableDependency(type,
+                () -> (field == null) ? null : field.getName());
 
         return (dependency != null) ? dependency.getName() : ((field != null) ? field.getName() : cls.getSimpleName());
     }
 
     private void setField(Field field, Object resourceInstance, Object obj) {
         Class<?> fieldType = field.getType();
-        Class<?> resourceCls = resourceInstance.getClass();
+        Class<?> resourceCls = (resourceInstance == null) ? null : resourceInstance.getClass();
 
-        if (ReflectionUtils.isAssignable(fieldType, resourceCls)) {
+        if (resourceCls == null || ReflectionUtils.isAssignable(fieldType, resourceCls)) {
             try {
                 boolean accessible = field.isAccessible();
                 field.setAccessible(true);
@@ -54,8 +68,26 @@ public abstract class BaseFieldInjector implements FieldInjector {
         }
     }
 
+    private Object getDependencyInstance(String value, Class<?> fieldType, Field field) {
+        Object instance;
+
+        try {
+            if (value.equals("")) {
+                instance = injector.injectWithGraph(fieldType, null);
+            } else {
+                instance = injector.injectWithGraph(value, fieldType);
+            }
+        } catch (DependencyNotFoundException ex) {
+            if (field.getAnnotation(Optional.class) != null)
+                instance = ReflectionUtils.getDefaultValue(fieldType);
+            else
+                throw ex;
+        }
+
+        return instance;
+    }
+
     private void inject(Inject inject, Field field, Object obj) {
-        Object resourceInstance;
         String value = inject.value();
         Class<?> objClass = obj.getClass();
         Class<?> fieldType = field.getType();
@@ -64,13 +96,7 @@ public abstract class BaseFieldInjector implements FieldInjector {
         if (graph != null) graph.addDependency(new Dependency(name, objClass),
                 new Dependency((value.isEmpty()) ? getName(fieldType, field) : value, fieldType));
 
-        if (value.equals("")) {
-            resourceInstance = injector.injectWithGraph(fieldType, null);
-        } else {
-            resourceInstance = injector.injectWithGraph(value, fieldType);
-        }
-
-        setField(field, resourceInstance, obj);
+        setField(field, getDependencyInstance(value, fieldType, field), obj);
     }
 
     private void doInjection(List<Field> fields, Object obj) {
@@ -93,13 +119,21 @@ public abstract class BaseFieldInjector implements FieldInjector {
         doInjection(getFields(cls), obj);
     }
 
-    /**
-     * Get the list of fields to search through for inject annotated fields. This should simply return all fields in
-     * the class. This class will find the Resource annotated fields and inject them
-     * @param cls the class of the object being injected with values
-     * @return the list of possible fields
-     */
-    protected abstract List<Field> getFields(Class<?> cls);
+    private void recurseSearchFields(Class<?> cls, List<Field> fields) {
+        if (cls != null) {
+            fields.addAll(Arrays.asList(cls.getDeclaredFields()));
+
+            if (!Configuration.global.isSingleLevelInjection())
+                recurseSearchFields(cls.getSuperclass(), fields);
+        }
+    }
+
+    private List<Field> getFields(Class<?> cls) {
+        List<Field> fields = new ArrayList<>();
+        recurseSearchFields(cls, fields);
+
+        return fields;
+    }
 
     @Override
     public void setDependencyGraph(DependencyGraph graph) {

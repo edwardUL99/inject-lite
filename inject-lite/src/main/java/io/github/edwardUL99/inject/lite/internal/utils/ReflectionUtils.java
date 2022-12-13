@@ -19,6 +19,10 @@ public final class ReflectionUtils {
      * Map of primitives to wrappers
      */
     private static final Map<Class<?>, Class<?>> primitiveWrappers = new HashMap<>();
+    /**
+     * Default values for primitives
+     */
+    private static final Map<Class<?>, Object> defaultValues = new HashMap<>();
 
     static {
         addWrapperMapping(int.class, Integer.class);
@@ -29,6 +33,15 @@ public final class ReflectionUtils {
         addWrapperMapping(char.class, Character.class);
         addWrapperMapping(short.class, Short.class);
         addWrapperMapping(long.class, Long.class);
+
+        defaultValues.put(int.class, 0);
+        defaultValues.put(float.class, 0.00F);
+        defaultValues.put(double.class, 0.00);
+        defaultValues.put(boolean.class, false);
+        defaultValues.put(byte.class, '\0');
+        defaultValues.put(char.class, '\0');
+        defaultValues.put(short.class, 0);
+        defaultValues.put(long.class, 0L);
     }
 
     /**
@@ -78,5 +91,14 @@ public final class ReflectionUtils {
         }
 
         return superType.isAssignableFrom(subType);
+    }
+
+    /**
+     * Get the default value to use for the provided class
+     * @param cls the class object
+     * @return the default value
+     */
+    public static Object getDefaultValue(Class<?> cls) {
+        return defaultValues.get(cls);
     }
 }

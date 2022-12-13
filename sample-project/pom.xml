@@ -10,7 +10,7 @@
     <description>Sample Project using inject-lite</description>
 
     <properties>
-        <inject.lite.version>1.2.3</inject.lite.version>
+        <inject.lite.version>1.3.0</inject.lite.version>
     </properties>
 
     <dependencies>

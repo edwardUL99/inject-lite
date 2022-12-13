@@ -6,13 +6,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * This annotation marks a constructor/field to be injected
+ * This annotation marks a constructor/field/method to be injected
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.PARAMETER})
+@Target({ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.METHOD})
 public @interface Inject {
     /**
-     * This value is not used when annotated on a constructor, but is used on a field and parameter
+     * This value is not used when annotated on a constructor/method, but is used on a field
      * @return the name of the dependency
      */
     String value() default "";

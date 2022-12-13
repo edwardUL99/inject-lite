@@ -67,6 +67,11 @@ its parameters injected with dependencies. With fields, you can specify the name
 that name (in this case the dependency must be assignable to the type of the field), or you can not specify a name to inject
 it with the first dependency found that can be assigned to the type of the field.
 
+It can also be used to annotate constructors or methods to inject dependencies into the constructor or
+setter method. The constructor/setter method is called with the injected dependencies as the parameters. An arbitrary
+number of parameters is supported. Parameters can be annotated with @Name to explicitly name the dependency
+rather than searching by type. They can be annotated with @Optional if a dependency cannot be found for that parameter.
+
 In the following example, assume that all the dependencies already exist
 ```java
 import io.github.edwardUL99.inject.lite.annotations.Injectable;
@@ -82,10 +87,17 @@ public class ServiceImpl implements Service {
     private OtherService otherService;
     // will be injected in the constructor, as you can see, this allows the field to be final
     private final ConstructorService constructorService;
+    // injected by setter
+    private Config config;
     
     @Inject
     public ServiceImpl(ConstructorService constructorService) {
         this.constructorService = constructorService;
+    }
+    
+    @Inject
+    public void setConfig(Config config) {
+        this.config = config;
     }
     
     @Override
@@ -192,6 +204,10 @@ public class Client {
 ```
 
 This mechanism allows constants and primitives to be injected into fields/constructors as illustrated in the above example
+
+### @Optional
+This annotation can be used in conjunction with an @Inject annotated field or parameter to indicate that null (or primitive default)
+should be injected if the dependency cannot be found for that Inject annotation
 
 ## Injection
 To manually inject dependencies, you can use either `T Injector#inject(String name, Class<T> expected)` or `T Injector#inject(Class<T> type)`.

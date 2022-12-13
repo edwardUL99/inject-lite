@@ -4,16 +4,18 @@ import io.github.edwardUL99.inject.lite.exceptions.DependencyMismatchException;
 import io.github.edwardUL99.inject.lite.exceptions.DependencyNotFoundException;
 import io.github.edwardUL99.inject.lite.internal.config.Configuration;
 import io.github.edwardUL99.inject.lite.internal.constructors.ConstructorInjector;
-import io.github.edwardUL99.inject.lite.internal.dependency.CommonDependencyFunctions;
+import io.github.edwardUL99.inject.lite.internal.dependency.CommonDependencyHandler;
 import io.github.edwardUL99.inject.lite.internal.dependency.InjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.dependency.graph.DependencyGraph;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.internal.dependency.selection.DependencySelection;
 import io.github.edwardUL99.inject.lite.internal.dependency.selection.DependencySelectionStrategy;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjector;
+import io.github.edwardUL99.inject.lite.internal.methods.MethodInjector;
 
 import java.lang.reflect.Modifier;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * This provides an internal API for the library. Not to be used by clients as it can change
@@ -34,6 +36,15 @@ public interface InternalInjector extends Injector {
      * @param <T> the type of the dependency
      */
     <T> T injectWithGraph(String name, Class<T> expected) throws DependencyNotFoundException, DependencyMismatchException;
+
+    /**
+     * Get the injectable dependency with the provided name
+     * @param name the name of the dependency
+     * @param expected the expected type
+     * @return the dependency if found, null otherwise
+     * @throws DependencyMismatchException if no match found
+     */
+    InjectableDependency getInjectableDependency(String name, Class<?> expected) throws DependencyMismatchException;
 
     /**
      * Get a list of dependencies assignable to the provided type
@@ -58,8 +69,33 @@ public interface InternalInjector extends Injector {
      * @return the dependency if found, otherwise null
      */
     default InjectableDependency getInjectableDependency(Class<?> type, boolean checkAmbiguity) {
+        return getInjectableDependency(type, () -> null, checkAmbiguity);
+    }
+
+    /**
+     * Get a dependency handler for this injector
+     * @return the handler instance
+     */
+    default CommonDependencyHandler getDependencyHandler() {
+        return new CommonDependencyHandler(this);
+    }
+
+    /**
+     * Get an injectable dependency, checking for ambiguity based on configuration. If nameSupplier does not return null,
+     * the name will be used
+     * @param type the type of the dependency
+     * @param nameSupplier a supplier to supply the name of the dependency to search for. If returns null, the
+     *                     dependency will be found by the type
+     * @param checkAmbiguity true to check for ambiguity, false not to
+     * @return the dependency if found, otherwise null
+     */
+    default InjectableDependency getInjectableDependency(Class<?> type, Supplier<String> nameSupplier, boolean checkAmbiguity) {
+        String name = nameSupplier.get();
+
+        if (name != null) return getInjectableDependency(name, type);
+
         if (checkAmbiguity) {
-            return CommonDependencyFunctions.getUnnamedDependency(type, this);
+            return getDependencyHandler().getUnnamedDependency(type);
         } else {
             return dependencySelectionStrategy()
                     .selectDependency(getInjectableDependencies(type));
@@ -86,6 +122,12 @@ public interface InternalInjector extends Injector {
      * @return field injector for this injector
      */
     FieldInjector getFieldInjector();
+
+    /**
+     * Get the method injector used to inject methods annotated with Inject
+     * @return method injector for this injector
+     */
+    MethodInjector getMethodInjector();
 
     /**
      * Determines if the provided class can be instantiated by the injector

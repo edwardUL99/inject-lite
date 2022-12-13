@@ -2,14 +2,13 @@ package io.github.edwardUL99.inject.lite.testing;
 
 import io.github.edwardUL99.inject.lite.internal.config.Configuration;
 import io.github.edwardUL99.inject.lite.internal.constructors.ConstructorInjector;
-import io.github.edwardUL99.inject.lite.internal.dependency.CommonDependencyFunctions;
+import io.github.edwardUL99.inject.lite.internal.dependency.CommonDependencyHandler;
 import io.github.edwardUL99.inject.lite.internal.dependency.DelayedInjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.dependency.InjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -191,23 +189,25 @@ public class TestInjectorTest {
 
     @Test
     public void testGetInjectableDependencyWithAmbiguousCheck() {
-        try (MockedStatic<CommonDependencyFunctions> dependencyFunctions = mockStatic(CommonDependencyFunctions.class)) {
-            Configuration.global.setRequireNamedMultipleMatch(true);
+        TestInjector spied = spy(injector);
+        CommonDependencyHandler mockHandler = mock(CommonDependencyHandler.class);
 
-            DelayedInjectableDependency mockDependency = mock(DelayedInjectableDependency.class);
+        when(spied.getDependencyHandler())
+                .thenReturn(mockHandler);
 
-            dependencyFunctions.when(() -> CommonDependencyFunctions.getUnnamedDependency(TestClass.class,
-                            injector))
-                    .thenReturn(mockDependency);
+        Configuration.global.setRequireNamedMultipleMatch(true);
 
-            InjectableDependency dependency = injector.getInjectableDependency(TestClass.class);
-            assertEquals(dependency, mockDependency);
+        DelayedInjectableDependency mockDependency = mock(DelayedInjectableDependency.class);
 
-            dependencyFunctions.verify(() -> CommonDependencyFunctions.getUnnamedDependency(TestClass.class,
-                    injector));
+        when(mockHandler.getUnnamedDependency(TestClass.class))
+            .thenReturn(mockDependency);
 
-            Configuration.global.setRequireNamedMultipleMatch(false);
-        }
+        InjectableDependency dependency = spied.getInjectableDependency(TestClass.class);
+        assertEquals(dependency, mockDependency);
+
+        verify(mockHandler).getUnnamedDependency(TestClass.class);
+
+        Configuration.global.setRequireNamedMultipleMatch(false);
     }
 
     @Test
