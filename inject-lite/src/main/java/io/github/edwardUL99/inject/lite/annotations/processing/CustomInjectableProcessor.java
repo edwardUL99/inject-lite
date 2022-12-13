@@ -73,6 +73,21 @@ public class CustomInjectableProcessor<T extends Annotation> implements Annotati
         this(Injector.get(), nameSupplier, null);
     }
 
+    /**
+     * Construct a processor with the global injector and the name of the class as the dependency name
+     */
+    public CustomInjectableProcessor() {
+        this((Consumer<Object>) null);
+    }
+
+    /**
+     * Construct a processor with the global injector and the name of the class as the dependency name
+     * @param instantiatedProcessor the consumer of the dependencies
+     */
+    public CustomInjectableProcessor(Consumer<Object> instantiatedProcessor) {
+        this(Injector.get(), a -> a.getType().getSimpleName(), instantiatedProcessor);
+    }
+
     private void register(Injector injector, InternalAnnotatedClass<T> internal, String name) {
         Class<?> annotatedType = internal.getAnnotatedClass();
         InjectableDependency dependency = internal.getInjectableDependency();
