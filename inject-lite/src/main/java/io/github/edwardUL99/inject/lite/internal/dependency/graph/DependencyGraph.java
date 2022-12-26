@@ -81,6 +81,7 @@ public class DependencyGraph {
      * @param dependency the dependency
      */
     public void addDependency(Dependency parent, Dependency dependency) {
+        System.out.println("Adding " + parent.getName() + " - " + dependency.getName());
         checkConflictingDependency(parent, dependency);
         dependencies.computeIfAbsent(parent, k -> new ArrayList<>()).add(dependency);
 

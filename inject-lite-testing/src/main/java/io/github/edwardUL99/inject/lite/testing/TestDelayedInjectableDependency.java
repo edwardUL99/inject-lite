@@ -25,4 +25,9 @@ class TestDelayedInjectableDependency extends DelayedInjectableDependency {
     public synchronized Object get() {
         return value;
     }
+
+    @Override
+    public boolean isInstantiated() {
+        return true;
+    }
 }

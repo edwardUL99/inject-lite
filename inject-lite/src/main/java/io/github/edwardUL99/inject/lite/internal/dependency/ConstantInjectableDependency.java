@@ -32,4 +32,9 @@ public class ConstantInjectableDependency extends BaseInjectableDependency {
     public ConstantInjectableDependency withDifferentName(String name) {
         return new ConstantInjectableDependency(name, type, injector, value);
     }
+
+    @Override
+    public boolean isInstantiated() {
+        return false;
+    }
 }

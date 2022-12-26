@@ -90,7 +90,7 @@ public interface Injector {
 
     /**
      * Instantiate an object of the given type, injecting the constructor and resource annotated fields. Objects
-     * created this way are not singletons
+     * created this way are not singletons. Dependencies instantiated this way are not created lazily even if annotated with Lazy
      * @param type the class of the object
      * @return the instantiated object
      * @param <T> the type of the object

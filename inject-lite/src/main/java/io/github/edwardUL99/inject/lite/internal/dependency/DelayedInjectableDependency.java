@@ -2,11 +2,10 @@ package io.github.edwardUL99.inject.lite.internal.dependency;
 
 import io.github.edwardUL99.inject.lite.internal.injector.InjectionContext;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
-import io.github.edwardUL99.inject.lite.internal.threads.Threads;
+import io.github.edwardUL99.inject.lite.internal.utils.ThreadAwareValue;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Represents a class that stores a dependency that must be injected and is only instantiated when it is required.
@@ -15,7 +14,7 @@ public class DelayedInjectableDependency extends BaseInjectableDependency {
     /**
      * Holds instances associated with the class type
      */
-    private static final Map<Thread, Map<Dependency, Object>> instances = new ConcurrentHashMap<>();
+    private static final ThreadAwareValue<Map<Dependency, Object>> instances = new ThreadAwareValue<>(new HashMap<>(), true);
 
     /**
      * Instantiate the dependency
@@ -66,14 +65,18 @@ public class DelayedInjectableDependency extends BaseInjectableDependency {
         Map<Dependency, Object> instances = null;
 
         if (isSingletonEnabled()) {
-            instances = DelayedInjectableDependency.instances.computeIfAbsent(Threads.getCurrentThread(),
-                    v -> new HashMap<>());
+            instances = DelayedInjectableDependency.instances.getValueOrInsert(HashMap::new);
             instance = instances.get(dependency);
         } else {
             instance = null;
         }
 
         return (instance == null) ? createInstance(instances, dependency) : instance;
+    }
+
+    @Override
+    public boolean isInstantiated() {
+        return isSingletonEnabled() && instances.getValue().get(new Dependency(name, type)) != null;
     }
 
     @Override

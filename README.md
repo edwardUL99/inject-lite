@@ -76,6 +76,7 @@ In the following example, assume that all the dependencies already exist
 ```java
 import io.github.edwardUL99.inject.lite.annotations.Injectable;
 import io.github.edwardUL99.inject.lite.annotations.Inject;
+import io.github.edwardUL99.inject.lite.annotations.Name;
 
 @Injectable("serviceImpl")
 public class ServiceImpl implements Service {
@@ -83,7 +84,10 @@ public class ServiceImpl implements Service {
     @Inject
     private ServiceDependency dependency;
     // find a dependency named otherServiceImpl and inject into otherService
-    @Inject("otherServiceImpl")
+    // This way is deprecated @Inject("otherServiceImpl")
+    // Instead, use
+    @Inject
+    @Name("otherServiceImpl")
     private OtherService otherService;
     // will be injected in the constructor, as you can see, this allows the field to be final
     private final ConstructorService constructorService;
@@ -169,7 +173,11 @@ public class Dependency {}
 
 ### @Priority
 Used to annotate a dependency in conjunction with @Injectable. The value is an integer value which the lower value giving
-the dependency a higher priority over other dependencies of the same type
+the dependency a higher priority over other dependencies of the same type.
+
+This annotation is **deprecated**. It used to be used as a strategy to determine how to select a dependency when multiple
+exist of the same type. However, in a future release, this ambiguity will be disallowed, and when it occurs, a name has
+to be provided
 
 ### @ConstantDependencies and @Constant
 ConstantDependencies marks a class as defining **public static final** fields that can be injected. These are constants
@@ -208,6 +216,36 @@ This mechanism allows constants and primitives to be injected into fields/constr
 ### @Optional
 This annotation can be used in conjunction with an @Inject annotated field or parameter to indicate that null (or primitive default)
 should be injected if the dependency cannot be found for that Inject annotation
+
+### @ProcessOrder
+This annotation is in the `annotations.processing` package and when annotated on a class with the specified annotation being
+scanned by the scanners, it determines the order of the classes that are passed into registered annotation processors on
+the scanner.
+
+### @Lazy
+This annotation when used on a field annotated with Inject or a parameter of an Inject constructor/method parameter, it
+indicates that the dependency should be lazily resolved. A proxy will be injected in its place which then injects the real
+dependency and proxies requests to it on the first method call to it. Dependency classes should not be final if you wish
+to annotate them with Lazy. It is useful to use in situations where a circular dependency arises.
+
+The annotation is enabled by default, but can be disabled by configuring the injection with the `lazyDependenciesEnabled`
+property to false. If the target class of Lazy is final, an exception will be thrown, as the proxy class is a subclass
+of the dependency class.
+
+This annotation should be used as a last resort for the following reasons:
+- The created proxy uses reflection to invoke the request on the proxied dependency which has more overhead than a direct
+method call
+- Any injection issues (like circular dependencies further down the injection hierarchy) will not be seen until the dependency
+is instantiated
+- Circular dependencies highlight a possible design issue, and should be refactored
+
+Note that there may be cases where you are forced to fix the circular dependencies. If the target dependency the Lazy annotation
+is used on depends on a dependency that is a) not a singleton and b) leading to a circular dependency, the circular dependency
+exception will still be thrown since it has not been constructed yet and no constructed object is available to inject into the proxy.
+
+**Therefore** lazy dependencies rely on all dependencies in the hierarchy being singletons.
+
+Also, when using `Injector#instantiate(Class)`, Lazy annotations are ignored
 
 ## Injection
 To manually inject dependencies, you can use either `T Injector#inject(String name, Class<T> expected)` or `T Injector#inject(Class<T> type)`.
@@ -278,6 +316,9 @@ public class Example {
 The Service interface and ServiceImpl class here is defined further up in the README
 
 ### Injection with multiple dependencies
+**Deprecated:** In a future release, any ambiguity surrounding multiple dependencies of the same type will no longer use
+the selection strategies highlighted here, and instead, an error will be thrown.
+
 When using `Injector#inject(Class)` the injector looks for a dependency where the type of the dependency is either the same
 as the provided class or a subclass. The behaviour when trying to inject a dependency of this type and where multiple dependencies
 match the type is dependent on configuration. The configuration method of interest are:
@@ -315,6 +356,9 @@ Injection.configure(new ConfigurationBuilder().withInjectionPackagePrefixes("com
 ```
 
 Note that this also restricts annotation scanning using the `AnnotationScanner` API.
+
+**NOTE:** When using `Injection.configure`, it should be called before the first call to `Injector#get` and can only be called
+once, otherwise an exception is thrown
 
 ## Custom Injectable Annotation
 While `@Injectable` is the annotation to use for registering dependencies, you can also register your own annotations to

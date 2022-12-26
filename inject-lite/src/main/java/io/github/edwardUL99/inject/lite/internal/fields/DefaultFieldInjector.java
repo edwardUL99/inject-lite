@@ -1,6 +1,7 @@
 package io.github.edwardUL99.inject.lite.internal.fields;
 
 import io.github.edwardUL99.inject.lite.annotations.Inject;
+import io.github.edwardUL99.inject.lite.annotations.Lazy;
 import io.github.edwardUL99.inject.lite.annotations.Optional;
 import io.github.edwardUL99.inject.lite.exceptions.DependencyNotFoundException;
 import io.github.edwardUL99.inject.lite.exceptions.InjectionException;
@@ -41,11 +42,13 @@ public class DefaultFieldInjector implements FieldInjector {
         this.dependencyHandler = dependencyHandler;
     }
 
-    private String getName(Class<?> cls, Field field) {
+    private InjectableDependency getInjectableDependency(Class<?> cls, Field field) {
         Class<?> type = (field == null) ? cls : field.getType();
-        InjectableDependency dependency = dependencyHandler.getInjectableDependency(type,
-                () -> (field == null) ? null : field.getName());
 
+        return dependencyHandler.getInjectableDependency(type, () -> (field == null) ? null : field.getName());
+    }
+
+    private String getName(Class<?> cls, Field field, InjectableDependency dependency) {
         return (dependency != null) ? dependency.getName() : ((field != null) ? field.getName() : cls.getSimpleName());
     }
 
@@ -68,8 +71,13 @@ public class DefaultFieldInjector implements FieldInjector {
         }
     }
 
-    private Object getDependencyInstance(String value, Class<?> fieldType, Field field) {
+    private Object injectDependencyInstance(String value, Class<?> fieldType, Field field, DependencyGraph graph, String name,
+                                            InjectableDependency targetDependency, Class<?> objClass) {
         Object instance;
+
+        addToGraph(graph, new Dependency(name, objClass),
+                new Dependency((value.isEmpty()) ? getName(fieldType, field, targetDependency) : value, fieldType),
+                targetDependency);
 
         try {
             if (value.equals("")) {
@@ -87,16 +95,34 @@ public class DefaultFieldInjector implements FieldInjector {
         return instance;
     }
 
+    private Object getDependencyInstance(String value, Class<?> fieldType, Field field, DependencyGraph graph, String name,
+                                         InjectableDependency targetDependency, Class<?> objClass) {
+        return dependencyHandler.getDependencyCheckingLazy(
+                field.getAnnotation(Lazy.class),
+                fieldType,
+                () -> injectDependencyInstance(value, fieldType, field, graph, name, targetDependency, objClass)
+        );
+    }
+
+    // only adds to graph if the dependency needs to be instantiated
+    private void addToGraph(DependencyGraph graph, Dependency sourceDependency, Dependency targetDependency,
+                            InjectableDependency injectableDependency) {
+        if (graph != null) {
+            if (injectableDependency == null || !injectableDependency.isInstantiated()) {
+                graph.addDependency(sourceDependency, targetDependency);
+            }
+        }
+    }
+
     private void inject(Inject inject, Field field, Object obj) {
         String value = inject.value();
         Class<?> objClass = obj.getClass();
         Class<?> fieldType = field.getType();
-        String name = getName(objClass, null);
+        InjectableDependency objDependency = getInjectableDependency(objClass, null);
+        String name = getName(objClass, null, objDependency);
+        InjectableDependency targetDependency = getInjectableDependency(fieldType, field);
 
-        if (graph != null) graph.addDependency(new Dependency(name, objClass),
-                new Dependency((value.isEmpty()) ? getName(fieldType, field) : value, fieldType));
-
-        setField(field, getDependencyInstance(value, fieldType, field), obj);
+        setField(field, getDependencyInstance(value, fieldType, field, graph, name, targetDependency, objClass), obj);
     }
 
     private void doInjection(List<Field> fields, Object obj) {

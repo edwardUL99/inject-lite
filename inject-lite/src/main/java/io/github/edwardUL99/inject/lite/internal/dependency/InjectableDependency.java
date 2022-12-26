@@ -29,6 +29,12 @@ public interface InjectableDependency {
     Object get();
 
     /**
+     * Determines if the dependency is instantiated (returns false always if not a singleton)
+     * @return true if instantiated
+     */
+    boolean isInstantiated();
+
+    /**
      * Get a dependency the same as this one but with a different name
      * @param name the different name
      * @return the new dependency

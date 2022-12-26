@@ -223,19 +223,25 @@ class TestInjector implements InternalInjector {
     @Override
     @SuppressWarnings("unchecked")
     public <T> T instantiate(Class<T> type) throws InjectionException {
-        InjectionContext.setSingletonBehaviour(false);
-        ConstructorInjector injector = getConstructorInjector();
-        FieldInjector fieldInjector = getFieldInjector();
+        T instantiated;
 
-        String name = type.getSimpleName();
-        T instantiated = GraphInjection.executeInGraphContext(this, name, type, () -> {
-            T instance = (T) injector.injectConstructor(name, type);
-            fieldInjector.injectFields(instance);
+        try {
+            InjectionContext.setSingletonBehaviour(false);
+            InjectionContext.setLazyBehaviourDisabled(true);
+            ConstructorInjector injector = getConstructorInjector();
+            FieldInjector fieldInjector = getFieldInjector();
 
-            return instance;
-        });
+            String name = type.getSimpleName();
+            instantiated = GraphInjection.executeInGraphContext(this, name, type, () -> {
+                T instance = (T) injector.injectConstructor(name, type);
+                fieldInjector.injectFields(instance);
 
-        InjectionContext.setSingletonBehaviour(true);
+                return instance;
+            });
+        } finally {
+            InjectionContext.setSingletonBehaviour(true);
+            InjectionContext.setLazyBehaviourDisabled(false);
+        }
 
         return instantiated;
     }

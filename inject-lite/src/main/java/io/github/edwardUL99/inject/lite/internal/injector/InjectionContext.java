@@ -6,13 +6,10 @@ import io.github.edwardUL99.inject.lite.internal.dependency.scanner.ConstantsSca
 import io.github.edwardUL99.inject.lite.internal.dependency.scanner.DependencyScanner;
 import io.github.edwardUL99.inject.lite.internal.dependency.scanner.InjectableScanner;
 import io.github.edwardUL99.inject.lite.internal.dependency.scanner.MultipleDependencyScanner;
-import io.github.edwardUL99.inject.lite.internal.threads.Threads;
+import io.github.edwardUL99.inject.lite.internal.utils.ThreadAwareValue;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Internal context storing injection contexts. Injection class is the public API to this context.
@@ -21,7 +18,7 @@ public final class InjectionContext {
     /**
      * A map of singleton injector instances for each thread
      */
-    private static final Map<Thread, Injector> singletons = new HashMap<>();
+    private static final ThreadAwareValue<Injector> singletons = new ThreadAwareValue<>(null, true);
     /**
      * Used to search for annotated classes
      */
@@ -33,7 +30,11 @@ public final class InjectionContext {
     /**
      * Indicates if the instances created should be singletons on a global level. Overrides singleton instance variable
      */
-    private static final Map<Thread, Boolean> singletonBehaviourEnabled = new ConcurrentHashMap<>();
+    private static final ThreadAwareValue<Boolean> singletonBehaviourEnabled = new ThreadAwareValue<>(true, true);
+    /**
+     * Indicates if lazy behaviour is disabled for this thread
+     */
+    private static final ThreadAwareValue<Boolean> lazyBehaviourDisabled = new ThreadAwareValue<>(false, true);
 
     private InjectionContext() {}
 
@@ -58,7 +59,7 @@ public final class InjectionContext {
      * @return the injector
      */
     public synchronized static Injector getSingletonInjector() {
-        return singletons.computeIfAbsent(Threads.getCurrentThread(), v -> createInjector());
+        return singletons.getValueOrInsert(InjectionContext::createInjector);
     }
 
     /**
@@ -66,7 +67,7 @@ public final class InjectionContext {
      * @param injector the injector to set
      */
     public synchronized static void setSingletonInjector(Injector injector) {
-        singletons.put(Threads.getCurrentThread(), injector);
+        singletons.setValue(injector);
     }
 
     /**
@@ -74,7 +75,7 @@ public final class InjectionContext {
      * @return true if set, false if not
      */
     public synchronized static boolean isSingletonSet() {
-        return singletons.get(Threads.getCurrentThread()) != null;
+        return singletons.getValue() != null;
     }
 
     /**
@@ -120,7 +121,7 @@ public final class InjectionContext {
      * @return the map of injectors
      */
     public synchronized static Map<Thread, Injector> getThreadInjectors() {
-        return Collections.unmodifiableMap(singletons);
+        return singletons.getAllValuesAsMap();
     }
 
     /**
@@ -129,7 +130,7 @@ public final class InjectionContext {
      * @param singleton true to enable singleton behaviour, false to disable it
      */
     public static void setSingletonBehaviour(boolean singleton) {
-        singletonBehaviourEnabled.put(Threads.getCurrentThread(), singleton);
+        singletonBehaviourEnabled.setValue(singleton);
     }
 
     /**
@@ -137,6 +138,23 @@ public final class InjectionContext {
      * @return true if global singleton behaviour is enabled/disabled
      */
     public static boolean isSingletonBehaviourEnabled() {
-        return singletonBehaviourEnabled.getOrDefault(Threads.getCurrentThread(), true);
+        return singletonBehaviourEnabled.getValue();
+    }
+
+    /**
+     * By default, injection respects lazy dependencies if enabled. To temporarily disable this, you can call this method
+     * with false, one you call it with true again when finished
+     * @param disableLazy true to disable lazy behaviour, false to enable it
+     */
+    public static void setLazyBehaviourDisabled(boolean disableLazy) {
+        lazyBehaviourDisabled.setValue(disableLazy);
+    }
+
+    /**
+     * Determines if lazy behaviour is or disabled or enabled
+     * @return true if global singleton behaviour is disabled/enabled
+     */
+    public static boolean isLazyBehaviourDisabled() {
+        return lazyBehaviourDisabled.getValue();
     }
 }

@@ -3,6 +3,7 @@ package io.github.edwardUL99.inject.lite.internal.annotations.processing;
 import io.github.edwardUL99.inject.lite.annotations.processing.AnnotatedClass;
 import io.github.edwardUL99.inject.lite.annotations.processing.AnnotationProcessor;
 import io.github.edwardUL99.inject.lite.annotations.processing.AnnotationScanner;
+import io.github.edwardUL99.inject.lite.annotations.processing.ProcessOrder;
 import io.github.edwardUL99.inject.lite.internal.dependency.DelayedInjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import io.github.edwardUL99.inject.lite.internal.reflections.Reflections;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Default implementation of the default annotation
@@ -54,18 +56,38 @@ public class DefaultAnnotationScanner implements AnnotationScanner {
             scan(cls);
     }
 
+    private static int processOrderComparator(Class<?> c1, Class<?> c2) {
+        ProcessOrder c1Order = c1.getAnnotation(ProcessOrder.class);
+        ProcessOrder c2Order = c2.getAnnotation(ProcessOrder.class);
+
+        return ((c1Order != null) ? c1Order.value() : Integer.MAX_VALUE) -
+                ((c2Order != null) ? c2Order.value() : Integer.MAX_VALUE);
+    }
+
+    protected List<Class<?>> sortClasses(List<Class<?>> classes) {
+        classes.sort(DefaultAnnotationScanner::processOrderComparator);
+
+        return classes;
+    }
+
+    protected <T extends Annotation> List<Class<?>> scanClasses(Class<T> annotation) {
+        return new ArrayList<>(reflections.getTypesAnnotatedWith(annotation));
+    }
+
+    private <T extends Annotation> List<AnnotatedClass<T>> getAnnotatedClasses(Class<T> annotation) {
+        return sortClasses(scanClasses(annotation)).stream()
+            .map(cls -> {
+                DelayedInjectableDependency proxy = new DelayedInjectableDependency(cls.getSimpleName(), cls, injector);
+
+                return new InternalAnnotatedClass<>(cls.getAnnotation(annotation), proxy);
+            })
+            .collect(Collectors.toList());
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public <T extends Annotation> void scan(Class<T> annotation) {
-        List<Class<?>> classes = new ArrayList<>(reflections.getTypesAnnotatedWith(annotation));
-        List<AnnotatedClass<T>> annotatedClasses = new ArrayList<>();
-
-        for (Class<?> cls : classes) {
-            DelayedInjectableDependency proxy = new DelayedInjectableDependency(cls.getSimpleName(), cls, injector);
-            AnnotatedClass<T> annotatedClass = new InternalAnnotatedClass<>(cls.getAnnotation(annotation), proxy);
-            annotatedClasses.add(annotatedClass);
-        }
-
+        List<AnnotatedClass<T>> annotatedClasses = getAnnotatedClasses(annotation);
         List<AnnotationProcessor<? extends Annotation>> processors
                 = this.processors.getOrDefault(annotation, new ArrayList<>());
 

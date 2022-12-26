@@ -1,4 +1,4 @@
-package io.github.edwardUL99.inject.lite.annotations;
+package io.github.edwardUL99.inject.lite.annotations.processing;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -6,15 +6,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * This annotation determines priority for dependencies in the case that multiple are available to be injected
- * and one needs to be chosen
- * @deprecated In a future release, any ambiguity will be disallowed, meaning that this annotation will no longer make
- * sense
+ * This annotation is used by the annotation scanners to determine the order at which the scanned classes are processed
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-@Deprecated
-public @interface Priority {
+public @interface ProcessOrder {
     /**
      * The priority, the default is max integer
      * @return dependency priority

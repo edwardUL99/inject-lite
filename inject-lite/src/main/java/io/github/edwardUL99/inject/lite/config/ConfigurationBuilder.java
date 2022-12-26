@@ -39,7 +39,10 @@ public class ConfigurationBuilder {
      * Set the value for select first dependency. If true, and you attempt to use Inject with no named dependencies,
      * the first matching dependency will be selected.
      * @param selectFirstDependency true to select first, otherwise use a priority based selection
+     * @deprecated See deprecation notice on {@link #withRequireNamedMultipleMatch(boolean)}. When that is removed,
+     * the strategy to select from multiple dependencies will be to name the dependency
      */
+    @Deprecated
     public ConfigurationBuilder withSelectFirstDependency(boolean selectFirstDependency) {
         configuration.setSelectFirstDependency(selectFirstDependency);
 
@@ -49,7 +52,10 @@ public class ConfigurationBuilder {
     /**
      * Set the value for requiring named dependencies if there are multiple matches. See the getter for the description
      * @param requireNamedMultipleMatch true if required, false if not
+     * @deprecated in a future release, this will be unconfigurable and a name will need to be provided if a multiple
+     * match is found
      */
+    @Deprecated
     public ConfigurationBuilder withRequireNamedMultipleMatch(boolean requireNamedMultipleMatch) {
         configuration.setRequireNamedMultipleMatch(requireNamedMultipleMatch);
 
@@ -62,6 +68,17 @@ public class ConfigurationBuilder {
      */
     public ConfigurationBuilder withUseParameterNameIfUnnamed(boolean useParameterNameIfUnnamed) {
         configuration.setUseParameterNameIfUnnamed(useParameterNameIfUnnamed);
+
+        return this;
+    }
+
+    /**
+     * Set the value for enabling Lazy annotations. The default is true. If false, performance may be improved,
+     * however, you need to be stricter with avoiding circular dependencies
+     * @param lazyDependenciesEnabled true to enable lazy dependency proxies, false to disable.
+     */
+    public ConfigurationBuilder withLazyDependenciesEnabled(boolean lazyDependenciesEnabled) {
+        configuration.setLazyDependenciesEnabled(lazyDependenciesEnabled);
 
         return this;
     }
