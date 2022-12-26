@@ -35,7 +35,7 @@ public class ByteBuddyProxyHandler implements ProxyHandler {
         }
     }
 
-    private <T> DynamicType.Builder<T> subclassProxy(Class<T> proxiedType, Object handler) {
+    private <T> DynamicType.Builder<T> subclassProxy(Class<T> proxiedType, ProxyInterceptor handler) {
         return subclassWithDefaultConstructor(new ByteBuddy(), proxiedType)
                 .implement(ByteBuddyProxy.class)
                 .method(ElementMatchers.any())
@@ -56,27 +56,23 @@ public class ByteBuddyProxyHandler implements ProxyHandler {
     /**
      * An interceptor for ByteBuddy
      */
-    public static class ByteBuddyInterceptor {
-        /**
-         * The dynamic proxy object
-         */
-        private final ProxiedInvocationHandler proxy;
-
+    public static class ByteBuddyInterceptor extends ProxyInterceptor {
         /**
          * Create the interceptor
          * @param proxy the dynamic proxy object
          */
         public ByteBuddyInterceptor(ProxiedInvocationHandler proxy) {
-            this.proxy = proxy;
+            super(proxy);
         }
 
+        // This byte buddy hook will call the main intercept method
         @RuntimeType
         public Object intercept(@This Object self,
                                 @Origin Method method,
                                 @AllArguments Object[] args,
                                 @SuperMethod(nullIfImpossible = true) Method superMethod,
                                 @Empty Object defaultValue) throws Throwable {
-            return this.proxy.invoke(self, method, args);
+            return intercept(self, method, args);
         }
     }
 }
