@@ -29,6 +29,10 @@ public final class Configuration {
      */
     private boolean useParameterNameIfUnnamed;
     /**
+     * Determines if lazy dependency proxies are enabled
+     */
+    private boolean lazyDependenciesEnabled = true;
+    /**
      * The global configuration object
      */
     public static Configuration global = new Configuration();
@@ -118,5 +122,21 @@ public final class Configuration {
      */
     public boolean isUseParameterNameIfUnnamed() {
         return useParameterNameIfUnnamed;
+    }
+
+    /**
+     * Set the value for lazy dependencies enabled
+     * @param lazyDependenciesEnabled true if lazy dependency proxies are enabled
+     */
+    public void setLazyDependenciesEnabled(boolean lazyDependenciesEnabled) {
+        this.lazyDependenciesEnabled = lazyDependenciesEnabled;
+    }
+
+    /**
+     * Returns the value for if lazy dependency proxies are enabled
+     * @return true if enabled, false if not
+     */
+    public boolean isLazyDependenciesEnabled() {
+        return lazyDependenciesEnabled;
     }
 }

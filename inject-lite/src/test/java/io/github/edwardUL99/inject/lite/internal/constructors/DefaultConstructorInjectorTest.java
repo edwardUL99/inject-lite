@@ -33,6 +33,7 @@ public class DefaultConstructorInjectorTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testInjectorInjectConstructor() {
         when(mockInjector.injectWithGraph("numberDependency", Integer.class))
                 .thenReturn(42);
@@ -54,6 +55,7 @@ public class DefaultConstructorInjectorTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testInjectorInjectConstructorWithGraph() {
         DependencyGraph graph = mock(DependencyGraph.class);
         constructorInjector.setDependencyGraph(graph);

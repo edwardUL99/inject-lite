@@ -12,6 +12,7 @@ import io.github.edwardUL99.inject.lite.internal.dependency.CommonDependencyHand
 import io.github.edwardUL99.inject.lite.internal.dependency.DelayedInjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.dependency.InjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjector;
+import io.github.edwardUL99.inject.lite.internal.utils.ThreadAwareValue;
 import io.github.edwardUL99.inject.lite.threads.AsynchronousExecutor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +49,7 @@ public class DefaultInjectorTest {
 
     @BeforeEach
     public void init() {
-        setInternalStaticField(DelayedInjectableDependency.class, "instances", new HashMap<Class<?>, Object>());
+        setInternalStaticField(DelayedInjectableDependency.class, "instances", new ThreadAwareValue<>(new HashMap<>(), true));
         injector = Mockito.spy(new DefaultInjector(new DelayedInjectableDependency.Factory()));
         injectables = injector.injectables;
 
@@ -206,6 +207,8 @@ public class DefaultInjectorTest {
 
             mockInjectionContext.verify(() -> InjectionContext.setSingletonBehaviour(false));
             mockInjectionContext.verify(() -> InjectionContext.setSingletonBehaviour(true));
+            mockInjectionContext.verify(() -> InjectionContext.setLazyBehaviourDisabled(true));
+            mockInjectionContext.verify(() -> InjectionContext.setLazyBehaviourDisabled(false));
         }
     }
 

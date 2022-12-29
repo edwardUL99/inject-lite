@@ -1,12 +1,17 @@
 package io.github.edwardUL99.inject.lite.internal.dependency;
 
+import io.github.edwardUL99.inject.lite.annotations.Lazy;
 import io.github.edwardUL99.inject.lite.annotations.Name;
 import io.github.edwardUL99.inject.lite.annotations.Optional;
 import io.github.edwardUL99.inject.lite.exceptions.AmbiguousDependencyException;
 import io.github.edwardUL99.inject.lite.exceptions.DependencyNotFoundException;
+import io.github.edwardUL99.inject.lite.exceptions.InjectionException;
 import io.github.edwardUL99.inject.lite.internal.config.Configuration;
 import io.github.edwardUL99.inject.lite.internal.dependency.graph.DependencyGraph;
+import io.github.edwardUL99.inject.lite.internal.injector.InjectionContext;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
+import io.github.edwardUL99.inject.lite.internal.proxy.InjectionMethod;
+import io.github.edwardUL99.inject.lite.internal.proxy.Proxies;
 import io.github.edwardUL99.inject.lite.internal.utils.ReflectionUtils;
 
 import java.lang.reflect.Parameter;
@@ -77,9 +82,22 @@ public class CommonDependencyHandler {
     private Object injectAnnotated(DependencyGraph graph, Name nameAnnotation,
                                   String className, Class<?> cls, Class<?> type) {
         String name = nameAnnotation.value();
-        if (graph != null) graph.addDependency(new Dependency(className, cls), new Dependency(name, type));
+        addToGraph(graph, className, cls, name, type, () -> injector.getInjectableDependency(name, type));
 
         return injector.injectWithGraph(name, type);
+    }
+
+    // only adds to graph if the dependency needs to be instantiated
+    private void addToGraph(DependencyGraph graph, String className, Class<?> cls, String name, Class<?> type,
+                            Supplier<InjectableDependency> dependencySupplier) {
+        if (graph != null) {
+            InjectableDependency injectableDependency = dependencySupplier.get();
+
+            if (injectableDependency == null || !injectableDependency.isInstantiated()) {
+                graph.addDependency(new Dependency(className, cls),
+                        new Dependency(name, type));
+            }
+        }
     }
 
     private Object injectUnnamed(DependencyGraph graph, String className, Class<?> cls, Parameter parameter) {
@@ -90,10 +108,25 @@ public class CommonDependencyHandler {
         );
 
         String name = (dependency != null) ? dependency.getName() : "";
-        if (graph != null) graph.addDependency(new Dependency(className, cls),
-                new Dependency(name, type));
+        addToGraph(graph, className, cls, name, type, () -> injector.getInjectableDependency(type));
 
         return injector.injectWithGraph(type, dependency);
+    }
+
+    private Object injectDependency(Name nameAnnotation, DependencyGraph graph, String name, Class<?> cls, Class<?> type,
+                                    Parameter parameter) {
+        try {
+            if (nameAnnotation != null) {
+                return injectAnnotated(graph, nameAnnotation, name, cls, type);
+            } else {
+                return injectUnnamed(graph, name, cls, parameter);
+            }
+        } catch (DependencyNotFoundException ex) {
+            if (parameter.getAnnotation(Optional.class) != null)
+                return ReflectionUtils.getDefaultValue(type);
+            else
+                throw ex;
+        }
     }
 
     /**
@@ -112,20 +145,33 @@ public class CommonDependencyHandler {
             Name nameAnnotation = parameter.getAnnotation(Name.class);
             Class<?> type = parameter.getType();
 
-            try {
-                if (nameAnnotation != null) {
-                    instances[i] = injectAnnotated(graph, nameAnnotation, name, cls, type);
-                } else {
-                    instances[i] = injectUnnamed(graph, name, cls, parameter);
-                }
-            } catch (DependencyNotFoundException ex) {
-                if (parameter.getAnnotation(Optional.class) != null)
-                    instances[i] = ReflectionUtils.getDefaultValue(type);
-                else
-                    throw ex;
-            }
+            instances[i] = getDependencyCheckingLazy(
+                    parameter.getAnnotation(Lazy.class),
+                    type,
+                    () -> injectDependency(nameAnnotation, graph, name, cls, type, parameter)
+            );
         }
 
         return instances;
+    }
+
+    /**
+     * Get a dependency instance checking for the presence of a lazy annotation, using the
+     * injection method to inject the object
+     * @param lazy the lazy annotation
+     * @param type the dependency type
+     * @param injectionMethod the method to inject the dependency
+     * @return the instantiated dependency or a proxy if lazy
+     */
+    public Object getDependencyCheckingLazy(Lazy lazy, Class<?> type, InjectionMethod injectionMethod) {
+        if (!InjectionContext.isLazyBehaviourDisabled() && Configuration.global.isLazyDependenciesEnabled() && lazy != null) {
+            try {
+                return Proxies.createInjectionProxy(type, injectionMethod);
+            } catch (ReflectiveOperationException | IllegalStateException ex) {
+                throw new InjectionException("Failed to create a Lazy dependency", ex);
+            }
+        } else {
+            return injectionMethod.inject();
+        }
     }
 }

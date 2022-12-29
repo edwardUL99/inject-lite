@@ -2,6 +2,7 @@ package io.github.edwardUL99.inject.lite.internal.annotations.processing;
 
 import io.github.edwardUL99.inject.lite.annotations.processing.AnnotatedClass;
 import io.github.edwardUL99.inject.lite.annotations.processing.AnnotationProcessor;
+import io.github.edwardUL99.inject.lite.annotations.processing.ProcessOrder;
 import io.github.edwardUL99.inject.lite.internal.constructors.ConstructorInjector;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjector;
@@ -14,11 +15,13 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static io.github.edwardUL99.inject.lite.utils.TestUtils.setInternalStaticField;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,9 +38,10 @@ public class DefaultAnnotationScannerTest {
     private InternalInjector mockInjector;
     private Map<Class<? extends Annotation>, List<AnnotationProcessor<? extends Annotation>>> processors;
 
-    public static Set<Class<?>> mockSet() {
+    public static Set<Class<?>> mockSet(boolean addSort) {
         Set<Class<?>> set = new LinkedHashSet<>();
         set.add(TestClass.class);
+        if (addSort) set.add(TestClassSort.class);
 
         return set;
     }
@@ -76,7 +80,7 @@ public class DefaultAnnotationScannerTest {
         scanner.registerAnnotationProcessor(TestAnnotation1.class, processor1);
 
         when(reflectionsMock.getTypesAnnotatedWith(TestAnnotation.class))
-                .thenReturn(mockSet());
+                .thenReturn(mockSet(false));
         when(reflectionsMock.getTypesAnnotatedWith(TestAnnotation1.class))
                 .thenReturn(Collections.emptySet());
 
@@ -94,11 +98,28 @@ public class DefaultAnnotationScannerTest {
         scanner.registerAnnotationProcessor(TestAnnotation.class, processor);
 
         when(reflectionsMock.getTypesAnnotatedWith(TestAnnotation.class))
-                .thenReturn(mockSet());
+                .thenReturn(mockSet(false));
 
         scanner.scan(TestAnnotation.class);
 
         assertTrue(processor.called);
+        verify(reflectionsMock).getTypesAnnotatedWith(TestAnnotation.class);
+    }
+
+    @Test
+    public void testScanWithSort() {
+        TestProcessor<TestAnnotation> processor = new TestProcessor<>();
+        Set<Class<?>> classes = mockSet(true);
+        List<Class<?>> sorted = Arrays.asList(TestClassSort.class, TestClass.class);
+        scanner.registerAnnotationProcessor(TestAnnotation.class, processor);
+
+        when(reflectionsMock.getTypesAnnotatedWith(TestAnnotation.class))
+                .thenReturn(classes);
+
+        scanner.scan();
+
+        assertTrue(processor.called);
+        assertEquals(sorted, processor.calledClasses);
         verify(reflectionsMock).getTypesAnnotatedWith(TestAnnotation.class);
     }
 
@@ -119,12 +140,22 @@ public class DefaultAnnotationScannerTest {
 
     }
 
+    @TestAnnotation("test")
+    @ProcessOrder(1)
+    public static class TestClassSort {
+
+    }
+
     public static class TestProcessor<T extends Annotation> implements AnnotationProcessor<T> {
         private boolean called;
+        private List<Class<?>> calledClasses;
 
         @Override
         public void process(List<AnnotatedClass<T>> classes) {
             called = true;
+            calledClasses = classes.stream()
+                    .map(AnnotatedClass::getAnnotatedClass)
+                    .collect(Collectors.toList());;
         }
     }
 }

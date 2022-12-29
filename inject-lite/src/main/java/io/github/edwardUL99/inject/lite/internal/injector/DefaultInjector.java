@@ -202,11 +202,13 @@ public class DefaultInjector implements InternalInjector {
     public <T> T instantiate(Class<T> type) throws InjectionException {
         try {
             InjectionContext.setSingletonBehaviour(false);
+            InjectionContext.setLazyBehaviourDisabled(true);
             InjectableDependency dependency = factory.instantiate(type.getSimpleName(), type, this, false);
 
             return getInGraphContext(dependency, type);
         } finally {
             InjectionContext.setSingletonBehaviour(true);
+            InjectionContext.setLazyBehaviourDisabled(false);
         }
     }
 }

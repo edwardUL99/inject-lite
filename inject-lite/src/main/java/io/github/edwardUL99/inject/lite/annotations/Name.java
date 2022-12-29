@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
  * This annotation is used to name Inject constructor parameter dependencies
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.PARAMETER)
+@Target({ElementType.PARAMETER, ElementType.FIELD})
 public @interface Name {
     /**
      * The name of the dependency

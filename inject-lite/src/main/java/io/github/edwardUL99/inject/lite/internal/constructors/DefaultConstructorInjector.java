@@ -76,27 +76,6 @@ public class DefaultConstructorInjector implements ConstructorInjector {
         }
     }
 
-//    private Object injectAnnotated(Name nameAnnotation, String className, Class<?> cls, Class<?> type) {
-//        String name = nameAnnotation.value();
-//        if (graph != null) graph.addDependency(new Dependency(className, cls), new Dependency(name, type));
-//
-//        return injector.injectWithGraph(name, type);
-//    }
-//
-//    private Object injectUnnamed(String className, Class<?> cls, Parameter parameter) {
-//        Class<?> type = parameter.getType();
-//
-//        InjectableDependency dependency = CommonDependencyFunctions.getInjectableDependency(
-//                type, parameter::getName, injector
-//        );
-//
-//        String name = (dependency != null) ? dependency.getName() : "";
-//        if (graph != null) graph.addDependency(new Dependency(className, cls),
-//                new Dependency(name, type));
-//
-//        return injector.injectWithGraph(type, dependency);
-//    }
-
     private Object inject(String name, Class<?> cls, Constructor<?> constructor) throws ReflectiveOperationException {
         Parameter[] parameters = constructor.getParameters();
         Object[] instances = dependencyHandler.instantiateParameters(name, cls, graph, parameters);

@@ -4,6 +4,7 @@ import io.github.edwardUL99.inject.lite.annotations.Inject;
 import io.github.edwardUL99.inject.lite.annotations.Optional;
 import io.github.edwardUL99.inject.lite.exceptions.DependencyNotFoundException;
 import io.github.edwardUL99.inject.lite.exceptions.InjectionException;
+import io.github.edwardUL99.inject.lite.internal.dependency.CommonDependencyHandler;
 import io.github.edwardUL99.inject.lite.internal.dependency.InjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,11 +26,18 @@ import static org.mockito.Mockito.when;
 public class DefaultFieldInjectorTest {
     private DefaultFieldInjector baseInjector;
     private InternalInjector mockInjector;
+    private CommonDependencyHandler mockHandler;
 
     @BeforeEach
     public void init() {
         mockInjector = mock(InternalInjector.class);
         baseInjector = new DefaultFieldInjector(mockInjector);
+
+        mockHandler = mock(CommonDependencyHandler.class);
+        baseInjector.setDependencyHandler(mockHandler);
+
+        when(mockHandler.getDependencyCheckingLazy(any(), any(), any()))
+                .thenCallRealMethod();
     }
 
     @Test
@@ -44,6 +52,7 @@ public class DefaultFieldInjectorTest {
 
         assertEquals("Hello World", injectable.value);
         verify(mockInjector).injectWithGraph("value", String.class);
+        verify(mockHandler).getDependencyCheckingLazy(any(), any(), any());
     }
 
     @Test
@@ -58,6 +67,7 @@ public class DefaultFieldInjectorTest {
 
         assertNull(injectable.value);
         verify(mockInjector).injectWithGraph("value", String.class);
+        verify(mockHandler).getDependencyCheckingLazy(any(), any(), any());
     }
 
     @Test

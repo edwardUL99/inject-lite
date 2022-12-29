@@ -2,12 +2,11 @@ package io.github.edwardUL99.inject.lite.internal.injector;
 
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.internal.dependency.scanner.DependencyScanner;
+import io.github.edwardUL99.inject.lite.internal.utils.ThreadAwareValue;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -47,7 +46,7 @@ public class InjectionContextTest {
         when(mockFactory.create())
                 .thenReturn(mockInjector);
 
-        ((Map)getInternalState(InjectionContext.class, "singletons")).clear();
+        ((ThreadAwareValue)getInternalState(InjectionContext.class, "singletons")).getAllValuesAsMap().clear();
     }
 
     @Test

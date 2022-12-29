@@ -1,14 +1,20 @@
 package io.github.edwardUL99.inject.lite.internal.dependency;
 
+import io.github.edwardUL99.inject.lite.annotations.Lazy;
 import io.github.edwardUL99.inject.lite.annotations.Name;
 import io.github.edwardUL99.inject.lite.annotations.Optional;
 import io.github.edwardUL99.inject.lite.exceptions.AmbiguousDependencyException;
 import io.github.edwardUL99.inject.lite.exceptions.DependencyNotFoundException;
 import io.github.edwardUL99.inject.lite.internal.config.Configuration;
 import io.github.edwardUL99.inject.lite.internal.dependency.graph.DependencyGraph;
+import io.github.edwardUL99.inject.lite.internal.injector.InjectionContext;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
+import io.github.edwardUL99.inject.lite.internal.proxy.InjectionMethod;
+import io.github.edwardUL99.inject.lite.internal.proxy.Proxies;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import java.lang.reflect.Parameter;
@@ -23,8 +29,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class CommonDependencyHandlerTest {
@@ -36,8 +45,12 @@ public class CommonDependencyHandlerTest {
     public void init() {
         mockInjector = mock(InternalInjector.class);
         mockGraph = mock(DependencyGraph.class);
-
         handler = new CommonDependencyHandler(mockInjector);
+    }
+
+    @AfterEach
+    public void teardown() {
+        Configuration.global.setLazyDependenciesEnabled(true);
     }
 
     @Test
@@ -132,6 +145,7 @@ public class CommonDependencyHandlerTest {
         verify(mockInjector).injectWithGraph(String.class, dependency);
         verify(mockInjector).injectWithGraph("name", Integer.class);
         verify(mockInjector).injectWithGraph(Long.class, dependency1);
+        verify(spy, times(3)).getDependencyCheckingLazy(any(), any(), any());
     }
 
     @Test
@@ -156,11 +170,62 @@ public class CommonDependencyHandlerTest {
         assertArrayEquals(instances, new Object[]{"Hello", 1, null});
         verify(mockInjector).injectWithGraph(String.class, dependency);
         verify(mockInjector).injectWithGraph("name", Integer.class);
+        verify(spy, times(3)).getDependencyCheckingLazy(any(), any(), any());
+    }
+
+    @Test
+    public void testGetDependencyCheckingLazy() throws Exception {
+        Lazy lazyParam = TestDependency.class.getDeclaredMethod("method1", String.class, String.class)
+            .getParameters()[0].getAnnotation(Lazy.class);
+        InjectionMethod mockMethod = mock(InjectionMethod.class);
+
+        try (MockedStatic<Proxies> proxiesMock = mockStatic(Proxies.class);
+             MockedStatic<InjectionContext> contextMock = mockStatic(InjectionContext.class)) {
+            proxiesMock.when(() -> Proxies.createInjectionProxy(String.class, mockMethod))
+                .thenReturn("Hello");
+
+            Object proxied = handler.getDependencyCheckingLazy(lazyParam, String.class, mockMethod);
+
+            assertEquals(proxied, "Hello");
+            proxiesMock.verify(() -> Proxies.createInjectionProxy(String.class, mockMethod));
+
+            verifyNoInteractions(mockMethod);
+            proxiesMock.reset();
+
+            when(mockMethod.inject())
+                .thenReturn("boo");
+
+            proxied = handler.getDependencyCheckingLazy(null, String.class, mockMethod);
+
+            assertEquals(proxied, "boo");
+            proxiesMock.verifyNoInteractions();
+            verify(mockMethod).inject();
+
+            reset(mockMethod);
+
+            Configuration.global.setLazyDependenciesEnabled(false);
+            when(mockMethod.inject())
+                    .thenReturn("boo");
+            proxied = handler.getDependencyCheckingLazy(lazyParam, String.class, mockMethod);
+
+            assertEquals(proxied, "boo");
+            verify(mockMethod).inject();
+
+            reset(mockMethod);
+            contextMock.when(InjectionContext::isLazyBehaviourDisabled)
+                        .thenReturn(true);
+            when(mockMethod.inject())
+                    .thenReturn("boo");
+            proxied = handler.getDependencyCheckingLazy(lazyParam, String.class, mockMethod);
+
+            assertEquals(proxied, "boo");
+            verify(mockMethod).inject();
+        }
     }
 
     private static class TestDependency {
-        public static void method(String s1, @Name("name") Integer i2, @Optional Long l3) {
+        public static void method(String s1, @Name("name") Integer i2, @Optional Long l3) {}
 
-        }
+        public static void method1(@Lazy String s, String s1) {}
     }
 }

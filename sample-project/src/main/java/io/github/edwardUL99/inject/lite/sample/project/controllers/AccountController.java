@@ -3,6 +3,7 @@ package io.github.edwardUL99.inject.lite.sample.project.controllers;
 import io.github.edwardUL99.inject.lite.annotations.ContainerInject;
 import io.github.edwardUL99.inject.lite.annotations.Inject;
 import io.github.edwardUL99.inject.lite.annotations.Injectable;
+import io.github.edwardUL99.inject.lite.annotations.Lazy;
 import io.github.edwardUL99.inject.lite.annotations.Name;
 import io.github.edwardUL99.inject.lite.sample.project.models.Account;
 import io.github.edwardUL99.inject.lite.sample.project.services.AccountService;
@@ -14,7 +15,8 @@ public class AccountController {
     private final AccountService accountService;
 
     @Inject
-    public AccountController(AccountService accountService, @Name("configServiceBean") ConfigService configService) {
+    public AccountController(AccountService accountService, @Name("configServiceBean") @Lazy ConfigService configService) {
+        // The config service will be lazily injected as a proxy. When we use the getConfig method here, config service will be instantiated and the method request forwarded to it
         this.accountService = accountService;
         System.out.println("Injected ConfigService: " + configService + ". Debug enabled: " + configService.getConfig().isDebugEnabled());
     }
