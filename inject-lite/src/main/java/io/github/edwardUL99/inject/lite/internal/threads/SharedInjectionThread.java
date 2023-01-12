@@ -5,50 +5,41 @@ package io.github.edwardUL99.inject.lite.internal.threads;
  * since global injectors are thread-scoped.
  * Useful when running asynchronous code and want to use same injector in asynchronous threads
  */
-public class SharedInjectionThread extends Thread {
+public class SharedInjectionThread extends InjectionAwareThread {
     /**
      * The injection thread the thread is running under
      */
-    private final Thread injectionThread;
-    /**
-     * Indicates if the thread is a container thread or not
-     */
-    private final boolean containerThread;
+    private final ParentThread injectionThread;
 
     /**
      * Create a thread instance
      * @param runnable the thread runnable
-     * @param injectionThread the thread owning the injector
+     * @param injectionThread the thread owning the injector=
      */
     public SharedInjectionThread(Runnable runnable, Thread injectionThread) {
-        this(runnable, injectionThread, false);
-    }
-
-    /**
-     * Create a thread instance
-     * @param runnable the thread runnable
-     * @param injectionThread the thread owning the injector
-     * @param containerThread true if a container thread, false if not
-     */
-    public SharedInjectionThread(Runnable runnable, Thread injectionThread, boolean containerThread) {
         super(runnable);
-        this.injectionThread = injectionThread;
-        this.containerThread = containerThread;
+
+        if (injectionThread != null && !(injectionThread instanceof ParentThread))
+            throw new IllegalArgumentException("Injection thread must be a ParentThread instance");
+
+        this.injectionThread = (ParentThread) injectionThread;
     }
 
     /**
      * Get the thread instance owning the injector
      * @return the parent container thread
      */
-    public Thread getInjectionThread() {
+    public ParentThread getInjectionThread() {
         return injectionThread;
     }
 
-    /**
-     * Determine if the thread is a container thread or not
-     * @return true if a container thread, false if not
-     */
-    public boolean isContainerThread() {
-        return containerThread;
+    @Override
+    public final boolean isParent() {
+        return false;
+    }
+
+    @Override
+    public final boolean isChild() {
+        return true;
     }
 }

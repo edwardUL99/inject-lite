@@ -49,8 +49,12 @@ public final class Threads {
      * @return true if a container thread, false if not
      */
     public static boolean isContainerThread(Thread thread) {
-        return (thread instanceof SharedInjectionThread &&
-                ((SharedInjectionThread) thread).isContainerThread())
-                || thread.getName().contains("(Container)");
+        if (thread instanceof InjectionAwareThread) {
+            InjectionAwareThread awareThread = (InjectionAwareThread) thread;
+
+            return awareThread.isChild() || awareThread.isParent();
+        }
+
+        return false;
     }
 }

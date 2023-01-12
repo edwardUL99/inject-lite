@@ -1,5 +1,6 @@
 package io.github.edwardUL99.inject.lite.internal.container;
 
+import io.github.edwardUL99.inject.lite.internal.threads.ParentThread;
 import io.github.edwardUL99.inject.lite.internal.threads.SharedInjectionThread;
 
 import java.util.concurrent.ThreadFactory;
@@ -26,17 +27,10 @@ public class ContainerThreadFactory implements ThreadFactory {
         Thread thread;
 
         if (containerThread == null) {
-            thread = new Thread(runnable);
-            thread.setName(thread.getName() + " (Container)");
+            thread = new ParentThread(runnable);
         } else {
             // we want to share container injector with child threads
-            thread = new SharedInjectionThread(runnable, containerThread, true);
-
-            String parentName = containerThread.getName();
-            if (parentName.contains(" (Container)"))
-                parentName = parentName.split(" ")[0];
-
-            thread.setName(thread.getName() + " (" + parentName + ": Child)");
+            thread = new SharedInjectionThread(runnable, containerThread);
         }
 
         return thread;

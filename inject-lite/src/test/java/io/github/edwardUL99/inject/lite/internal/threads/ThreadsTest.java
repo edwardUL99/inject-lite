@@ -1,7 +1,5 @@
 package io.github.edwardUL99.inject.lite.internal.threads;
 
-import io.github.edwardUL99.inject.lite.internal.threads.SharedInjectionThread;
-import io.github.edwardUL99.inject.lite.internal.threads.Threads;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,7 +50,7 @@ public class ThreadsTest {
 
     @Test
     public void testCurrentThreadShared() {
-        Thread parent = new Thread(mock(Runnable.class));
+        Thread parent = new ParentThread(mock(Runnable.class));
         Thread returnVal = new SharedInjectionThread(mock(Runnable.class), parent);
         when(mockThreadSupplier.get())
                 .thenReturn(returnVal);
@@ -69,7 +67,7 @@ public class ThreadsTest {
         when(mockThreadSupplier.get())
                 .thenReturn(returnVal);
 
-        assertThrows(IllegalStateException.class, () -> Threads.getCurrentThread());
+        assertThrows(IllegalStateException.class, Threads::getCurrentThread);
         verify(mockThreadSupplier).get();
     }
 }
