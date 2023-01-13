@@ -7,6 +7,7 @@ import io.github.edwardUL99.inject.lite.internal.annotations.processing.Scanners
 import io.github.edwardUL99.inject.lite.internal.dependency.registration.RegistrationStrategy;
 import io.github.edwardUL99.inject.lite.internal.injector.InjectionContext;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
+import io.github.edwardUL99.inject.lite.internal.threads.ParentThread;
 import io.github.edwardUL99.inject.lite.internal.threads.Threads;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -94,20 +95,34 @@ public class ContainersInternalTest {
     public void testRegisterContainerDependencyAllContainers() {
         try (MockedStatic<Containers> containers = mockStatic(Containers.class);
              MockedStatic<Threads> threads = mockStatic(Threads.class)) {
-            threads.when(() -> Threads.isContainerThread(any(Thread.class)))
+            ContainerInjectionThread containerInjectionThread =
+                    new ContainerInjectionThread(mock(Runnable.class));
+
+            threads.when(Threads::getCurrentThread)
+                        .thenReturn(containerInjectionThread);
+            threads.when(() -> Threads.isInjectionAwareThread(containerInjectionThread))
                     .thenReturn(true);
             containers.when(Containers::getCurrentContainer)
                             .thenReturn(mockContainer);
             ContainersInternal.registerDependencyCheckingContainer(mockInjector, mockStrategy, TestClass.class);
 
+            ParentThread normalThread = new ParentThread(mock(Runnable.class));
+
+            threads.when(Threads::getCurrentThread)
+                    .thenReturn(normalThread);
+
             containers.when(Containers::getCurrentContainer)
                     .thenReturn(mockContainer1);
-            threads.when(() -> Threads.isContainerThread(any(Thread.class)))
+            threads.when(() -> Threads.isInjectionAwareThread(any(Thread.class)))
                     .thenReturn(false);
             ContainersInternal.registerDependencyCheckingContainer(mockInjector, mockStrategy, TestClass.class);
 
-            containers.verify(Containers::getCurrentContainer);
-            verify(mockStrategy, times(2)).register(mockInjector);
+            threads.when(() -> Threads.isInjectionAwareThread(any(Thread.class)))
+                    .thenReturn(true);
+            ContainersInternal.registerDependencyCheckingContainer(mockInjector, mockStrategy, TestClass.class);
+
+            containers.verify(Containers::getCurrentContainer, times(1));
+            verify(mockStrategy, times(3)).register(mockInjector);
             verify(mockContainer).getId();
             verifyNoInteractions(mockContainer1);
         }
@@ -117,7 +132,12 @@ public class ContainersInternalTest {
     public void testRegisterContainerDependencySpecifiedContainers() {
         try (MockedStatic<Containers> containers = mockStatic(Containers.class);
              MockedStatic<Threads> threads = mockStatic(Threads.class)) {
-            threads.when(() -> Threads.isContainerThread(any(Thread.class)))
+            ContainerInjectionThread containerInjectionThread =
+                    new ContainerInjectionThread(mock(Runnable.class));
+
+            threads.when(Threads::getCurrentThread)
+                    .thenReturn(containerInjectionThread);
+            threads.when(() -> Threads.isInjectionAwareThread(any(Thread.class)))
                     .thenReturn(true);
             containers.when(Containers::getCurrentContainer)
                     .thenReturn(mockContainer);

@@ -9,7 +9,7 @@ public class SharedInjectionThread extends InjectionAwareThread {
     /**
      * The injection thread the thread is running under
      */
-    private final ParentThread injectionThread;
+    private final Thread injectionThread;
 
     /**
      * Create a thread instance
@@ -18,18 +18,14 @@ public class SharedInjectionThread extends InjectionAwareThread {
      */
     public SharedInjectionThread(Runnable runnable, Thread injectionThread) {
         super(runnable);
-
-        if (injectionThread != null && !(injectionThread instanceof ParentThread))
-            throw new IllegalArgumentException("Injection thread must be a ParentThread instance");
-
-        this.injectionThread = (ParentThread) injectionThread;
+        this.injectionThread = injectionThread;
     }
 
     /**
      * Get the thread instance owning the injector
      * @return the parent container thread
      */
-    public ParentThread getInjectionThread() {
+    public Thread getInjectionThread() {
         return injectionThread;
     }
 

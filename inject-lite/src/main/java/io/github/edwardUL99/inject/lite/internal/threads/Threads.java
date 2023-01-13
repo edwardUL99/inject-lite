@@ -1,7 +1,5 @@
 package io.github.edwardUL99.inject.lite.internal.threads;
 
-import io.github.edwardUL99.inject.lite.internal.threads.SharedInjectionThread;
-
 import java.util.function.Supplier;
 
 /**
@@ -44,11 +42,11 @@ public final class Threads {
     }
 
     /**
-     * Determines if the provided thread is a container thread
+     * Determines if the provided thread is an injection parent or child thread
      * @param thread the thread to query
-     * @return true if a container thread, false if not
+     * @return true if an injection parent or child thread, false if not
      */
-    public static boolean isContainerThread(Thread thread) {
+    public static boolean isInjectionAwareThread(Thread thread) {
         if (thread instanceof InjectionAwareThread) {
             InjectionAwareThread awareThread = (InjectionAwareThread) thread;
 
