@@ -80,6 +80,7 @@ public class DefaultFieldInjectorTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testInvalidTypeField() {
         when(mockInjector.getInjectableDependency(any(Class.class), any(Supplier.class), any(boolean.class)))
                 .thenReturn(mock(InjectableDependency.class));

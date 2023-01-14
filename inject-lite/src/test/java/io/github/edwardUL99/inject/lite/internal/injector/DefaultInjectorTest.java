@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static io.github.edwardUL99.inject.lite.utils.TestUtils.setInternalStaticField;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -38,7 +37,6 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.powermock.reflect.Whitebox.setInternalState;
 
 public class DefaultInjectorTest {
     private Map<String, InjectableDependency> injectables;
@@ -49,7 +47,7 @@ public class DefaultInjectorTest {
 
     @BeforeEach
     public void init() {
-        setInternalStaticField(DelayedInjectableDependency.class, "instances", new ThreadAwareValue<>(new HashMap<>(), true));
+        DelayedInjectableDependency.setInstances(new ThreadAwareValue<>(new HashMap<>(), true));
         injector = Mockito.spy(new DefaultInjector(new DelayedInjectableDependency.Factory()));
         injectables = injector.injectables;
 
@@ -148,7 +146,7 @@ public class DefaultInjectorTest {
         injectables.put("test", new DelayedInjectableDependency("test", TestDependency.class, injector));
         injectables.put("test1", new DelayedInjectableDependency("test1", TestSubclass.class, injector));
         injectables.put("test2", new DelayedInjectableDependency("test2", TestDependency1.class, injector));
-        setInternalState(injector, "injectables", injectables);
+        injector.setInjectablesForTest(injectables);
 
         when(mockConstructorInjector.injectConstructor("test", TestDependency.class))
                 .thenReturn(new TestDependency());

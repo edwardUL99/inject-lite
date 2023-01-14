@@ -47,6 +47,22 @@ public final class InjectionContext {
     }
 
     /**
+     * Get current scanner instance without lazy init
+     * @return current scanner instance
+     */
+    static DependencyScanner getCurrentScanner() {
+        return scanner;
+    }
+
+    /**
+     * Get injector singletons
+     * @return injector singletons
+     */
+    static ThreadAwareValue<Injector> getSingletons() {
+        return singletons;
+    }
+
+    /**
      * Set the factory used for creating injectors
      * @param factory the factory instance
      */

@@ -1,39 +1,30 @@
 package io.github.edwardUL99.inject.lite.internal.threads;
 
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.function.Supplier;
 
-import static io.github.edwardUL99.inject.lite.utils.TestUtils.setInternalStaticField;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.powermock.reflect.Whitebox.getInternalState;
 
 public class ThreadsTest {
-    private static Supplier<Thread> original;
     private Supplier<Thread> mockThreadSupplier;
-
-    @BeforeAll
-    public static void staticInit() {
-        original = getInternalState(Threads.class, "threadSupplier");
-    }
 
     @AfterAll
     public static void staticTeardown() {
-        setInternalStaticField(Threads.class, "threadSupplier", original);
+        Threads.setThreadSupplier(Thread::currentThread);
     }
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void init() {
         mockThreadSupplier = (Supplier<Thread>) mock(Supplier.class);
-        setInternalStaticField(Threads.class, "threadSupplier", mockThreadSupplier);
+        Threads.setThreadSupplier(mockThreadSupplier);
     }
 
     @Test

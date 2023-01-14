@@ -2,7 +2,6 @@ package io.github.edwardUL99.inject.lite.internal.injector;
 
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.internal.dependency.scanner.DependencyScanner;
-import io.github.edwardUL99.inject.lite.internal.utils.ThreadAwareValue;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +13,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.powermock.reflect.Whitebox.getInternalState;
 
 public class InjectionContextTest {
     private static DependencyScanner oldScanner;
@@ -24,7 +22,7 @@ public class InjectionContextTest {
 
     @BeforeAll
     public static void staticInit() {
-        oldScanner = getInternalState(InjectionContext.class, "scanner");
+        oldScanner = InjectionContext.getCurrentScanner();
     }
 
     @AfterAll
@@ -46,7 +44,7 @@ public class InjectionContextTest {
         when(mockFactory.create())
                 .thenReturn(mockInjector);
 
-        ((ThreadAwareValue)getInternalState(InjectionContext.class, "singletons")).getAllValuesAsMap().clear();
+        InjectionContext.getSingletons().getAllValuesAsMap().clear();
     }
 
     @Test

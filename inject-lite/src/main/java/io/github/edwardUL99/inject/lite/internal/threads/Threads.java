@@ -9,9 +9,21 @@ public final class Threads {
     /**
      * Supplies current thread
      */
-    private static Supplier<Thread> threadSupplier = Thread::currentThread;
+    private static Supplier<Thread> threadSupplier;
+
+    static {
+        setThreadSupplier(Thread::currentThread);
+    }
 
     private Threads() {}
+
+    /**
+     * Set the supplier for the current thread
+     * @param threadSupplier supplies current thread
+     */
+    static void setThreadSupplier(Supplier<Thread> threadSupplier) {
+        Threads.threadSupplier = threadSupplier;
+    }
 
     /**
      * Get the current thread to use for retrieving thread-aware injectors/scanners. If the thread is a shared injection thread,

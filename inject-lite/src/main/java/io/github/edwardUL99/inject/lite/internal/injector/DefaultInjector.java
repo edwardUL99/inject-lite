@@ -32,7 +32,7 @@ public class DefaultInjector implements InternalInjector {
     /**
      * Map of injectables in the injection
      */
-    protected final Map<String, InjectableDependency> injectables = new ConcurrentSkipListMap<>();
+    protected Map<String, InjectableDependency> injectables = new ConcurrentSkipListMap<>();
     /**
      * The field injector instance
      */
@@ -56,6 +56,14 @@ public class DefaultInjector implements InternalInjector {
      */
     public DefaultInjector(InjectableDependencyFactory factory) {
         this.factory = factory;
+    }
+
+    /**
+     * Test method to set injectables map
+     * @param injectables injectables map
+     */
+    void setInjectablesForTest(Map<String, InjectableDependency> injectables) {
+        this.injectables = injectables;
     }
 
     @Override

@@ -14,7 +14,7 @@ public class DelayedInjectableDependency extends BaseInjectableDependency {
     /**
      * Holds instances associated with the class type
      */
-    private static final ThreadAwareValue<Map<Dependency, Object>> instances = new ThreadAwareValue<>(new HashMap<>(), true);
+    private static ThreadAwareValue<Map<Dependency, Object>> instances = new ThreadAwareValue<>(new HashMap<>(), true);
 
     /**
      * Instantiate the dependency
@@ -35,6 +35,14 @@ public class DelayedInjectableDependency extends BaseInjectableDependency {
      */
     public DelayedInjectableDependency(String name, Class<?> type, InternalInjector injector, boolean singleton) {
         super(name, type, injector, singleton);
+    }
+
+    /**
+     * Set the singleton instances values. Intended for testing
+     * @param instances map of threads to singleton instances
+     */
+    public static void setInstances(ThreadAwareValue<Map<Dependency, Object>> instances) {
+        DelayedInjectableDependency.instances = instances;
     }
 
     /**

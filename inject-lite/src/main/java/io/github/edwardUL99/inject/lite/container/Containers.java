@@ -32,6 +32,14 @@ public final class Containers {
     }
 
     /**
+     * Get the async executor used inside containers
+     * @return async executor
+     */
+    static AsynchronousExecutor getExecutor() {
+        return executor;
+    }
+
+    /**
      * Execute the unit in the container. Allows execution of multiple containers. You should call
      * {@link #awaitContainerFinish()} at some point to wait for all to finish. The provided scanners will be executed before
      * calling executionUnit
