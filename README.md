@@ -490,7 +490,7 @@ thread. This is used for when the `Containers` API is not being used.
 Container safe means that any threads spawned inside a container will share the same global injector as the parent container.
 This is incredibly important, otherwise, child threads will have different injection results than the parent container,
 for example, dependencies registered with '@ContainerInject' will have different dependencies registered in the child threads.
-Also, if the container registered dependencies in any other means, these dependencies won't be available to the chilr threads.
+Also, if the container registered dependencies in any other means, these dependencies won't be available to the child threads.
 
 For shared injection across multiple threads in a non-Container environment, use the `Injection#sharedInjectionExecutor()` method
 which returns an executor that runs child threads which receives the same injector returned by `Injection#globalInjector()`
