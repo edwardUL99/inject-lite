@@ -2,6 +2,7 @@ package io.github.edwardUL99.inject.lite.internal.dependency.graph;
 
 import io.github.edwardUL99.inject.lite.exceptions.CircularDependencyException;
 import io.github.edwardUL99.inject.lite.internal.dependency.Dependency;
+import io.github.edwardUL99.inject.lite.internal.utils.ReflectionUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,7 +70,7 @@ public class DependencyGraph {
         String dependencyName = dependency.getName();
 
         if (parentName.equals(dependencyName) &&
-                (parentType.isAssignableFrom(dependencyType) || dependencyType.isAssignableFrom(parentType)))
+                (ReflectionUtils.isAssignable(parentType, dependencyType) || ReflectionUtils.isAssignable(dependencyType, parentType)))
             throw new CircularDependencyException(String.format("Dependency being injected has same name as parent:" +
                     " Parent: %s, Dependency: %s. Try specifying a name of a dependency different to this one to" +
                     " avoid this conflict", parentName, dependencyName));
