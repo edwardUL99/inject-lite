@@ -7,6 +7,8 @@ import io.github.edwardUL99.inject.lite.internal.constructors.ConstructorInjecto
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjector;
 import io.github.edwardUL99.inject.lite.internal.reflections.Reflections;
+import io.github.edwardUL99.inject.lite.internal.utils.ReflectionUtils;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -23,14 +25,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static io.github.edwardUL99.inject.lite.utils.TestUtils.setInternalStaticField;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.powermock.reflect.Whitebox.getInternalState;
 
 public class DefaultAnnotationScannerTest {
     private DefaultAnnotationScanner scanner;
@@ -59,8 +59,13 @@ public class DefaultAnnotationScannerTest {
 
         scanner = new DefaultAnnotationScanner(mockInjector);
         reflectionsMock = mock(Reflections.class);
-        setInternalStaticField(DefaultAnnotationScanner.class, "reflections", reflectionsMock);
-        processors = getInternalState(scanner, "processors");
+        DefaultAnnotationScanner.setReflections(reflectionsMock);
+        processors = scanner.getProcessors();
+    }
+
+    @AfterAll
+    public static void after() {
+        DefaultAnnotationScanner.setReflections(ReflectionUtils.getReflections());
     }
 
     @Test

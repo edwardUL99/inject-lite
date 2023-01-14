@@ -1,7 +1,5 @@
 package io.github.edwardUL99.inject.lite.internal.threads;
 
-import io.github.edwardUL99.inject.lite.internal.threads.SharedInjectionThread;
-
 import java.util.function.Supplier;
 
 /**
@@ -11,9 +9,21 @@ public final class Threads {
     /**
      * Supplies current thread
      */
-    private static Supplier<Thread> threadSupplier = Thread::currentThread;
+    private static Supplier<Thread> threadSupplier;
+
+    static {
+        setThreadSupplier(Thread::currentThread);
+    }
 
     private Threads() {}
+
+    /**
+     * Set the supplier for the current thread
+     * @param threadSupplier supplies current thread
+     */
+    static void setThreadSupplier(Supplier<Thread> threadSupplier) {
+        Threads.threadSupplier = threadSupplier;
+    }
 
     /**
      * Get the current thread to use for retrieving thread-aware injectors/scanners. If the thread is a shared injection thread,
@@ -44,13 +54,17 @@ public final class Threads {
     }
 
     /**
-     * Determines if the provided thread is a container thread
+     * Determines if the provided thread is an injection parent or child thread
      * @param thread the thread to query
-     * @return true if a container thread, false if not
+     * @return true if an injection parent or child thread, false if not
      */
-    public static boolean isContainerThread(Thread thread) {
-        return (thread instanceof SharedInjectionThread &&
-                ((SharedInjectionThread) thread).isContainerThread())
-                || thread.getName().contains("(Container)");
+    public static boolean isInjectionAwareThread(Thread thread) {
+        if (thread instanceof InjectionAwareThread) {
+            InjectionAwareThread awareThread = (InjectionAwareThread) thread;
+
+            return awareThread.isChild() || awareThread.isParent();
+        }
+
+        return false;
     }
 }

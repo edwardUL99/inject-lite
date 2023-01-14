@@ -25,6 +25,21 @@ public final class ReflectionUtils {
     private static final Map<Class<?>, Object> defaultValues = new HashMap<>();
 
     static {
+        setupMappings();
+    }
+
+    /**
+     * Setup mappings used by the reflection utils class
+     */
+    private static void setupMappings() {
+        addWrapperMappings();
+        addDefaultValues();
+    }
+
+    /**
+     * Add primitive wrapper mapping definitions
+     */
+    private static void addWrapperMappings() {
         addWrapperMapping(int.class, Integer.class);
         addWrapperMapping(float.class, Float.class);
         addWrapperMapping(double.class, Double.class);
@@ -33,7 +48,12 @@ public final class ReflectionUtils {
         addWrapperMapping(char.class, Character.class);
         addWrapperMapping(short.class, Short.class);
         addWrapperMapping(long.class, Long.class);
+    }
 
+    /**
+     * Add the default values for types
+     */
+    private static void addDefaultValues() {
         defaultValues.put(int.class, 0);
         defaultValues.put(float.class, 0.00F);
         defaultValues.put(double.class, 0.00);

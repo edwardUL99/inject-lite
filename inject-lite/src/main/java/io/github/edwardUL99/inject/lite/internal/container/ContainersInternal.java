@@ -104,6 +104,12 @@ public final class ContainersInternal {
                 ((id = container.getId()) != null && idsList.contains(id)));
     }
 
+    private static boolean isContainerThread() {
+        Thread thread = Threads.getCurrentThread();
+
+        return Threads.isInjectionAwareThread(thread) && thread instanceof ContainerInjectionThread;
+    }
+
     /**
      * Register a dependency to the provided injector while checking if it should be injected only in certain containers
      * if the class cls is annotated with ContainerInject
@@ -117,7 +123,7 @@ public final class ContainersInternal {
         ContainerInject containerInject = cls.getAnnotation(ContainerInject.class);
 
         if (isContainerInjectEnabled() && containerInject != null) {
-            boolean containerThread = Threads.isContainerThread(Thread.currentThread());
+            boolean containerThread = isContainerThread();
             injectNormal = !containerInject.containerOnly() && !containerThread;
 
             if (containerThread) {

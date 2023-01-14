@@ -21,7 +21,6 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.powermock.reflect.Whitebox.getInternalState;
 
 public class ContainersTest {
     private static AsynchronousExecutor oldExecutor;
@@ -30,7 +29,7 @@ public class ContainersTest {
     @BeforeAll
     public static void staticInit() {
         ContainerContext.inContext = true;
-        oldExecutor = getInternalState(Containers.class, "executor");
+        oldExecutor = Containers.getExecutor();
     }
 
     @AfterAll

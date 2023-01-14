@@ -23,11 +23,20 @@ public class DefaultAnnotationScanner implements AnnotationScanner {
     /**
      * Used for classpath scanner
      */
-    private static final Reflections reflections = ReflectionUtils.getReflections();
+    private static Reflections reflections;
     /**
      * Injector to inject with
      */
     private final InternalInjector injector;
+    /**
+     * Map of annotation classes to the list of processors
+     */
+    private final Map<Class<? extends Annotation>, List<AnnotationProcessor<? extends Annotation>>> processors
+            = new HashMap<>();
+
+    static {
+        setReflections(ReflectionUtils.getReflections());
+    }
 
     /**
      * Instantiate the scanner with the provided constructor and resource injectors
@@ -38,10 +47,20 @@ public class DefaultAnnotationScanner implements AnnotationScanner {
     }
 
     /**
-     * Map of annotation classes to the list of processors
+     * Set the reflections instance
+     * @param reflections instance of Reflections to use
      */
-    private final Map<Class<? extends Annotation>, List<AnnotationProcessor<? extends Annotation>>> processors
-            = new HashMap<>();
+    static void setReflections(Reflections reflections) {
+        DefaultAnnotationScanner.reflections = reflections;
+    }
+
+    /**
+     * Get the map of processors
+     * @return map of processors
+     */
+    Map<Class<? extends Annotation>, List<AnnotationProcessor<? extends Annotation>>> getProcessors() {
+        return processors;
+    }
 
     @Override
     public <T extends Annotation> void registerAnnotationProcessor(Class<T> annotation, AnnotationProcessor<T> processor) {
