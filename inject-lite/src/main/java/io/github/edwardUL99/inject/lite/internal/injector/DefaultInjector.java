@@ -13,6 +13,7 @@ import io.github.edwardUL99.inject.lite.internal.dependency.InjectableDependency
 import io.github.edwardUL99.inject.lite.internal.dependency.graph.GraphInjection;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjector;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjectorFactory;
+import io.github.edwardUL99.inject.lite.internal.hooks.InjectorHooks;
 import io.github.edwardUL99.inject.lite.internal.methods.MethodInjector;
 import io.github.edwardUL99.inject.lite.internal.methods.MethodInjectorFactory;
 import io.github.edwardUL99.inject.lite.internal.utils.ReflectionUtils;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
 /**
  * Default injector implementation
  */
-public class DefaultInjector implements InternalInjector {
+public class DefaultInjector implements InjectorHooks.HookSupport {
     /**
      * Map of injectables in the injection
      */

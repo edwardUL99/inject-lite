@@ -542,6 +542,65 @@ public class Main {
 }
 ```
 
+## Hooks
+The library provides a concept of hooks which are executed in an injection context. The interfaces for the hooks are
+specified underneath the `io.github.edwardUL99.inject.lite.hooks` package. The interfaces of interest are as follows:
+
+- **PreConstruct**: A marker interface with runtime type-checking for a static method called `preConstruct`. See below example
+- **LazyInvocation**: A hook that allows for interception of methods invoked on a dependency that was injected with the @Lazy annotation
+- **PostConstruct**: A hook that is called after the dependency is created and all dependencies are injected
+
+The following shows an example of how the hooks are used, with explanations.
+
+```java
+import io.github.edwardUL99.inject.lite.hooks.PreConstruct;
+import io.github.edwardUL99.inject.lite.hooks.LazyInvocation;
+import io.github.edwardUL99.inject.lite.hooks.PostConstruct;
+
+import io.github.edwardUL99.inject.lite.annotations.Injectable;
+import io.github.edwardUL99.inject.lite.injector.Injector;
+
+import javax.annotation.PostConstruct;
+
+@Injectable("hookedDependency")
+public class HookedDependency implements PreConstruct, LazyInvocation, PostConstruct {
+    private static boolean initialised;
+    private int timesLazyInvoked;
+    private boolean constructed;
+    
+    public static void preConstruct(Injector injector) {
+        // Static method called before any constructor. Injector can be used for querying other dependencies.
+        // Parameter can be omitted
+        // PreConstruct is a marker interface. When used, a runtime error is thrown if:
+        // a) No preConstruct is provided
+        // b) Provided but not static
+        // c) More than 0-1 arguments
+        // d) Argument not being type Injector
+        // Therefore, this is a runtime-typed hook
+        initialised = true;
+    }
+    
+    @Override
+    public void lazilyInvoked(Injector injector, Method method) {
+        // called at least once. If onlyInvokeFirst returns false, called every invocation, otherwise, only the first
+        // this method is called if this dependency was injected into another dependency and annotated with @Lazy
+        timesLazyInvoked++;
+    }
+    
+    @Override
+    public void onlyInvokeFirst() {
+        // defaults to returning true. However, here, we return false, so timesLazyInvoked will match how much method calls are made to this instance
+        return false;
+    }
+    
+    @Override
+    public void postConstruct() {
+        // called after the dependency is constructed and all dependencies are injected into it
+        constructed = true;
+    }
+}
+```
+
 ## Inject Lite Testing
 The project, provides another dependency called `inject-lite-testing` which provides a testing harness for testing code
 which uses the `inject-lite` library. It provides the following features:

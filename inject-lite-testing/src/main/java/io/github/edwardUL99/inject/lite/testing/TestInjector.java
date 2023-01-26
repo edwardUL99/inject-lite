@@ -9,6 +9,7 @@ import io.github.edwardUL99.inject.lite.exceptions.InjectionException;
 import io.github.edwardUL99.inject.lite.exceptions.InvalidInjectableException;
 import io.github.edwardUL99.inject.lite.internal.dependency.graph.GraphInjection;
 import io.github.edwardUL99.inject.lite.internal.dependency.InjectableDependency;
+import io.github.edwardUL99.inject.lite.internal.hooks.InjectorHooks;
 import io.github.edwardUL99.inject.lite.internal.injector.InjectionContext;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjector;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
 /**
  * This injector provides injection in a test context
  */
-class TestInjector implements InternalInjector {
+class TestInjector implements InjectorHooks.HookSupport {
     /**
      * Stores test injectables which are checked first by inject
      */

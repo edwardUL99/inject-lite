@@ -1,5 +1,6 @@
 package io.github.edwardUL99.inject.lite.internal.dependency;
 
+import io.github.edwardUL99.inject.lite.internal.hooks.InjectorHooks;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 
 /**
@@ -18,6 +19,10 @@ public abstract class BaseInjectableDependency implements InjectableDependency {
      * The injector implementation
      */
     protected final InternalInjector injector;
+    /**
+     * HookSupport instance of injector. If null, the injector does not support hook methods
+     */
+    protected final InjectorHooks.HookSupport hookSupport;
     /**
      * Indicates that this proxy should be created as a singleton
      */
@@ -45,6 +50,8 @@ public abstract class BaseInjectableDependency implements InjectableDependency {
         this.type = type;
         this.injector = injector;
         this.singleton = singleton;
+        this.hookSupport = (this.injector instanceof InjectorHooks.HookSupport) ?
+                (InjectorHooks.HookSupport) injector : null;
     }
 
     @Override

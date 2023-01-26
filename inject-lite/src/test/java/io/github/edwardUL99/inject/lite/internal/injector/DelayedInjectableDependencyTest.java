@@ -3,6 +3,7 @@ package io.github.edwardUL99.inject.lite.internal.injector;
 import io.github.edwardUL99.inject.lite.internal.constructors.ConstructorInjector;
 import io.github.edwardUL99.inject.lite.internal.dependency.DelayedInjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.fields.FieldInjector;
+import io.github.edwardUL99.inject.lite.internal.hooks.InjectorHooks;
 import io.github.edwardUL99.inject.lite.internal.methods.MethodInjector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,11 +20,11 @@ public class DelayedInjectableDependencyTest {
     private FieldInjector fieldInjector;
     private ConstructorInjector constructorInjector;
     private MethodInjector methodInjector;
-    private InternalInjector injector;
+    private InjectorHooks.HookSupport injector;
 
     @BeforeEach
     public void init() {
-        injector = mock(InternalInjector.class);
+        injector = mock(InjectorHooks.HookSupport.class);
         fieldInjector = mock(FieldInjector.class);
         constructorInjector = mock(ConstructorInjector.class);
         methodInjector = mock(MethodInjector.class);
@@ -56,6 +57,10 @@ public class DelayedInjectableDependencyTest {
         Object testDependency1 = dependency.get();
         Object testDependency2 = dependency1.get();
         Object testDependency3 = dependency2.get();
+
+        verify(injector, times(2)).doPreConstruct(TestDependency.class);
+        verify(injector, times(1)).doPostConstruct(testDependency, TestDependency.class);
+        verify(injector, times(1)).doPostConstruct(testDependency2, TestDependency.class);
 
         assertInstanceOf(TestDependency.class, testDependency);
         assertSame(testDependency, testDependency1);

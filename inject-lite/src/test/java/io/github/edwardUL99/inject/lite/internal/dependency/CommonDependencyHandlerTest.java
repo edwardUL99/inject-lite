@@ -145,7 +145,7 @@ public class CommonDependencyHandlerTest {
         verify(mockInjector).injectWithGraph(String.class, dependency);
         verify(mockInjector).injectWithGraph("name", Integer.class);
         verify(mockInjector).injectWithGraph(Long.class, dependency1);
-        verify(spy, times(3)).getDependencyCheckingLazy(any(), any(), any());
+        verify(spy, times(3)).getDependencyCheckingLazy(any(), any(), any(), any());
     }
 
     @Test
@@ -170,7 +170,7 @@ public class CommonDependencyHandlerTest {
         assertArrayEquals(instances, new Object[]{"Hello", 1, null});
         verify(mockInjector).injectWithGraph(String.class, dependency);
         verify(mockInjector).injectWithGraph("name", Integer.class);
-        verify(spy, times(3)).getDependencyCheckingLazy(any(), any(), any());
+        verify(spy, times(3)).getDependencyCheckingLazy(any(), any(), any(), any());
     }
 
     @Test
@@ -178,16 +178,17 @@ public class CommonDependencyHandlerTest {
         Lazy lazyParam = TestDependency.class.getDeclaredMethod("method1", String.class, String.class)
             .getParameters()[0].getAnnotation(Lazy.class);
         InjectionMethod mockMethod = mock(InjectionMethod.class);
+        InternalInjector mockInjector = mock(InternalInjector.class);
 
         try (MockedStatic<Proxies> proxiesMock = mockStatic(Proxies.class);
              MockedStatic<InjectionContext> contextMock = mockStatic(InjectionContext.class)) {
-            proxiesMock.when(() -> Proxies.createInjectionProxy(String.class, mockMethod))
+            proxiesMock.when(() -> Proxies.createInjectionProxy(String.class, mockMethod, mockInjector))
                 .thenReturn("Hello");
 
-            Object proxied = handler.getDependencyCheckingLazy(lazyParam, String.class, mockMethod);
+            Object proxied = handler.getDependencyCheckingLazy(lazyParam, String.class, mockMethod, mockInjector);
 
             assertEquals(proxied, "Hello");
-            proxiesMock.verify(() -> Proxies.createInjectionProxy(String.class, mockMethod));
+            proxiesMock.verify(() -> Proxies.createInjectionProxy(String.class, mockMethod, mockInjector));
 
             verifyNoInteractions(mockMethod);
             proxiesMock.reset();
@@ -195,7 +196,7 @@ public class CommonDependencyHandlerTest {
             when(mockMethod.inject())
                 .thenReturn("boo");
 
-            proxied = handler.getDependencyCheckingLazy(null, String.class, mockMethod);
+            proxied = handler.getDependencyCheckingLazy(null, String.class, mockMethod, mockInjector);
 
             assertEquals(proxied, "boo");
             proxiesMock.verifyNoInteractions();
@@ -206,7 +207,7 @@ public class CommonDependencyHandlerTest {
             Configuration.global.setLazyDependenciesEnabled(false);
             when(mockMethod.inject())
                     .thenReturn("boo");
-            proxied = handler.getDependencyCheckingLazy(lazyParam, String.class, mockMethod);
+            proxied = handler.getDependencyCheckingLazy(lazyParam, String.class, mockMethod, mockInjector);
 
             assertEquals(proxied, "boo");
             verify(mockMethod).inject();
@@ -216,7 +217,7 @@ public class CommonDependencyHandlerTest {
                         .thenReturn(true);
             when(mockMethod.inject())
                     .thenReturn("boo");
-            proxied = handler.getDependencyCheckingLazy(lazyParam, String.class, mockMethod);
+            proxied = handler.getDependencyCheckingLazy(lazyParam, String.class, mockMethod, mockInjector);
 
             assertEquals(proxied, "boo");
             verify(mockMethod).inject();

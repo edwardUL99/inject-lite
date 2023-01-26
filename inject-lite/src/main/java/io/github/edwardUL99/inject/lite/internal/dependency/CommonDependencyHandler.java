@@ -148,7 +148,8 @@ public class CommonDependencyHandler {
             instances[i] = getDependencyCheckingLazy(
                     parameter.getAnnotation(Lazy.class),
                     type,
-                    () -> injectDependency(nameAnnotation, graph, name, cls, type, parameter)
+                    () -> injectDependency(nameAnnotation, graph, name, cls, type, parameter),
+                    injector
             );
         }
 
@@ -161,12 +162,13 @@ public class CommonDependencyHandler {
      * @param lazy the lazy annotation
      * @param type the dependency type
      * @param injectionMethod the method to inject the dependency
+     * @param injector the injector instance
      * @return the instantiated dependency or a proxy if lazy
      */
-    public Object getDependencyCheckingLazy(Lazy lazy, Class<?> type, InjectionMethod injectionMethod) {
+    public Object getDependencyCheckingLazy(Lazy lazy, Class<?> type, InjectionMethod injectionMethod, InternalInjector injector) {
         if (!InjectionContext.isLazyBehaviourDisabled() && Configuration.global.isLazyDependenciesEnabled() && lazy != null) {
             try {
-                return Proxies.createInjectionProxy(type, injectionMethod);
+                return Proxies.createInjectionProxy(type, injectionMethod, injector);
             } catch (ReflectiveOperationException | IllegalStateException ex) {
                 throw new InjectionException("Failed to create a Lazy dependency", ex);
             }

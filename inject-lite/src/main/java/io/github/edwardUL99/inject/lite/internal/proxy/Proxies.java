@@ -1,5 +1,7 @@
 package io.github.edwardUL99.inject.lite.internal.proxy;
 
+import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
+
 import java.lang.reflect.Modifier;
 
 /**
@@ -40,9 +42,11 @@ public final class Proxies {
      * Create a proxy that is injected on first method call to it
      * @param proxiedType the type of the proxy
      * @param injectionMethod the method to inject the dependency
+     * @param injector the injector instance
      * @return the proxied type
      */
-    public static <T> T createInjectionProxy(Class<T> proxiedType, InjectionMethod injectionMethod) throws ReflectiveOperationException {
-        return createProxy(proxiedType, new InjectionInvocationProxy(injectionMethod, proxiedType));
+    public static <T> T createInjectionProxy(Class<T> proxiedType, InjectionMethod injectionMethod, InternalInjector injector)
+            throws ReflectiveOperationException {
+        return createProxy(proxiedType, new InjectionInvocationProxy(injectionMethod, proxiedType, injector));
     }
 }

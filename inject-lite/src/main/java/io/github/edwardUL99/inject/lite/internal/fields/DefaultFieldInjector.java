@@ -100,7 +100,8 @@ public class DefaultFieldInjector implements FieldInjector {
         return dependencyHandler.getDependencyCheckingLazy(
                 field.getAnnotation(Lazy.class),
                 fieldType,
-                () -> injectDependencyInstance(value, fieldType, field, graph, name, targetDependency, objClass)
+                () -> injectDependencyInstance(value, fieldType, field, graph, name, targetDependency, objClass),
+                injector
         );
     }
 

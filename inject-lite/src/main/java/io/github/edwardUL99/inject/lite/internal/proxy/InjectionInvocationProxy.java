@@ -1,6 +1,8 @@
 package io.github.edwardUL99.inject.lite.internal.proxy;
 
 import io.github.edwardUL99.inject.lite.exceptions.InjectionException;
+import io.github.edwardUL99.inject.lite.internal.hooks.LazyInvocationHandler;
+import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -15,9 +17,17 @@ public class InjectionInvocationProxy implements ProxiedInvocationHandler {
      */
     private final InjectionMethod injectionMethod;
     /**
+     * The injector instance
+     */
+    private final InternalInjector injector;
+    /**
      * The map of methods including superclass methods
      */
     private final Map<String, Method> methods = new HashMap<>();
+    /**
+     * A lazy invocation handler for lazy invocation hooks
+     */
+    private final LazyInvocationHandler lazyInvocationHandler;
     /**
      * The instantiated object
      */
@@ -26,9 +36,25 @@ public class InjectionInvocationProxy implements ProxiedInvocationHandler {
     /**
      * Create an invocation handler
      * @param injectionMethod the injection method
+     * @param type class type
+     * @param injector injector for this class
      */
-    public InjectionInvocationProxy(InjectionMethod injectionMethod, Class<?> type) {
+    public InjectionInvocationProxy(InjectionMethod injectionMethod, Class<?> type, InternalInjector injector) {
+        this(injectionMethod, type, injector, new LazyInvocationHandler());
+    }
+
+    /**
+     * Package private constructor to allow injection of custom LazyInvocationHandler
+     * @param injectionMethod the injection method
+     * @param type class type
+     * @param injector injector for this class
+     * @param lazyInvocationHandler the handler instance
+     */
+    InjectionInvocationProxy(InjectionMethod injectionMethod, Class<?> type, InternalInjector injector,
+                                       LazyInvocationHandler lazyInvocationHandler) {
         this.injectionMethod = injectionMethod;
+        this.injector = injector;
+        this.lazyInvocationHandler = lazyInvocationHandler;
         instantiateMethods(type);
         instantiateMethods(Object.class); // object base methods
     }
@@ -49,12 +75,17 @@ public class InjectionInvocationProxy implements ProxiedInvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object... arguments) throws ReflectiveOperationException {
+        lazyInvocationHandler.setCalledMethod(method);
         String name = method.getName();
         Method declared = methods.get(name);
 
         if (declared == null) throw new InjectionException("Failed to proxy request to Lazy dependency since an unknown " +
                 "method: " + name + " was called");
 
-        return methods.get(method.getName()).invoke(instantiateIfNull(), arguments);
+        Object instantiated = instantiateIfNull();
+
+        lazyInvocationHandler.handle(injector, instantiated, instantiated.getClass());
+
+        return methods.get(method.getName()).invoke(instantiated, arguments);
     }
 }

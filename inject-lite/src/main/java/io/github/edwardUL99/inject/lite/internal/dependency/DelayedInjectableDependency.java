@@ -1,5 +1,6 @@
 package io.github.edwardUL99.inject.lite.internal.dependency;
 
+import io.github.edwardUL99.inject.lite.internal.hooks.InjectorHooks;
 import io.github.edwardUL99.inject.lite.internal.injector.InjectionContext;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import io.github.edwardUL99.inject.lite.internal.utils.ThreadAwareValue;
@@ -55,6 +56,8 @@ public class DelayedInjectableDependency extends BaseInjectableDependency {
     }
 
     private Object createInstance(Map<Dependency, Object> instances, Dependency dependency) {
+        if (hookSupport != null) hookSupport.doPreConstruct(type);
+
         Object instance = injector.getConstructorInjector().injectConstructor(name, type);
         injector.getFieldInjector().injectFields(instance);
         injector.getMethodInjector().injectMethods(name, instance);
@@ -63,10 +66,12 @@ public class DelayedInjectableDependency extends BaseInjectableDependency {
             instances.put(dependency, instance);
         }
 
+        if (hookSupport != null) hookSupport.doPostConstruct(instance, type);
+
         return instance;
     }
 
-   @Override
+    @Override
     public synchronized Object get() {
         Dependency dependency = new Dependency(name, type);
         Object instance;

@@ -1,5 +1,6 @@
 package io.github.edwardUL99.inject.lite.internal.proxy;
 
+import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,7 +57,7 @@ public class ProxiesTest {
         when(mockHandler.setupProxy(eq(NonFinal.class), any(InjectionInvocationProxy.class)))
                 .thenReturn(nonFinal);
 
-        NonFinal returned = Proxies.createInjectionProxy(NonFinal.class, null);
+        NonFinal returned = Proxies.createInjectionProxy(NonFinal.class, null, mock(InternalInjector.class));
 
         assertSame(nonFinal, returned);
         verify(mockHandler).setupProxy(eq(NonFinal.class), any(InjectionInvocationProxy.class));

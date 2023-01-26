@@ -5,13 +5,16 @@ import io.github.edwardUL99.inject.lite.annotations.Inject;
 import io.github.edwardUL99.inject.lite.annotations.Injectable;
 import io.github.edwardUL99.inject.lite.annotations.Lazy;
 import io.github.edwardUL99.inject.lite.annotations.Name;
+import io.github.edwardUL99.inject.lite.hooks.PostConstruct;
+import io.github.edwardUL99.inject.lite.hooks.PreConstruct;
+import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.sample.project.models.Account;
 import io.github.edwardUL99.inject.lite.sample.project.services.AccountService;
 import io.github.edwardUL99.inject.lite.sample.project.services.ConfigService;
 
 @ContainerInject("accountsContainer")
 @Injectable("accountControllerBean")
-public class AccountController {
+public class AccountController implements PreConstruct, PostConstruct {
     private final AccountService accountService;
 
     @Inject
@@ -37,5 +40,16 @@ public class AccountController {
                 .filter(a -> a.getId() == id)
                 .findFirst()
                 .orElse(null);
+    }
+
+    @Override
+    public void postConstruct(Injector injector) {
+        System.out.println("AccountController post constructed. It is now ready to use");
+    }
+
+    // can't be enforced by interface, but PreConstruct marker interface marks the class as having this method.
+    // enforced at runtime
+    public static void preConstruct() {
+        System.out.println("AccountController pre construction");
     }
 }

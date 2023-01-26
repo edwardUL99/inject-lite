@@ -36,7 +36,7 @@ public class DefaultFieldInjectorTest {
         mockHandler = mock(CommonDependencyHandler.class);
         baseInjector.setDependencyHandler(mockHandler);
 
-        when(mockHandler.getDependencyCheckingLazy(any(), any(), any()))
+        when(mockHandler.getDependencyCheckingLazy(any(), any(), any(), any()))
                 .thenCallRealMethod();
     }
 
@@ -52,7 +52,7 @@ public class DefaultFieldInjectorTest {
 
         assertEquals("Hello World", injectable.value);
         verify(mockInjector).injectWithGraph("value", String.class);
-        verify(mockHandler).getDependencyCheckingLazy(any(), any(), any());
+        verify(mockHandler).getDependencyCheckingLazy(any(), any(), any(), any());
     }
 
     @Test
@@ -67,7 +67,7 @@ public class DefaultFieldInjectorTest {
 
         assertNull(injectable.value);
         verify(mockInjector).injectWithGraph("value", String.class);
-        verify(mockHandler).getDependencyCheckingLazy(any(), any(), any());
+        verify(mockHandler).getDependencyCheckingLazy(any(), any(), any(), any());
     }
 
     @Test
