@@ -555,7 +555,7 @@ The following shows an example of how the hooks are used, with explanations.
 ```java
 import io.github.edwardUL99.inject.lite.hooks.PreConstruct;
 import io.github.edwardUL99.inject.lite.hooks.LazyInvocation;
-import io.github.edwardUL99.inject.lite.hooks.PostConstruct;
+import io.github.edwardUL99.inject.lite.hooks.Constructed;
 
 import io.github.edwardUL99.inject.lite.annotations.Injectable;
 import io.github.edwardUL99.inject.lite.injector.Injector;
@@ -563,7 +563,7 @@ import io.github.edwardUL99.inject.lite.injector.Injector;
 import javax.annotation.PostConstruct;
 
 @Injectable("hookedDependency")
-public class HookedDependency implements PreConstruct, LazyInvocation, PostConstruct {
+public class HookedDependency implements PreConstruct, LazyInvocation, Constructed {
     private static boolean initialised;
     private int timesLazyInvoked;
     private boolean constructed;

@@ -5,8 +5,6 @@ import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 
 import java.lang.reflect.Method;
 
-// TODO write tests and integrate all this code into proxy handler and normal injection
-
 /**
  * A handler for lazy invocation
  */

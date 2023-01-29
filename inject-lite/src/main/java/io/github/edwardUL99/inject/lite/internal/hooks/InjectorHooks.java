@@ -29,7 +29,7 @@ public final class InjectorHooks {
 
     static void setup() {
         preConstruct = new PreConstructHandler();
-        postConstruct = new PostConstructHandler();
+        postConstruct = new ConstructedHandler();
     }
 
     /**

@@ -1,6 +1,6 @@
 package io.github.edwardUL99.inject.lite.internal.hooks;
 
-import io.github.edwardUL99.inject.lite.hooks.PostConstruct;
+import io.github.edwardUL99.inject.lite.hooks.Constructed;
 import io.github.edwardUL99.inject.lite.hooks.PreConstruct;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
@@ -49,9 +49,9 @@ public class BaseHookHandlerTest {
 
     private static class TestPreConstruct implements PreConstruct {}
 
-    private static class TestNonPreConstruct implements PostConstruct {
+    private static class TestNonPreConstruct implements Constructed {
         @Override
-        public void postConstruct(Injector injector) {
+        public void constructed(Injector injector) {
         }
     }
 }

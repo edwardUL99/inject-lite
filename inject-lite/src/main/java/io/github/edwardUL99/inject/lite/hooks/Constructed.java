@@ -6,10 +6,10 @@ import io.github.edwardUL99.inject.lite.internal.hooks.Hook;
 /**
  * Represents a hook that is called post construction. It has two methods, one which takes a
  */
-public interface PostConstruct extends Hook {
+public interface Constructed extends Hook {
     /**
      * Called after the instance is created
      * @param injector the injector instance that created the instance.
      */
-    void postConstruct(Injector injector);
+    void constructed(Injector injector);
 }

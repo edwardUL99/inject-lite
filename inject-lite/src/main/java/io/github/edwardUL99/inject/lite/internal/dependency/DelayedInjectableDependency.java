@@ -1,6 +1,5 @@
 package io.github.edwardUL99.inject.lite.internal.dependency;
 
-import io.github.edwardUL99.inject.lite.internal.hooks.InjectorHooks;
 import io.github.edwardUL99.inject.lite.internal.injector.InjectionContext;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import io.github.edwardUL99.inject.lite.internal.utils.ThreadAwareValue;

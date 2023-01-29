@@ -5,7 +5,7 @@ import io.github.edwardUL99.inject.lite.annotations.Inject;
 import io.github.edwardUL99.inject.lite.annotations.Injectable;
 import io.github.edwardUL99.inject.lite.annotations.Lazy;
 import io.github.edwardUL99.inject.lite.annotations.Name;
-import io.github.edwardUL99.inject.lite.hooks.PostConstruct;
+import io.github.edwardUL99.inject.lite.hooks.Constructed;
 import io.github.edwardUL99.inject.lite.hooks.PreConstruct;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.sample.project.models.Account;
@@ -14,7 +14,7 @@ import io.github.edwardUL99.inject.lite.sample.project.services.ConfigService;
 
 @ContainerInject("accountsContainer")
 @Injectable("accountControllerBean")
-public class AccountController implements PreConstruct, PostConstruct {
+public class AccountController implements PreConstruct, Constructed {
     private final AccountService accountService;
 
     @Inject
@@ -43,8 +43,8 @@ public class AccountController implements PreConstruct, PostConstruct {
     }
 
     @Override
-    public void postConstruct(Injector injector) {
-        System.out.println("AccountController post constructed. It is now ready to use");
+    public void constructed(Injector injector) {
+        System.out.println("AccountController constructed. It is now ready to use");
     }
 
     // can't be enforced by interface, but PreConstruct marker interface marks the class as having this method.
