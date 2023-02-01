@@ -56,8 +56,12 @@ public class AccountController implements PreConstructHook, ConstructedHook {
     }
 
     @PreConstruct
-    public static void preConstructHook() { System.out.println("Annotated PreConstruct hook"); }
+    public static void preConstructHook() {
+        System.out.println("Annotated PreConstruct hook");
+    }
 
     @Constructed
-    public void constructedHook(Injector injector) { System.out.println("Annotated Constructed hook");}
+    public void constructedHook(Injector injector) {
+        System.out.println("Annotated Constructed hook");
+    }
 }

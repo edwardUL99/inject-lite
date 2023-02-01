@@ -1,6 +1,7 @@
 package io.github.edwardUL99.inject.lite.internal.proxy;
 
 import io.github.edwardUL99.inject.lite.exceptions.InjectionException;
+import io.github.edwardUL99.inject.lite.internal.hooks.InjectorHooks;
 import io.github.edwardUL99.inject.lite.internal.hooks.LazyInvocationHandler;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 
@@ -20,6 +21,10 @@ public class InjectionInvocationProxy implements ProxiedInvocationHandler {
      * The injector instance
      */
     private final InternalInjector injector;
+    /**
+     * Determines if hook support is available
+     */
+    private final boolean hookSupport;
     /**
      * The map of methods including superclass methods
      */
@@ -54,6 +59,7 @@ public class InjectionInvocationProxy implements ProxiedInvocationHandler {
                                        LazyInvocationHandler lazyInvocationHandler) {
         this.injectionMethod = injectionMethod;
         this.injector = injector;
+        this.hookSupport = this.injector instanceof InjectorHooks.HookSupport;
         this.lazyInvocationHandler = lazyInvocationHandler;
         instantiateMethods(type);
         instantiateMethods(Object.class); // object base methods
@@ -75,7 +81,7 @@ public class InjectionInvocationProxy implements ProxiedInvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object... arguments) throws ReflectiveOperationException {
-        lazyInvocationHandler.setCalledMethod(method);
+        if (this.hookSupport) lazyInvocationHandler.setCalledMethod(method);
         String name = method.getName();
         Method declared = methods.get(name);
 
@@ -84,7 +90,7 @@ public class InjectionInvocationProxy implements ProxiedInvocationHandler {
 
         Object instantiated = instantiateIfNull();
 
-        lazyInvocationHandler.handle(injector, instantiated, instantiated.getClass());
+        if (this.hookSupport) lazyInvocationHandler.handle(injector, instantiated, instantiated.getClass());
 
         return methods.get(method.getName()).invoke(instantiated, arguments);
     }
