@@ -1,5 +1,6 @@
 package io.github.edwardUL99.inject.lite.internal.hooks;
 
+import io.github.edwardUL99.inject.lite.annotations.PreConstructHook;
 import io.github.edwardUL99.inject.lite.exceptions.HookException;
 import io.github.edwardUL99.inject.lite.hooks.PreConstruct;
 import io.github.edwardUL99.inject.lite.injector.Injector;
@@ -8,8 +9,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class PreConstructHandlerTest {
@@ -46,21 +49,29 @@ public class PreConstructHandlerTest {
     public void testInvalidNumArgs() {
         HookException exception = assertThrows(HookException.class, () ->
                 handler.handle(mockInjector, null, InvalidNumArgs.class));
-        assertEquals("PreConstruct hook preConstruct must have 0 - 1 arguments", exception.getMessage());
+        assertEquals("PreConstruct hook method must have 0 - 1 arguments", exception.getMessage());
     }
 
     @Test
     public void testInvalidArgs() {
         HookException exception = assertThrows(HookException.class, () ->
                 handler.handle(mockInjector, null, InvalidArgs.class));
-        assertEquals("PreConstruct hook preConstruct argument must be of type Injector", exception.getMessage());
+        assertEquals("PreConstruct hook method argument must be of type Injector", exception.getMessage());
     }
 
     @Test
     public void testNonStatic() {
         HookException exception = assertThrows(HookException.class, () ->
                 handler.handle(mockInjector, null, NonStatic.class));
-        assertEquals("PreConstruct hook preConstruct must be static", exception.getMessage());
+        assertEquals("PreConstruct hook method must be static", exception.getMessage());
+    }
+
+    @Test
+    public void testAnnotationHook() {
+        assertFalse(Annotated.called);
+        handler.handle(mockInjector, null, Annotated.class);
+        assertTrue(Annotated.called);
+        Annotated.called = false;
     }
 
     private static class GoodCaseNoInjector implements PreConstruct {
@@ -91,5 +102,14 @@ public class PreConstructHandlerTest {
 
     private static class NonStatic implements PreConstruct {
         public void preConstruct() {}
+    }
+
+    private static class Annotated {
+        private static boolean called;
+
+        @PreConstructHook
+        public static void preConstruct() {
+            called = true;
+        }
     }
 }

@@ -543,7 +543,34 @@ public class Main {
 ```
 
 ## Hooks
-The library provides a concept of hooks which are executed in an injection context. The interfaces for the hooks are
+The library provides a concept of hooks which are executed in an injection context. There are two means of "hooking":
+- Annotation driven
+- Interface driven
+
+Annotations are the recommended option as they follow the same style as all the annotations in this library, however,
+interfaces may be preferred since they convey type information.
+
+### Annotation Driven
+The annotations that drive the hooks are:
+- PreConstructHook
+- LazyInvocationHook
+- PostConstructHook
+
+Annotated hooks are executed before the interfaced hooks. You can have multiple methods annotated with the hooks. The order
+of method execution is not defined. Only hooks annotated in the direct class (and not superclass) are executed.
+
+#### PreConstructHook
+Can optionally take 0 - 1 arguments, where if an argument is provided, it must be of type `Injector`
+
+#### LazyInvocationHook
+The method must take 2 arguments with argument 0 being of type `Injector` and argument 1 being of type `Method`
+
+#### ConstructedHook
+The method must take 1 argument of type `Injector`
+
+
+### Interface Driven
+The interfaces for the hooks are
 specified underneath the `io.github.edwardUL99.inject.lite.hooks` package. The interfaces of interest are as follows:
 
 - **PreConstruct**: A marker interface with runtime type-checking for a static method called `preConstruct`. See below example

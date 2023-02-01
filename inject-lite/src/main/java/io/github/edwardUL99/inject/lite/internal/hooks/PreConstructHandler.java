@@ -1,10 +1,12 @@
 package io.github.edwardUL99.inject.lite.internal.hooks;
 
+import io.github.edwardUL99.inject.lite.annotations.PreConstructHook;
 import io.github.edwardUL99.inject.lite.exceptions.HookException;
 import io.github.edwardUL99.inject.lite.hooks.PreConstruct;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -24,17 +26,17 @@ public class PreConstructHandler extends BaseHookHandler {
      */
     private Runnable getCallable(InternalInjector injector, Method method) {
         if (!Modifier.isStatic(method.getModifiers()))
-            throw new HookException("PreConstruct hook preConstruct must be static");
+            throw new HookException("PreConstruct hook method must be static");
 
         Parameter[] parameters = method.getParameters();
 
         if (parameters.length > 1) {
-            throw new HookException("PreConstruct hook preConstruct must have 0 - 1 arguments");
+            throw new HookException("PreConstruct hook method must have 0 - 1 arguments");
         } else if (parameters.length == 1) {
             Parameter parameter = parameters[0];
 
             if (!parameter.getType().equals(Injector.class))
-                throw new HookException("PreConstruct hook preConstruct argument must be of type Injector");
+                throw new HookException("PreConstruct hook method argument must be of type Injector");
 
             return () -> {
                 try {
@@ -59,6 +61,17 @@ public class PreConstructHandler extends BaseHookHandler {
         return PreConstruct.class;
     }
 
+    @Override
+    protected Class<? extends Annotation> getAnnotationHook() {
+        return PreConstructHook.class;
+    }
+
+    @Override
+    protected void handleAnnotatedMethods(InternalInjector injector, Object instance, List<Method> methods) {
+        for (Method m : methods)
+            getCallable(injector, m).run();
+    }
+
     private Method getMethod(Class<?> cls) {
         List<Method> methods = Arrays.stream(cls.getDeclaredMethods())
                 .filter(m -> m.getName().equals("preConstruct"))
@@ -73,7 +86,7 @@ public class PreConstructHandler extends BaseHookHandler {
     }
 
     @Override
-    protected void doHandle(InternalInjector injector, Object instance, Class<?> cls) {
+    protected void handleInterfacedMethods(InternalInjector injector, Object instance, Class<?> cls) {
         getCallable(injector, getMethod(cls)).run();
     }
 }

@@ -1,10 +1,12 @@
 package io.github.edwardUL99.inject.lite.sample.project.controllers;
 
+import io.github.edwardUL99.inject.lite.annotations.ConstructedHook;
 import io.github.edwardUL99.inject.lite.annotations.ContainerInject;
 import io.github.edwardUL99.inject.lite.annotations.Inject;
 import io.github.edwardUL99.inject.lite.annotations.Injectable;
 import io.github.edwardUL99.inject.lite.annotations.Lazy;
 import io.github.edwardUL99.inject.lite.annotations.Name;
+import io.github.edwardUL99.inject.lite.annotations.PreConstructHook;
 import io.github.edwardUL99.inject.lite.hooks.Constructed;
 import io.github.edwardUL99.inject.lite.hooks.PreConstruct;
 import io.github.edwardUL99.inject.lite.injector.Injector;
@@ -52,4 +54,10 @@ public class AccountController implements PreConstruct, Constructed {
     public static void preConstruct() {
         System.out.println("AccountController pre construction");
     }
+
+    @PreConstructHook
+    public static void preConstructHook() { System.out.println("Annotated PreConstruct hook"); }
+
+    @ConstructedHook
+    public void constructedHook(Injector injector) { System.out.println("Annotated Constructed hook");}
 }

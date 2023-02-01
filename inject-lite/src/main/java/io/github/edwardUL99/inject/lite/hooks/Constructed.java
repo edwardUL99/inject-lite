@@ -4,7 +4,7 @@ import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.internal.hooks.Hook;
 
 /**
- * Represents a hook that is called post construction. It has two methods, one which takes a
+ * Represents a hook that is called post construction
  */
 public interface Constructed extends Hook {
     /**

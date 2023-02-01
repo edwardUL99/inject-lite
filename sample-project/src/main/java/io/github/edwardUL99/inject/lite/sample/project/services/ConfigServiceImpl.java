@@ -1,6 +1,7 @@
 package io.github.edwardUL99.inject.lite.sample.project.services;
 
 import io.github.edwardUL99.inject.lite.annotations.Injectable;
+import io.github.edwardUL99.inject.lite.annotations.LazyInvocationHook;
 import io.github.edwardUL99.inject.lite.hooks.LazyInvocation;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.sample.project.models.Config;
@@ -25,5 +26,10 @@ public class ConfigServiceImpl implements ConfigService, LazyInvocation {
     @Override
     public boolean onlyInvokeFirst() {
         return false;
+    }
+
+    @LazyInvocationHook(onlyInvokeFirst = false)
+    public void lazyInvokedHook(Injector injector, Method method) {
+        System.out.println("Called from lazy invoke hook method");
     }
 }

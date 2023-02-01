@@ -28,7 +28,7 @@ public class BaseHookHandlerTest {
             }
 
             @Override
-            protected void doHandle(InternalInjector injector, Object instance, Class<?> cls) {}
+            protected void handleInterfacedMethods(InternalInjector injector, Object instance, Class<?> cls) {}
         });
     }
 
@@ -39,12 +39,12 @@ public class BaseHookHandlerTest {
 
         handler.handle(mockInjector, null, TestPreConstruct.class);
 
-        verify(handler).doHandle(mockInjector, null, TestPreConstruct.class);
+        verify(handler).handleInterfacedMethods(mockInjector, null, TestPreConstruct.class);
         reset(handler);
 
         handler.handle(mockInjector, nonPreConstruct, TestNonPreConstruct.class);
 
-        verify(handler, times(0)).doHandle(mockInjector, nonPreConstruct, TestNonPreConstruct.class);
+        verify(handler, times(0)).handleInterfacedMethods(mockInjector, nonPreConstruct, TestNonPreConstruct.class);
     }
 
     private static class TestPreConstruct implements PreConstruct {}
