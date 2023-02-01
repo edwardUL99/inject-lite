@@ -1,14 +1,14 @@
 package io.github.edwardUL99.inject.lite.sample.project.controllers;
 
-import io.github.edwardUL99.inject.lite.annotations.ConstructedHook;
+import io.github.edwardUL99.inject.lite.annotations.Constructed;
 import io.github.edwardUL99.inject.lite.annotations.ContainerInject;
 import io.github.edwardUL99.inject.lite.annotations.Inject;
 import io.github.edwardUL99.inject.lite.annotations.Injectable;
 import io.github.edwardUL99.inject.lite.annotations.Lazy;
 import io.github.edwardUL99.inject.lite.annotations.Name;
-import io.github.edwardUL99.inject.lite.annotations.PreConstructHook;
-import io.github.edwardUL99.inject.lite.hooks.Constructed;
-import io.github.edwardUL99.inject.lite.hooks.PreConstruct;
+import io.github.edwardUL99.inject.lite.annotations.PreConstruct;
+import io.github.edwardUL99.inject.lite.hooks.ConstructedHook;
+import io.github.edwardUL99.inject.lite.hooks.PreConstructHook;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.sample.project.models.Account;
 import io.github.edwardUL99.inject.lite.sample.project.services.AccountService;
@@ -16,7 +16,7 @@ import io.github.edwardUL99.inject.lite.sample.project.services.ConfigService;
 
 @ContainerInject("accountsContainer")
 @Injectable("accountControllerBean")
-public class AccountController implements PreConstruct, Constructed {
+public class AccountController implements PreConstructHook, ConstructedHook {
     private final AccountService accountService;
 
     @Inject
@@ -55,9 +55,9 @@ public class AccountController implements PreConstruct, Constructed {
         System.out.println("AccountController pre construction");
     }
 
-    @PreConstructHook
+    @PreConstruct
     public static void preConstructHook() { System.out.println("Annotated PreConstruct hook"); }
 
-    @ConstructedHook
+    @Constructed
     public void constructedHook(Injector injector) { System.out.println("Annotated Constructed hook");}
 }

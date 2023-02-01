@@ -1,8 +1,8 @@
 package io.github.edwardUL99.inject.lite.internal.hooks;
 
-import io.github.edwardUL99.inject.lite.annotations.ConstructedHook;
+import io.github.edwardUL99.inject.lite.annotations.Constructed;
 import io.github.edwardUL99.inject.lite.exceptions.HookException;
-import io.github.edwardUL99.inject.lite.hooks.Constructed;
+import io.github.edwardUL99.inject.lite.hooks.ConstructedHook;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 
@@ -17,12 +17,12 @@ import java.util.List;
 public class ConstructedHandler extends BaseHookHandler {
     @Override
     protected Class<? extends Hook> getHookType() {
-        return Constructed.class;
+        return ConstructedHook.class;
     }
 
     @Override
     protected Class<? extends Annotation> getAnnotationHook() {
-        return ConstructedHook.class;
+        return Constructed.class;
     }
 
     @Override
@@ -50,6 +50,6 @@ public class ConstructedHandler extends BaseHookHandler {
 
     @Override
     protected void handleInterfacedMethods(InternalInjector injector, Object instance, Class<?> cls) {
-        ((Constructed)instance).constructed(injector);
+        ((ConstructedHook)instance).constructed(injector);
     }
 }

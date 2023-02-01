@@ -8,7 +8,7 @@ import java.lang.reflect.Method;
 /**
  * This method is called if the dependency has been injected as a lazy dependency and a lazy access call was made on it
  */
-public interface LazyInvocation extends Hook {
+public interface LazyInvocationHook extends Hook {
     /**
      * Called when a lazy method is intercepted
      * @param injector the injector instance

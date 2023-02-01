@@ -1,8 +1,8 @@
 package io.github.edwardUL99.inject.lite.internal.hooks;
 
-import io.github.edwardUL99.inject.lite.annotations.LazyInvocationHook;
+import io.github.edwardUL99.inject.lite.annotations.LazyInvocation;
 import io.github.edwardUL99.inject.lite.exceptions.HookException;
-import io.github.edwardUL99.inject.lite.hooks.LazyInvocation;
+import io.github.edwardUL99.inject.lite.hooks.LazyInvocationHook;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 
@@ -22,7 +22,7 @@ public class LazyInvocationHandler extends BaseHookHandler {
 
     @Override
     protected Class<? extends Hook> getHookType() {
-        return LazyInvocation.class;
+        return LazyInvocationHook.class;
     }
 
     /**
@@ -35,7 +35,7 @@ public class LazyInvocationHandler extends BaseHookHandler {
 
     @Override
     protected Class<? extends Annotation> getAnnotationHook() {
-        return LazyInvocationHook.class;
+        return LazyInvocation.class;
     }
 
     @Override
@@ -57,7 +57,7 @@ public class LazyInvocationHandler extends BaseHookHandler {
             for (Method m : methods) {
 
 
-                LazyInvocationHook hook = m.getAnnotation(LazyInvocationHook.class);
+                LazyInvocation hook = m.getAnnotation(LazyInvocation.class);
 
                 if (hook.onlyInvokeFirst()) {
                     if (!hooksCalled.contains(m)) {
@@ -75,7 +75,7 @@ public class LazyInvocationHandler extends BaseHookHandler {
 
     @Override
     protected void handleInterfacedMethods(InternalInjector injector, Object instance, Class<?> cls) {
-        LazyInvocation lazyInvocation = (LazyInvocation) instance;
+        LazyInvocationHook lazyInvocation = (LazyInvocationHook) instance;
 
         if (lazyInvocation.onlyInvokeFirst()) {
             if (!called) {

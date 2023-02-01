@@ -1,8 +1,8 @@
 package io.github.edwardUL99.inject.lite.internal.hooks;
 
-import io.github.edwardUL99.inject.lite.annotations.PreConstructHook;
+import io.github.edwardUL99.inject.lite.annotations.PreConstruct;
 import io.github.edwardUL99.inject.lite.exceptions.HookException;
-import io.github.edwardUL99.inject.lite.hooks.PreConstruct;
+import io.github.edwardUL99.inject.lite.hooks.PreConstructHook;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 
@@ -58,12 +58,12 @@ public class PreConstructHandler extends BaseHookHandler {
 
     @Override
     protected Class<? extends Hook> getHookType() {
-        return PreConstruct.class;
+        return PreConstructHook.class;
     }
 
     @Override
     protected Class<? extends Annotation> getAnnotationHook() {
-        return PreConstructHook.class;
+        return PreConstruct.class;
     }
 
     @Override

@@ -1,7 +1,7 @@
 package io.github.edwardUL99.inject.lite.internal.hooks;
 
-import io.github.edwardUL99.inject.lite.hooks.Constructed;
-import io.github.edwardUL99.inject.lite.hooks.PreConstruct;
+import io.github.edwardUL99.inject.lite.hooks.ConstructedHook;
+import io.github.edwardUL99.inject.lite.hooks.PreConstructHook;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +19,7 @@ public class BaseHookHandlerTest {
 
     @BeforeEach
     public void init() {
-        supportedHook = PreConstruct.class;
+        supportedHook = PreConstructHook.class;
 
         handler = spy(new BaseHookHandler() {
             @Override
@@ -47,9 +47,9 @@ public class BaseHookHandlerTest {
         verify(handler, times(0)).handleInterfacedMethods(mockInjector, nonPreConstruct, TestNonPreConstruct.class);
     }
 
-    private static class TestPreConstruct implements PreConstruct {}
+    private static class TestPreConstruct implements PreConstructHook {}
 
-    private static class TestNonPreConstruct implements Constructed {
+    private static class TestNonPreConstruct implements ConstructedHook {
         @Override
         public void constructed(Injector injector) {
         }

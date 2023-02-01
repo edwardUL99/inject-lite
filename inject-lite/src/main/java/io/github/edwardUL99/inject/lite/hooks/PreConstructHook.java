@@ -7,5 +7,5 @@ import io.github.edwardUL99.inject.lite.internal.hooks.Hook;
  * the injector will look for a method called <i>preConstruct()</i> with an optional parameter of type
  * {@link io.github.edwardUL99.inject.lite.injector.Injector}
  */
-public interface PreConstruct extends Hook {
+public interface PreConstructHook extends Hook {
 }

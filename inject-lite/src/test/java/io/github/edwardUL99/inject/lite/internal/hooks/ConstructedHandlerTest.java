@@ -1,8 +1,8 @@
 package io.github.edwardUL99.inject.lite.internal.hooks;
 
-import io.github.edwardUL99.inject.lite.annotations.ConstructedHook;
+import io.github.edwardUL99.inject.lite.annotations.Constructed;
 import io.github.edwardUL99.inject.lite.exceptions.HookException;
-import io.github.edwardUL99.inject.lite.hooks.Constructed;
+import io.github.edwardUL99.inject.lite.hooks.ConstructedHook;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,13 +18,13 @@ import static org.mockito.Mockito.verify;
 public class ConstructedHandlerTest {
     private InternalInjector mockInjector;
     private ConstructedHandler handler;
-    private Constructed postConstruct;
+    private ConstructedHook postConstruct;
 
     @BeforeEach
     public void init() {
         mockInjector = mock(InternalInjector.class);
         handler = new ConstructedHandler();
-        postConstruct = spy(new Constructed() {
+        postConstruct = spy(new ConstructedHook() {
             @Override
             public void constructed(Injector injector) {
 
@@ -34,7 +34,7 @@ public class ConstructedHandlerTest {
 
     @Test
     public void testHandle() {
-        handler.handle(mockInjector, postConstruct, Constructed.class);
+        handler.handle(mockInjector, postConstruct, ConstructedHook.class);
 
         verify(postConstruct).constructed(mockInjector);
     }
@@ -64,7 +64,7 @@ public class ConstructedHandlerTest {
     private static class Annotated {
         private boolean called;
 
-        @ConstructedHook
+        @Constructed
         public void constructed(Injector injector) {
             called = true;
         }
@@ -72,14 +72,14 @@ public class ConstructedHandlerTest {
 
     private static class AnnotatedErrorNoParamsTest {
 
-        @ConstructedHook
+        @Constructed
         public void constructed() {
         }
     }
 
     private static class AnnotatedErrorWrongParamTest {
 
-        @ConstructedHook
+        @Constructed
         public void constructed(String s) {
         }
     }

@@ -1,8 +1,8 @@
 package io.github.edwardUL99.inject.lite.internal.hooks;
 
-import io.github.edwardUL99.inject.lite.annotations.PreConstructHook;
+import io.github.edwardUL99.inject.lite.annotations.PreConstruct;
 import io.github.edwardUL99.inject.lite.exceptions.HookException;
-import io.github.edwardUL99.inject.lite.hooks.PreConstruct;
+import io.github.edwardUL99.inject.lite.hooks.PreConstructHook;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import org.junit.jupiter.api.BeforeEach;
@@ -74,7 +74,7 @@ public class PreConstructHandlerTest {
         Annotated.called = false;
     }
 
-    private static class GoodCaseNoInjector implements PreConstruct {
+    private static class GoodCaseNoInjector implements PreConstructHook {
         private static Injector injector;
 
         public static void preConstruct() {
@@ -82,7 +82,7 @@ public class PreConstructHandlerTest {
         }
     }
 
-    private static class GoodCaseInjector implements PreConstruct {
+    private static class GoodCaseInjector implements PreConstructHook {
         private static Injector injector;
 
         public static void preConstruct(Injector injector) {
@@ -90,24 +90,24 @@ public class PreConstructHandlerTest {
         }
     }
 
-    private static class NoPreConstruct implements PreConstruct { }
+    private static class NoPreConstruct implements PreConstructHook { }
 
-    private static class InvalidNumArgs implements PreConstruct {
+    private static class InvalidNumArgs implements PreConstructHook {
         public static void preConstruct(Injector injector, String s) {}
     }
 
-    private static class InvalidArgs implements PreConstruct {
+    private static class InvalidArgs implements PreConstructHook {
         public static void preConstruct(String s) {}
     }
 
-    private static class NonStatic implements PreConstruct {
+    private static class NonStatic implements PreConstructHook {
         public void preConstruct() {}
     }
 
     private static class Annotated {
         private static boolean called;
 
-        @PreConstructHook
+        @PreConstruct
         public static void preConstruct() {
             called = true;
         }

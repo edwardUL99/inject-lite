@@ -1,8 +1,8 @@
 package io.github.edwardUL99.inject.lite.internal.hooks;
 
-import io.github.edwardUL99.inject.lite.annotations.LazyInvocationHook;
+import io.github.edwardUL99.inject.lite.annotations.LazyInvocation;
 import io.github.edwardUL99.inject.lite.exceptions.HookException;
-import io.github.edwardUL99.inject.lite.hooks.LazyInvocation;
+import io.github.edwardUL99.inject.lite.hooks.LazyInvocationHook;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import org.junit.jupiter.api.BeforeEach;
@@ -76,7 +76,7 @@ public class LazyInvocationHandlerTest {
         assertTrue(exception.getMessage().contains("type Method"));
     }
 
-    private static class LazyTarget implements LazyInvocation {
+    private static class LazyTarget implements LazyInvocationHook {
         private boolean callFirst;
         private int timesCalled;
 
@@ -101,12 +101,12 @@ public class LazyInvocationHandlerTest {
         private int oneTimesCalled;
         private int twoTimesCalled;
 
-        @LazyInvocationHook
+        @LazyInvocation
         public void one(Injector injector, Method method) {
             oneTimesCalled++;
         }
 
-        @LazyInvocationHook(onlyInvokeFirst = false)
+        @LazyInvocation(onlyInvokeFirst = false)
         public void two(Injector injector, Method method) {
             twoTimesCalled++;
         }
@@ -117,14 +117,14 @@ public class LazyInvocationHandlerTest {
     private static class AnnotatedNoParams {
         public void target() {}
 
-        @LazyInvocationHook
+        @LazyInvocation
         public void wrong() {}
     }
 
     private static class AnnotatedInvalidParameter {
         public void target() {}
 
-        @LazyInvocationHook
+        @LazyInvocation
         public void wrong(Injector injector, String s) {}
     }
 }

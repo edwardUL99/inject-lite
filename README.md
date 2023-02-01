@@ -568,6 +568,48 @@ The method must take 2 arguments with argument 0 being of type `Injector` and ar
 #### ConstructedHook
 The method must take 1 argument of type `Injector`
 
+The following is an example:
+```java
+import io.github.edwardUL99.inject.lite.annotations.PreConstruct;
+import io.github.edwardUL99.inject.lite.annotations.LazyInvocation;
+import io.github.edwardUL99.inject.lite.annotations.Constructed;
+import io.github.edwardUL99.inject.lite.annotations.Injectable;
+import io.github.edwardUL99.inject.lite.injector.Injector;
+
+@Injectable("hookedDependency")
+public class HookedDependency {
+    private static boolean initialised;
+    private int timesLazyInvoked;
+    private boolean constructed;
+
+    @PreConstruct
+    public static void preConstruct(Injector injector) {
+        // Static method called before any constructor. Injector can be used for querying other dependencies.
+        // Parameter can be omitted
+        // PreConstruct is a marker interface. When used, a runtime error is thrown if:
+        // a) No preConstruct is provided
+        // b) Provided but not static
+        // c) More than 0-1 arguments
+        // d) Argument not being type Injector
+        // Therefore, this is a runtime-typed hook
+        initialised = true;
+    }
+
+    // defaults to returning true. However, here, we use false, so timesLazyInvoked will match how much method calls are made to this instance
+    @LazyInvocation(onlyInvokeFirst = false)
+    public void lazilyInvoked(Injector injector, Method method) {
+        // called at least once. If onlyInvokeFirst returns false, called every invocation, otherwise, only the first
+        // this method is called if this dependency was injected into another dependency and annotated with @Lazy
+        timesLazyInvoked++;
+    }
+
+    @Constructed
+    public void constructed(Injector injector) {
+        // called after the dependency is constructed and all dependencies are injected into it
+        constructed = true;
+    }
+}
+```
 
 ### Interface Driven
 The interfaces for the hooks are
@@ -580,9 +622,9 @@ specified underneath the `io.github.edwardUL99.inject.lite.hooks` package. The i
 The following shows an example of how the hooks are used, with explanations.
 
 ```java
-import io.github.edwardUL99.inject.lite.hooks.PreConstruct;
-import io.github.edwardUL99.inject.lite.hooks.LazyInvocation;
-import io.github.edwardUL99.inject.lite.hooks.Constructed;
+import io.github.edwardUL99.inject.lite.hooks.PreConstructHook;
+import io.github.edwardUL99.inject.lite.hooks.LazyInvocationHook;
+import io.github.edwardUL99.inject.lite.hooks.ConstructedHook;
 
 import io.github.edwardUL99.inject.lite.annotations.Injectable;
 import io.github.edwardUL99.inject.lite.injector.Injector;
@@ -590,7 +632,7 @@ import io.github.edwardUL99.inject.lite.injector.Injector;
 import javax.annotation.PostConstruct;
 
 @Injectable("hookedDependency")
-public class HookedDependency implements PreConstruct, LazyInvocation, Constructed {
+public class HookedDependency implements PreConstructHook, LazyInvocationHook, ConstructedHook {
     private static boolean initialised;
     private int timesLazyInvoked;
     private boolean constructed;
@@ -621,7 +663,7 @@ public class HookedDependency implements PreConstruct, LazyInvocation, Construct
     }
     
     @Override
-    public void postConstruct() {
+    public void constructed(Injector injector) {
         // called after the dependency is constructed and all dependencies are injected into it
         constructed = true;
     }
