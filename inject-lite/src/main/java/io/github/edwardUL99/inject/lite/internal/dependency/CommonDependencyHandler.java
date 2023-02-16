@@ -1,6 +1,7 @@
 package io.github.edwardUL99.inject.lite.internal.dependency;
 
 import io.github.edwardUL99.inject.lite.annotations.Lazy;
+import io.github.edwardUL99.inject.lite.annotations.Main;
 import io.github.edwardUL99.inject.lite.annotations.Name;
 import io.github.edwardUL99.inject.lite.annotations.Optional;
 import io.github.edwardUL99.inject.lite.exceptions.AmbiguousDependencyException;
@@ -25,7 +26,7 @@ public class CommonDependencyHandler {
     /**
      * The injector used for dependency injection
      */
-    private final InternalInjector injector;
+    protected final InternalInjector injector;
     /**
      * Supplier of a null name
      */

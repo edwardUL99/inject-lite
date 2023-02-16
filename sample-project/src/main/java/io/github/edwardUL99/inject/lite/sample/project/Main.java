@@ -8,6 +8,7 @@ import io.github.edwardUL99.inject.lite.container.Containers;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.sample.project.controllers.AccountController;
 import io.github.edwardUL99.inject.lite.sample.project.controllers.OrdersController;
+import io.github.edwardUL99.inject.lite.sample.project.duplicates.Client;
 import io.github.edwardUL99.inject.lite.sample.project.models.Account;
 import io.github.edwardUL99.inject.lite.sample.project.models.Order;
 
@@ -93,13 +94,24 @@ public class Main {
         System.out.println();
     }
 
-    public static void main(String[] args) {
-        try (ContainerContext ignored = Containers.context()) {
-            Injection.configure(
-                    new ConfigurationBuilder()
-                            .withInjectionPackagePrefixes("io.github.edwardUL99.inject.lite.sample.project")
-            );
+    private static void sampleMainDependency() {
+        Client client = Injector.get().inject(Client.class);
+        System.out.println("child1 name should be Child 1 = " + client.getChild1().getName());
+        System.out.println("child2 name should be Child 2 = " + client.getChild2().getName());
+        System.out.println("unknown child's name should be Child 2 since child2 dependency is " +
+                "annotated with Main = " + client.getUnknown().getName());
+    }
 
+    public static void main(String[] args) {
+        Injection.configure(
+                new ConfigurationBuilder()
+                        .withRequireNamedMultipleMatch(true)
+                        .withInjectionPackagePrefixes("io.github.edwardUL99.inject.lite.sample.project")
+        );
+
+        sampleMainDependency();
+
+        try (ContainerContext ignored = Containers.context()) {
             Container container = Containers.executeContainer(
                     Container.builder()
                             .withId("ordersContainer")

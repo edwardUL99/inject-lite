@@ -2,6 +2,7 @@ package io.github.edwardUL99.inject.lite.internal.fields;
 
 import io.github.edwardUL99.inject.lite.annotations.Inject;
 import io.github.edwardUL99.inject.lite.annotations.Lazy;
+import io.github.edwardUL99.inject.lite.annotations.Name;
 import io.github.edwardUL99.inject.lite.annotations.Optional;
 import io.github.edwardUL99.inject.lite.exceptions.DependencyNotFoundException;
 import io.github.edwardUL99.inject.lite.exceptions.InjectionException;
@@ -9,6 +10,7 @@ import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.internal.config.Configuration;
 import io.github.edwardUL99.inject.lite.internal.dependency.CommonDependencyHandler;
 import io.github.edwardUL99.inject.lite.internal.dependency.Dependency;
+import io.github.edwardUL99.inject.lite.internal.dependency.DependencyHandlerFactory;
 import io.github.edwardUL99.inject.lite.internal.dependency.graph.DependencyGraph;
 import io.github.edwardUL99.inject.lite.internal.dependency.InjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
@@ -19,6 +21,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * A default  of the field injector
@@ -34,7 +37,7 @@ public class DefaultFieldInjector implements FieldInjector {
      */
     public DefaultFieldInjector(Injector injector) {
         this.injector = (InternalInjector) injector;
-        this.dependencyHandler = new CommonDependencyHandler(this.injector);
+        this.dependencyHandler = DependencyHandlerFactory.getDependencyHandler(this.injector);
     }
 
     // used to allow injection of mock handlers in testing
@@ -116,17 +119,31 @@ public class DefaultFieldInjector implements FieldInjector {
     }
 
     private void inject(Inject inject, Field field, Object obj) {
-        String value = inject.value();
-        Class<?> objClass = obj.getClass();
-        Class<?> fieldType = field.getType();
-        InjectableDependency objDependency = getInjectableDependency(objClass, null);
-        String name = getName(objClass, null, objDependency);
-        InjectableDependency targetDependency = getInjectableDependency(fieldType, field);
+        InjectableDependency targetDependency;
 
-        setField(field, getDependencyInstance(value, fieldType, field, graph, name, targetDependency, objClass), obj);
+        String value = inject.value();
+        Class<?> fieldType = field.getType();
+        Class<?> objClass = obj.getClass();
+        Name name = field.getAnnotation(Name.class);
+        String dependencyName;
+
+        if (name != null) {
+            dependencyName = name.value();
+            targetDependency = injector.getInjectableDependency(dependencyName, fieldType);
+            if (targetDependency == null) throw new DependencyNotFoundException(dependencyName);
+
+            value = dependencyName;
+        } else {
+            InjectableDependency objDependency = getInjectableDependency(objClass, null);
+            dependencyName = getName(objClass, null, objDependency);
+            targetDependency = getInjectableDependency(fieldType, field);
+        }
+
+        setField(field, getDependencyInstance(value, fieldType, field, graph, dependencyName, targetDependency, objClass), obj);
     }
 
     private void doInjection(List<Field> fields, Object obj) {
+
         for (Field field : fields) {
             Inject inject = field.getAnnotation(Inject.class);
 

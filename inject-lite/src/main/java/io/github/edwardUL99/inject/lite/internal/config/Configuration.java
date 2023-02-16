@@ -94,7 +94,9 @@ public final class Configuration {
      * are found. This indicates that if there are ambiguous dependencies, an exception is thrown. Otherwise, if false,
      * a strategy will be used to select the dependency
      * @return true if an ambiguous dependency exception should be thrown
+     * @deprecated same notice as on {@link io.github.edwardUL99.inject.lite.config.ConfigurationBuilder#withRequireNamedMultipleMatch(boolean)}.
      */
+    @Deprecated
     public boolean isRequireNamedMultipleMatch() {
         return requireNamedMultipleMatch;
     }
@@ -102,7 +104,9 @@ public final class Configuration {
     /**
      * Set the value for requiring named dependencies if there are multiple matches. See the getter for the description
      * @param requireNamedMultipleMatch true if required, false if not
+     * @deprecated same notice as on {@link io.github.edwardUL99.inject.lite.config.ConfigurationBuilder#withRequireNamedMultipleMatch(boolean)}
      */
+    @Deprecated
     public void setRequireNamedMultipleMatch(boolean requireNamedMultipleMatch) {
         this.requireNamedMultipleMatch = requireNamedMultipleMatch;
     }

@@ -5,6 +5,7 @@ import io.github.edwardUL99.inject.lite.exceptions.DependencyNotFoundException;
 import io.github.edwardUL99.inject.lite.internal.config.Configuration;
 import io.github.edwardUL99.inject.lite.internal.constructors.ConstructorInjector;
 import io.github.edwardUL99.inject.lite.internal.dependency.CommonDependencyHandler;
+import io.github.edwardUL99.inject.lite.internal.dependency.DependencyHandlerFactory;
 import io.github.edwardUL99.inject.lite.internal.dependency.InjectableDependency;
 import io.github.edwardUL99.inject.lite.internal.dependency.graph.DependencyGraph;
 import io.github.edwardUL99.inject.lite.injector.Injector;
@@ -77,7 +78,7 @@ public interface InternalInjector extends Injector {
      * @return the handler instance
      */
     default CommonDependencyHandler getDependencyHandler() {
-        return new CommonDependencyHandler(this);
+        return DependencyHandlerFactory.getDependencyHandler(this);
     }
 
     /**

@@ -5,6 +5,7 @@ import io.github.edwardUL99.inject.lite.exceptions.InjectionException;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.internal.config.Configuration;
 import io.github.edwardUL99.inject.lite.internal.dependency.CommonDependencyHandler;
+import io.github.edwardUL99.inject.lite.internal.dependency.DependencyHandlerFactory;
 import io.github.edwardUL99.inject.lite.internal.dependency.graph.DependencyGraph;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 
@@ -33,7 +34,7 @@ public class DefaultMethodInjector implements MethodInjector {
      * @param injector the injector instance
      */
     public DefaultMethodInjector(Injector injector) {
-        this.dependencyHandler = new CommonDependencyHandler((InternalInjector) injector);
+        this.dependencyHandler = DependencyHandlerFactory.getDependencyHandler((InternalInjector) injector);
     }
 
     // used to allow injection of mock handlers in testing

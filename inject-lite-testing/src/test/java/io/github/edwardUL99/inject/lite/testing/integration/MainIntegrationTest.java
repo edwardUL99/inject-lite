@@ -1,12 +1,16 @@
 package io.github.edwardUL99.inject.lite.testing.integration;
 
 import io.github.edwardUL99.inject.lite.Injection;
+import io.github.edwardUL99.inject.lite.config.ConfigurationBuilder;
 import io.github.edwardUL99.inject.lite.injector.Injector;
+import io.github.edwardUL99.inject.lite.internal.config.InternalConfig;
 import io.github.edwardUL99.inject.lite.testing.integration.dependencies.Client;
+import io.github.edwardUL99.inject.lite.testing.integration.dependencies.Constants;
 import io.github.edwardUL99.inject.lite.testing.integration.dependencies.GoodbyeWorldGetter;
 import io.github.edwardUL99.inject.lite.testing.integration.dependencies.HelloWorldGetter;
 import io.github.edwardUL99.inject.lite.testing.integration.dependencies.ServiceImpl;
 import io.github.edwardUL99.inject.lite.testing.integration.dependencies.StringGetter;
+import io.github.edwardUL99.inject.lite.testing.integration.dependencies.duplicates.DuplicatesClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,11 +33,11 @@ public class MainIntegrationTest {
 
     @BeforeAll
     public static void staticInit() {
-//        Injection.configure(new ConfigurationBuilder()
-//                .withInjectionPackagePrefixes("io.github.edwardUL99.inject.lite.testing.integration.dependencies")
-//                .withRequireNamedMultipleMatch(false)
-//                .withSelectFirstDependency(false)
-//                .withSingleLevelInjection(false));
+        Injection.configure(new ConfigurationBuilder()
+                .withInjectionPackagePrefixes("io.github.edwardUL99.inject.lite.testing.integration.dependencies")
+                .withRequireNamedMultipleMatch(false)
+                .withSelectFirstDependency(false)
+                .withSingleLevelInjection(false));
     }
 
     @BeforeEach
@@ -78,5 +82,29 @@ public class MainIntegrationTest {
         assertTrue(gettersClasses.contains(GoodbyeWorldGetter.class));
 
         long value = injector.inject("TEST_VAL", Long.class);
+
+        assertEquals(Constants.TEST_VAL, value);
+    }
+
+    @Test
+    public void testMainInjection() {
+        try {
+            InternalConfig.setDisableConfiguredCheck(false);
+            Injection.resetGlobalInjector();
+            Injection.configure(new ConfigurationBuilder()
+                    .withInjectionPackagePrefixes("io.github.edwardUL99.inject.lite.testing.integration.dependencies")
+                    .withRequireNamedMultipleMatch(true)
+                    .withSingleLevelInjection(false));
+
+            Injector injector = Injector.get();
+
+            DuplicatesClient client = injector.inject(DuplicatesClient.class);
+
+            assertEquals("Child 1", client.getChild1().getName());
+            assertEquals("Child 2", client.getChild2().getName());
+            assertEquals("Child 2", client.getUnknown().getName());
+        } finally {
+            InternalConfig.setDisableConfiguredCheck(true);
+        }
     }
 }

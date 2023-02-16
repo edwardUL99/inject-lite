@@ -4,6 +4,7 @@ import io.github.edwardUL99.inject.lite.annotations.Inject;
 import io.github.edwardUL99.inject.lite.exceptions.InjectionException;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.internal.dependency.CommonDependencyHandler;
+import io.github.edwardUL99.inject.lite.internal.dependency.DependencyHandlerFactory;
 import io.github.edwardUL99.inject.lite.internal.dependency.graph.DependencyGraph;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 
@@ -33,7 +34,7 @@ public class DefaultConstructorInjector implements ConstructorInjector {
      */
     public DefaultConstructorInjector(Injector injector) {
         this.injector = (InternalInjector) injector;
-        this.dependencyHandler = new CommonDependencyHandler(this.injector);
+        this.dependencyHandler = DependencyHandlerFactory.getDependencyHandler(this.injector);
     }
 
     // used to allow injection of mock handlers in testing

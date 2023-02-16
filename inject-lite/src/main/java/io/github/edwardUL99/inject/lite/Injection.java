@@ -3,6 +3,7 @@ package io.github.edwardUL99.inject.lite;
 import io.github.edwardUL99.inject.lite.config.ConfigurationBuilder;
 import io.github.edwardUL99.inject.lite.exceptions.InjectionException;
 import io.github.edwardUL99.inject.lite.internal.config.Configuration;
+import io.github.edwardUL99.inject.lite.internal.config.InternalConfig;
 import io.github.edwardUL99.inject.lite.internal.threads.ExecutorServiceExecutor;
 import io.github.edwardUL99.inject.lite.internal.threads.Threads;
 import io.github.edwardUL99.inject.lite.threads.AsynchronousExecutor;
@@ -29,14 +30,7 @@ public final class Injection {
      * @param configurationBuilder the builder containing configuration logic
      */
     public static void configure(ConfigurationBuilder configurationBuilder) {
-        if (!configured) {
-            Configuration.global = configurationBuilder.build();
-            configured = true;
-            configuredStackTrace = Thread.currentThread().getStackTrace()[2];
-        } else {
-            throw new InjectionException("Injection has already been configured, you cannot configure it more than once.\n" +
-                    "It was previously called at: " + configuredStackTrace);
-        }
+        InternalConfig.configure(configurationBuilder.build());
     }
 
     /**
