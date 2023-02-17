@@ -1,8 +1,6 @@
 package io.github.edwardUL99.inject.lite;
 
 import io.github.edwardUL99.inject.lite.config.ConfigurationBuilder;
-import io.github.edwardUL99.inject.lite.exceptions.InjectionException;
-import io.github.edwardUL99.inject.lite.internal.config.Configuration;
 import io.github.edwardUL99.inject.lite.internal.config.InternalConfig;
 import io.github.edwardUL99.inject.lite.internal.threads.ExecutorServiceExecutor;
 import io.github.edwardUL99.inject.lite.internal.threads.Threads;
