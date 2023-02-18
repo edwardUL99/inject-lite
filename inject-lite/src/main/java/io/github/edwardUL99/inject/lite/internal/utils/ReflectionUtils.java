@@ -1,6 +1,7 @@
 package io.github.edwardUL99.inject.lite.internal.utils;
 
 import io.github.edwardUL99.inject.lite.internal.config.Configuration;
+import io.github.edwardUL99.inject.lite.internal.injector.InjectionContext;
 import io.github.edwardUL99.inject.lite.internal.reflections.Reflections;
 import io.github.edwardUL99.inject.lite.internal.reflections.ReflectionsLibraryFacade;
 
@@ -87,6 +88,14 @@ public final class ReflectionUtils {
         }
 
         return reflections;
+    }
+
+    /**
+     * Resets the reflections instance
+     */
+    public static void resetReflections() {
+        InjectionContext.setScanner(null);
+        reflections = null;
     }
 
     /**

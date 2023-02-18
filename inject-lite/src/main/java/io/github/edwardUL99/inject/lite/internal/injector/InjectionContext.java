@@ -42,7 +42,7 @@ public final class InjectionContext {
      * Set the scanner used to search for dependencies
      * @param scanner new scanner to use
      */
-    static void setScanner(DependencyScanner scanner) {
+    public static void setScanner(DependencyScanner scanner) {
         InjectionContext.scanner = scanner;
     }
 

@@ -27,7 +27,7 @@ public class InternalConfig {
         if (!disableConfiguredCheck || !configured) {
             Configuration.global = configuration;
             configured = true;
-            configuredStackTrace = Thread.currentThread().getStackTrace()[3];
+            configuredStackTrace = Thread.currentThread().getStackTrace()[2];
         } else {
             throw new InjectionException("Injection has already been configured, you cannot configure it more than once.\n" +
                     "It was previously called at: " + configuredStackTrace);
