@@ -247,14 +247,14 @@ exception will still be thrown since it has not been constructed yet and no cons
 
 Also, when using `Injector#instantiate(Class)`, Lazy annotations are ignored
 
-### @Main
+### @Principal
 This annotation marks a particular class as the main dependency to inject when the scenario occurs where unnamed injection
 finds multiple subtypes that could match the request. In cases a name is not provided (or a selection strategy is not
-provided (deprecated)), and multiple types exist, the injector will look for one annotated with `Main`. If one is found,
+provided (deprecated)), and multiple types exist, the injector will look for one annotated with `Principal`. If one is found,
 it is returned. If more than one or none is found, the ambiguous exception will be thrown.
 
 ```java
-import io.github.edwardUL99.inject.lite.annotations.Main;
+import io.github.edwardUL99.inject.lite.annotations.Principal;
 import io.github.edwardUL99.inject.lite.annotations.Injectable;
 
 public interface Parent {}
@@ -263,7 +263,7 @@ public interface Parent {}
 public class Child1 implements Parent {}
 
 @Injectable("child2")
-@Main
+@Principal
 public class Child2 implements Parent {}
 
 @Injectable("client")
@@ -278,8 +278,8 @@ public class Client {
     @Name("child2")
     private Parent child2;
     
-    // which instance of Parent will be injected here? Without Main annotation, there is ambiguity
-    // since Main is on Child2, an instance of Child2 will be injected
+    // which instance of Parent will be injected here? Without Principal annotation, there is ambiguity
+    // since Principal is on Child2, an instance of Child2 will be injected
     
     @Inject
     private Parent unknown;
@@ -359,7 +359,7 @@ The Service interface and ServiceImpl class here is defined further up in the RE
 ### Injection with multiple dependencies
 **Deprecated:** In a future release, any ambiguity surrounding multiple dependencies of the same type will no longer use
 the selection strategies highlighted here, and instead, an error will be thrown. To avoid this, remove multiple subtypes,
-annotate a single subtype you wish to always use unnamed with the `Main` annotation, or always use named injection.
+annotate a single subtype you wish to always use unnamed with the `Principal` annotation, or always use named injection.
 
 When using `Injector#inject(Class)` the injector looks for a dependency where the type of the dependency is either the same
 as the provided class or a subclass. The behaviour when trying to inject a dependency of this type and where multiple dependencies

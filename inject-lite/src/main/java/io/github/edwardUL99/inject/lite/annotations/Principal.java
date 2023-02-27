@@ -7,9 +7,9 @@ import java.lang.annotation.Target;
 
 /**
  * This annotation indicates that in the case of multiple dependencies of the same type (or subtype) are found, the one
- * annotated with Main are returned. Note if multiple are found with Main, an error is thrown
+ * annotated with Principal are returned. Note if multiple are found with Principal, an error is thrown
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface Main {
+public @interface Principal {
 }

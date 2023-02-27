@@ -1,6 +1,6 @@
 package io.github.edwardUL99.inject.lite.internal.dependency;
 
-import io.github.edwardUL99.inject.lite.annotations.Main;
+import io.github.edwardUL99.inject.lite.annotations.Principal;
 import io.github.edwardUL99.inject.lite.exceptions.AmbiguousDependencyException;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 
@@ -25,14 +25,14 @@ public class CommonDependencyHandlerImproved extends CommonDependencyHandler {
         int size = dependencies.size();
 
         if (size > 1) {
-            List<InjectableDependency> mainDependencies = dependencies.stream()
-                    .filter(d -> d.getType().getAnnotation(Main.class) != null)
+            List<InjectableDependency> principalDependencies = dependencies.stream()
+                    .filter(d -> d.getType().getAnnotation(Principal.class) != null)
                     .collect(Collectors.toList());
 
-            if (mainDependencies.size() != 1)
+            if (principalDependencies.size() != 1)
                 throw new AmbiguousDependencyException(cls);
 
-            return mainDependencies.get(0);
+            return principalDependencies.get(0);
         }
 
         return (size == 1) ? dependencies.get(0):null;

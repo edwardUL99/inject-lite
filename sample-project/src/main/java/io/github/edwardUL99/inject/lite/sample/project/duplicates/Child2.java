@@ -1,10 +1,10 @@
 package io.github.edwardUL99.inject.lite.sample.project.duplicates;
 
 import io.github.edwardUL99.inject.lite.annotations.Injectable;
-import io.github.edwardUL99.inject.lite.annotations.Main;
+import io.github.edwardUL99.inject.lite.annotations.Principal;
 
 @Injectable("child2")
-@Main
+@Principal
 public class Child2 implements Parent {
     @Override
     public String getName() {

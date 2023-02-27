@@ -1,4 +1,4 @@
 /**
- * Main package for the inject-lite project
+ * Principal package for the inject-lite project
  */
 package io.github.edwardUL99.inject.lite;

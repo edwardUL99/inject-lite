@@ -1,5 +1,6 @@
 package io.github.edwardUL99.inject.lite.config;
 
+import io.github.edwardUL99.inject.lite.annotations.Principal;
 import io.github.edwardUL99.inject.lite.injector.Injector;
 import io.github.edwardUL99.inject.lite.internal.config.Configuration;
 
@@ -41,7 +42,7 @@ public class ConfigurationBuilder {
      * @param selectFirstDependency true to select first, otherwise use a priority based selection
      * @deprecated See deprecation notice on {@link #withRequireNamedMultipleMatch(boolean)}. When that is removed,
      * the strategy to select from multiple dependencies will be to name the dependency or to annotate a single subtype
-     * woth {@link io.github.edwardUL99.inject.lite.annotations.Main}
+     * woth {@link Principal}
      */
     @Deprecated
     public ConfigurationBuilder withSelectFirstDependency(boolean selectFirstDependency) {

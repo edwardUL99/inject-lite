@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class MainIntegrationTest {
+public class PrincipalIntegrationTest {
     private final ConfigurationBuilder configurationBuilder = new ConfigurationBuilder()
             .withInjectionPackagePrefixes("io.github.edwardUL99.inject.lite.testing.integration.dependencies")
             .withRequireNamedMultipleMatch(false)
@@ -68,7 +68,7 @@ public class MainIntegrationTest {
     }
 
     @Test
-    public void testMainInjection() {
+    public void testPrincipalInjection() {
         try (IntegrationTestContext context = IntegrationTestContext.startIntegrationContext(new ConfigurationBuilder()
                 .withInjectionPackagePrefixes("io.github.edwardUL99.inject.lite.testing.integration.dependencies")
                 .withRequireNamedMultipleMatch(true)

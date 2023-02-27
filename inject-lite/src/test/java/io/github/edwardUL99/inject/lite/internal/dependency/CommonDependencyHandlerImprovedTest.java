@@ -1,6 +1,6 @@
 package io.github.edwardUL99.inject.lite.internal.dependency;
 
-import io.github.edwardUL99.inject.lite.annotations.Main;
+import io.github.edwardUL99.inject.lite.annotations.Principal;
 import io.github.edwardUL99.inject.lite.exceptions.AmbiguousDependencyException;
 import io.github.edwardUL99.inject.lite.internal.injector.InternalInjector;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,11 +39,11 @@ public class CommonDependencyHandlerImprovedTest {
     @Test
     public void testGetUnnamedDependencyNormal() {
         when(mockInjector.getInjectableDependencies(Parent.class))
-                .thenReturn(getDependencies(MainAnnotated.class));
+                .thenReturn(getDependencies(PrincipalAnnotated.class));
 
         InjectableDependency returned = handler.getUnnamedDependency(Parent.class);
 
-        assertEquals(MainAnnotated.class, returned.getType());
+        assertEquals(PrincipalAnnotated.class, returned.getType());
         verify(mockInjector).getInjectableDependencies(Parent.class);
     }
 
@@ -59,20 +59,20 @@ public class CommonDependencyHandlerImprovedTest {
     }
 
     @Test
-    public void testGetUnnamedOneMain() {
+    public void testGetUnnamedOnePrincipal() {
         when(mockInjector.getInjectableDependencies(Parent.class))
-                .thenReturn(getDependencies(Duplicate1.class, Duplicate2.class, MainAnnotated.class));
+                .thenReturn(getDependencies(Duplicate1.class, Duplicate2.class, PrincipalAnnotated.class));
 
         InjectableDependency returned = handler.getUnnamedDependency(Parent.class);
 
-        assertEquals(MainAnnotated.class, returned.getType());
+        assertEquals(PrincipalAnnotated.class, returned.getType());
         verify(mockInjector).getInjectableDependencies(Parent.class);
     }
 
     @Test
-    public void testGetUnnamedMultipleMain() {
+    public void testGetUnnamedMultiplePrincipal() {
         when(mockInjector.getInjectableDependencies(Parent.class))
-                .thenReturn(getDependencies(Duplicate1.class, DuplicateMainAnnotated.class, Duplicate2.class, MainAnnotated.class));
+                .thenReturn(getDependencies(Duplicate1.class, DuplicatePrincipalAnnotated.class, Duplicate2.class, PrincipalAnnotated.class));
 
         assertThrows(AmbiguousDependencyException.class, () ->
                 handler.getUnnamedDependency(Parent.class));
@@ -81,7 +81,7 @@ public class CommonDependencyHandlerImprovedTest {
     }
 
     @Test
-    public void testGetUnnamedNoMain() {
+    public void testGetUnnamedNoPrincipal() {
         when(mockInjector.getInjectableDependencies(Parent.class))
                 .thenReturn(getDependencies(Duplicate1.class, Duplicate2.class));
 
@@ -93,11 +93,11 @@ public class CommonDependencyHandlerImprovedTest {
 
     private interface Parent {}
 
-    @Main
-    private static class MainAnnotated implements Parent {}
+    @Principal
+    private static class PrincipalAnnotated implements Parent {}
 
-    @Main
-    private static class DuplicateMainAnnotated implements Parent {}
+    @Principal
+    private static class DuplicatePrincipalAnnotated implements Parent {}
 
     private static class Duplicate1 implements Parent {}
 

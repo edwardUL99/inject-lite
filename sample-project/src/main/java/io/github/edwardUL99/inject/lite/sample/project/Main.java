@@ -94,12 +94,12 @@ public class Main {
         System.out.println();
     }
 
-    private static void sampleMainDependency() {
+    private static void samplePrincipalDependency() {
         Client client = Injector.get().inject(Client.class);
         System.out.println("child1 name should be Child 1 = " + client.getChild1().getName());
         System.out.println("child2 name should be Child 2 = " + client.getChild2().getName());
         System.out.println("unknown child's name should be Child 2 since child2 dependency is " +
-                "annotated with Main = " + client.getUnknown().getName());
+                "annotated with Principal = " + client.getUnknown().getName());
     }
 
     public static void main(String[] args) {
@@ -109,7 +109,7 @@ public class Main {
                         .withInjectionPackagePrefixes("io.github.edwardUL99.inject.lite.sample.project")
         );
 
-        sampleMainDependency();
+        samplePrincipalDependency();
 
         try (ContainerContext ignored = Containers.context()) {
             Container container = Containers.executeContainer(
